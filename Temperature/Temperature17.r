@@ -91,25 +91,12 @@ dat2<-select(dat2, c("Temperature","Year", "Month", "Day","year", "station"))
     summarise(sst=mean(Temperature)))
 
 ggplot(data = tmp) + 
-  geom_line(mapping = aes(x = year, y = sst, color=parse_factor(Month, levels=c("Jan", "Feb", "March", "April"))))
-
-ggplot(data = tmp) + 
   geom_line(mapping = aes(x = Year, y = sst, color=parse_factor(Month, levels=c(1:4))), size=1)+
 labs(x="Year", y="Sea surface temperature", color="Month")+
   coord_cartesian(x)
   
 
-
-#View(TempST)
-#filter(TempST, year==1)
-#
-View(filter(TempST, year==26))
-
-#TempST %>% 
-#  group_by(Month)
-
 cbind(1:26, 1992:2017)
-t1[1:8,1]<-filter(TempST, year==1, Month==1)$sst # tää toimii
 
 t1<-array(NA, dim=c(9,26*4))
 for(y in 1:26){ 
@@ -128,6 +115,7 @@ t1
 
 
 
+# The rest has not been tidied
 meanTemp<-apply(TempST,c(2,3), mean, na.rm=T) 
 sdTemp<-apply(TempST,c(2,3), sd, na.rm=T) 
 
