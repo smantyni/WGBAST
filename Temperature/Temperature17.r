@@ -9,9 +9,23 @@ pathIn<-"H:/Biom/FullLifeHistoryModel/2017/data/orig/temperature/August/"
 
 # Path for simulation output
 #pathOut<-"H:/Projects/ISAMA/prg/output/Utsjoki-smolts/"
+(dat1<-read_xlsx(paste(sep="",pathIn,"SMHI tempdata 8 stations jan1980-apr2017.xlsx"),
+                sheet="Data", na="NaN"))
 
-dat1<-read_xlsx(paste(sep="",pathIn,"SMHI tempdata 8 stations jan1980-apr2017.xlsx"),
-               sheet="Data", na="NaN")
+#dat1<-read_xlsx(paste(sep="",pathIn,"SMHI tempdata 8 stations jan1980-apr2017.xlsx"),
+#               sheet="Data", na="NaN",
+#               col_types=cols(
+#                 Station=col_character(),
+#                 `Latitude (D)`=col_double(),
+#                 `Latitude (M)`=col_double(), 
+#                 `Longitude (D)`=col_double(), 
+#                 `Longitude (M)`=col_double(),  
+#                 Year=col_double(), 
+#                 Month=col_double(),
+#                 Depth=col_double(), 
+#                 Temperature=col_double() 
+#               ))
+
 dat1<-select(dat1, Station, Year, Month,Day,Depth,Temperature)
 
 #tmp<-select(dat, Station)
@@ -37,7 +51,7 @@ dat1$station<-station
 dat1<-filter(dat1, Month<5 & Depth<=10 & Year>1991 & is.na(Temperature)==F)
 dat1<-dplyr::mutate(dat1, year=Year-1991)
 
-dat1<-select(dat1, c("Temperature", "Month", "Day", "year", "station"))
+dat1<-select(dat1, c("Temperature", "Year", "Month", "Day", "year", "station"))
 
 #############
 # Knolls Grund -data
@@ -55,72 +69,64 @@ dat2<-mutate(dat2, year=Year-1991)
 dat2<-mutate(dat2, station=9)
 dat2<-setNames(dat2, c("Date", "Time", "Temperature", "Quality", "Depth", "Year", "Month", "Day", "year", "station"))
 
-dat2<-select(dat2, c("Temperature", "Month", "Day", "year", "station"))
+dat2<-select(dat2, c("Temperature","Year", "Month", "Day","year", "station"))
 
 
 ###################
 # Join datasets
 
 (dat<-full_join(dat1,dat2, by=NULL))
-View(dat)
+#View(dat)
 
 
 #############
 
-mutate(dat,TempST=)
+(TempST<-dat %>% 
+  group_by(station, year, Month) %>%
+  summarise(sst=mean(Temperature)))
 
-#cbind(1991:2017,1:27)
-maxY<-27
 
-TempST<-array(NA, dim=c(9,maxY,4))
-for(s in 1:9){
-for(m in 1:4){
-for(y in 1:maxY){
-#s<-1
-#m<-1
-#y<-1
+(tmp<-dat %>% 
+    group_by(Year, Month) %>%
+    summarise(sst=mean(Temperature)))
 
-if(s<9){
-n<-0
-apu<-0
-for(i in 1:length(dat$Temperature)){
-  if(dat$year[i]==y & dat$Month[i]==m & dat$st[i]==s){
-    if(is.na(dat$Temperature[i])==F){
-    n<-n+1
-    apu<-apu+dat$Temperature[i]
+ggplot(data = tmp) + 
+  geom_line(mapping = aes(x = year, y = sst, color=parse_factor(Month, levels=c("Jan", "Feb", "March", "April"))))
+
+ggplot(data = tmp) + 
+  geom_line(mapping = aes(x = Year, y = sst, color=parse_factor(Month, levels=c(1:4))), size=1)+
+labs(x="Year", y="Sea surface temperature", color="Month")+
+  coord_cartesian(x)
+  
+
+
+#View(TempST)
+#filter(TempST, year==1)
+#
+View(filter(TempST, year==26))
+
+#TempST %>% 
+#  group_by(Month)
+
+cbind(1:26, 1992:2017)
+t1[1:8,1]<-filter(TempST, year==1, Month==1)$sst # tää toimii
+
+t1<-array(NA, dim=c(9,26*4))
+for(y in 1:26){ 
+  for(m in 1:4){
+#for(y in 1:1){ 
+#  for(m in 1:4){
+  for(s in 1:9){
+     # y<-1;m<-1;s<-1
+      tmp<-filter(TempST, year==y, Month==m, station==s)$sst
+      if(identical(tmp, numeric(0))==F){t1[s,26*(m-1)+y]<-tmp} 
     }
   }
 }
-if(n>0){TempST[s,y,m]<-apu/n}
-if(n==0){TempST[s,y,m]<-NA}
-}
-
-if(s==9){
-#m<-1
-#y<-21
-#i<-1
-
-n<-0
-apu<-0
-for(i in 1:length(dat2$temp)){
-  if(dat2$year[i]==y & dat2$Month[i]==m){
-    if(is.na(dat2$temp[i])==F){
-    n<-n+1
-    apu<-apu+dat2$temp[i]
-    }
-  }
-}
-if(n>0){TempST[s,y,m]<-apu/n}
-if(n==0){TempST[s,y,m]<-NA}
-
-}
-}
-}
-}
+t1
 
 
-TempST
-dim(TempST)
+
 
 meanTemp<-apply(TempST,c(2,3), mean, na.rm=T) 
 sdTemp<-apply(TempST,c(2,3), sd, na.rm=T) 
