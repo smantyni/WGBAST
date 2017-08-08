@@ -89,11 +89,15 @@ dat2<-select(dat2, c("Temperature","Year", "Month", "Day","year", "station"))
 (tmp<-dat %>% 
     group_by(Year, Month) %>%
     summarise(sst=mean(Temperature)))
+tmp<-mutate(tmp,month=parse_factor(Month, levels=c(1:4)))
+View(tmp)
 
 ggplot(data = tmp) + 
   geom_line(mapping = aes(x = Year, y = sst, color=parse_factor(Month, levels=c(1:4))), size=1)+
-labs(x="Year", y="Sea surface temperature", color="Month")+
-  coord_cartesian(x)
+  labs(x="Year", y="Sea surface temperature", color="Month")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6))
+
   
 
 cbind(1:26, 1992:2017)
