@@ -31,7 +31,9 @@ df2<-mutate(df,est = fct_recode(est,
 
 df2
 
-
+(tac<-read_xlsx(paste(sep="",pathIn,"TACfrom2000.xlsx"), na="NA"))
+#(tac<-mutate(tac, Year=parse_integer(year)))
+(tac<-mutate(tac, removal=Reported+Disc+UnRep))
 
 
 ggplot(filter(df2,est=="2001"))+
@@ -45,12 +47,17 @@ ggplot(filter(df2,est=="2001"))+
 ggplot(df2)+
   geom_line(aes( x=year, y=n, color=est),size=1.2)+
   scale_color_manual(values=c(2,4,3,3))+
+#  geom_line(data=tac,aes(x=year, y=TAC*10), col=6, size=1.2)+
+#  geom_line(data=tac,aes(x=year, y=removal*10), col=8, size=1.2)+
   geom_hline(yintercept =1312, col=2, size=1.2)+
   geom_hline(yintercept =3408, col=4, size=1.2)+
   geom_hline(yintercept =2830, col=3, size=1.2)+
   geom_hline(yintercept =4134, col=3, size=1.2)+
-  labs(y="Lukumäärä tuhansina", x="Vuosi", title="Pohjanlahden arvioitu vaelluspoikastuotanto", color="Estimaatti")+
+  labs(y="Lukumäärä tuhansina", x="Vuosi", title="Arvioitu vaelluspoikastuotanto, Pohjanlahti", color="Estimaatti")+
   coord_cartesian(ylim=c(0,5000), xlim=c(1993:2018))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 6))
 
+ggplot(tac)+
+  geom_line(aes(x=year, y=TAC), col=6, size=1.2)+
+  geom_line(aes(x=year, y=removal), col=8, size=1.2)
