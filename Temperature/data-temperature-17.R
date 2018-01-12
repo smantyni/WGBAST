@@ -81,21 +81,28 @@ ggplot(data = tmp) +
 
 
 # Data to be inputted to JAGS
-(data.jags<-dat %>%
+(df.jags<-dat %>%
     group_by(station, year, Month) %>%
     summarise(sst=mean(Temperature)))
 
 extra.year<-tibble(
   station =rep(c(1:9),4),
-  year=rep(max(select(data.jags,year))+1,9*4),
+  year=rep(max(select(df.jags,year))+1,9*4),
   Month= rep(1:4, 9),
   sst= parse_double(rep(NA, 4*9)))
 extra.year
 
-data.jags<-full_join(data.jags,extra.year, by=NULL)
-View(data.jags)
+df.jags<-full_join(df.jags,extra.year, by=NULL)
+View(df.jags)
 
-parse_double()
+
+
+
+
+
+
+
+
 
 
 # The rest has not been tidied
