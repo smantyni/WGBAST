@@ -41,6 +41,8 @@ data<-list(
   year=df.jags$year
 )
 
+write_csv(df.jags, path="data.bugs.csv")
+
 var_names<-c("a","b",
              "mu_mu", "cv_mu",
              "mu")
@@ -64,9 +66,25 @@ run3 <- extend.jags(run2, combine=F, sample=2500, thin=500, jags.refresh=100, ke
 t2<-Sys.time()
 difftime(t2,t1)
 
+# Ajoaika 2.25 d - > maanantaiaamuksi
+t1<-Sys.time()
+run4 <- extend.jags(run3, combine=F, sample=12000, thin=4000, jags.refresh=100, keep.jags.files=F)
+t2<-Sys.time()
+difftime(t2,t1) #1.12d
+
+t1<-Sys.time()
+run5 <- extend.jags(run4, combine=F, sample=12000, thin=4000, jags.refresh=1000, keep.jags.files=F)
+t2<-Sys.time()
+difftime(t2,t1) # #1.12d
+
+#1000*200 :6.7 min()
+#1000*2000 :67 min
+#12000*2000 :13.4h
+#12000*8000 :2.25d
 
 
-run<-run2
+
+run<-run5
 
 summary(run, var="mu_mu")
 summary(run, var="cv_mu")
