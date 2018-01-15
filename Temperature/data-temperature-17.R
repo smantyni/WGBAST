@@ -95,7 +95,7 @@ extra.year
 df.bugs<-full_join(df.bugs,extra.year, by=NULL)
 #View(df.bugs)
 
-write_csv(df.bugs, path="data.bugs.csv")
+write_csv(df.bugs, path="Temperature/data.bugs.csv")
 # copy paste data from excel to OpenBUGS using paste special -> unicode text
 # change column names as year[]	month[]	SST[]
 # Add text END at the bottom of the data file and press ENTER (empty line is needed at the end of the file)
