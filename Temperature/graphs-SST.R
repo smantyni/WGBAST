@@ -9,74 +9,33 @@
 # 3: Run graphs-SST.R for figures
 
 
-# The rest has not been tidied
-meanTemp<-apply(TempST,c(2,3), mean, na.rm=T) 
-sdTemp<-apply(TempST,c(2,3), sd, na.rm=T) 
+#############
 
-cbind(1992:(1992+maxY-1),meanTemp)
+# Plot SST data (this graph not currently needed anywhere, but nice to check out )
+(tmp<-dat %>% 
+   group_by(Year, Month) %>%
+   summarise(sst=mean(Temperature),
+             sd.sst=sd(Temperature)))%>%
+  mutate(month=parse_factor(Month, levels=c(1:4)))
+View(tmp)
 
-# Lines:
-ltyL=rep(1,4)#c(1,2,3,1)
-colL=c(1,2,4,3)
+ggplot(data = tmp) + 
+  geom_line(mapping = aes(x = Year, y = sst, color=parse_factor(Month, levels=c(1:4))), size=1)+
+  geom_errorbar(aes(x=Year, ymin=sst-sd.sst, ymax=sst+sd.sst, color=parse_factor(Month, levels=c(1:4)))) +
+  labs(x="Year", y="Sea surface temperature", color="Month")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6))
 
-
-res <- 6
-name_figure <- "figure.png"
-png(filename = name_figure, height = 500*res, width = 800*res, res=72*res)
-
-# in colour:
-end<-26
-par(mfrow=c(1,1))
-plot(1992:(1992+end), meanTemp[,1], col=1, ylim=c(0,7), type="l",
-     xlab="Year", ylab="Temperature (C)" , lwd=2, cex.lab=1.2, cex.axis=1.1)
-segments(1992:(1992+end), meanTemp[,1]+sdTemp[,1],
-         1992:(1992+end), meanTemp[,1]-sdTemp[,1], lwd=2)
-
-for(m in 2:4){
-  points(1992:(1992+end)+0.05*m, meanTemp[,m], col=colL[m],
-         type="l", lwd=2, lty=ltyL[m])
-  segments(1992:(1992+end)+0.05*m, meanTemp[,m]+sdTemp[,m],
-           1992:(1992+end)+0.05*m, meanTemp[,m]-sdTemp[,m], col=colL[m], lwd=2)
-}
-legend("topleft", c("Jan","Feb","March","April"), col=colL,
-       lty=ltyL, lwd=2)
-
-dev.off()
-
-# Lines:
-lwdL=c(1,1,2,1)
-ltyL=c(1,2,1,3)
-
-# in grey:
-end<-24
-par(mfrow=c(1,1))
-plot(1992:(1992+end), meanTemp[,1], col=1, ylim=c(0,7), type="l",
-     xlab="Year", ylab="Temperature (C)" , lwd=1)
-segments(1992:(1992+end), meanTemp[,1]+sdTemp[,1],
-         1992:(1992+end), meanTemp[,1]-sdTemp[,1], lwd=2)
-
-for(m in 2:4){
-  points(1992:(1992+end)+0.05*m, meanTemp[,m], col=1,
-         type="l", lwd=lwdL[m], lty=ltyL[m])#m)
-  segments(1992:(1992+end)+0.05*m, meanTemp[,m]+sdTemp[,m],
-           1992:(1992+end)+0.05*m, meanTemp[,m]-sdTemp[,m], col=1, lwd=2)
-}
-legend("topleft", c("Jan","Feb","March","April"), col=1,#col=c(1:4),
-       lty=ltyL)#c(1:4), lwd=c(1,2,2,2))
-
-
-
+####################
+read_cs
 
 # Expected April temperatures (median & 95% PI) from the model
-april<-read.table("prg/temperature/ModelExpectedAprilTemp_Jan17.txt", header=T)
-april
+(april<-read_csv("Temperature/output-aprilSST.csv",skip=4))
 
-end<-26
 
-res <- 6
-name_figure <- "figure2.png"
-png(filename = name_figure, height = 500*res, width = 800*res, res=72*res)
-
+ggplot(data = april) +
+  geom_line(aes=(x=Year, y=med))
+  
 
 #windows()
 cbind(1992:(1992+end), april$med[1:(end+1)], april$low[1:(end+1)], april$high[1:(end+1)])
@@ -102,3 +61,7 @@ for(m in 1:3){
   segments(1992:(1992+end), meanTemp[,m]+sdTemp[,m],
            1992:(1992+end), meanTemp[,m]-sdTemp[,m], col=m, lwd=2)
 }
+
+res <- 6
+name_figure <- "figure2.png"
+png(filename = name_figure, height = 500*res, width = 800*res, res=72*res)

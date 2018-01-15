@@ -3,6 +3,14 @@
 ##
 #######################
 
+
+# Workflow:
+
+# 1: Run data-temperature-17.R
+# 2: Input data to BUGS (data-SST-Aug17.odc) and run model-SST.odc 
+# 3: Run graphs-SST.R for figures
+
+
 #install.packages("tidyverse")
 library(tidyverse)
 library(readxl)
@@ -65,21 +73,6 @@ dat2<-mutate(dat2,Year=year(as.POSIXct(dat2$Date)))%>%
 
 
 #############
-
-# data for plotting SST data
-(tmp<-dat %>% 
-    group_by(Year, Month) %>%
-    summarise(sst=mean(Temperature)))%>%
-  mutate(month=parse_factor(Month, levels=c(1:4)))
-View(tmp)
-
-ggplot(data = tmp) + 
-  geom_line(mapping = aes(x = Year, y = sst, color=parse_factor(Month, levels=c(1:4))), size=1)+
-  labs(x="Year", y="Sea surface temperature", color="Month")+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 6))
-
-
 # Data to be inputted to BUGS
 df.bugs<-dat %>%
     group_by(year, Month) %>%
