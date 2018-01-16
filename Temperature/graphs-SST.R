@@ -37,26 +37,17 @@ april<-mutate(april,Year=parse_double(year))%>%
 select(-year)
 
 df.obs<-filter(df.plot, Month==4)
-
-df.obs
-april
-
 df.april<-full_join(df.obs, april)
-View(df.april)
+#View(df.april)
 
 
 ggplot(data = df.april) +
   geom_line(aes(x=Year, y=med), col="red")+
   geom_line(aes(x=Year, y=low), col="red")+
   geom_line(aes(x=Year, y=high), col="red")+
-  geom_line(aes(x=Year, y=high), col="red")+
   geom_line(aes(x=Year, y=sst), col="blue")+
   geom_errorbar(aes(x=Year, ymin=sst-sd.sst, ymax=sst+sd.sst), col="blue")+
-  labs(x="Year", y="Sea surface temperature", color=c("Prediction", "Observation"))+
+  labs(x="Year", y="Sea surface temperature", col=c("Prediction", "Observation"))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 6))
 
-
-res <- 6
-name_figure <- "figure2.png"
-png(filename = name_figure, height = 500*res, width = 800*res, res=72*res)
