@@ -19,9 +19,6 @@ library(lubridate)
 # Path for input data
 pathIn<-"H:/Biom/FullLifeHistoryModel/2017/data/orig/temperature/August/"
 
-# Path for output
-#pathOut<-
-
 #############
 # Data from 8 stations
 
@@ -75,21 +72,22 @@ dat2<-mutate(dat2,Year=year(as.POSIXct(dat2$Date)))%>%
 #############
 # Data to be inputted to BUGS
 df.bugs<-dat %>%
-    group_by(year, Month) %>%
-    summarise(sst=mean(Temperature))
+    group_by(station,year, Month) %>%
+    summarise(sst.station=mean(Temperature)) # mean SST per station
 
 # This makes an empty set of data for the assessment year +1 for scenarios 
 extra.year<-tibble(
-  year=rep(max(select(df.jags,year))+1,9*4),
-  Month= rep(1:4, 9),
-  sst= parse_double(rep(NA, 4*9)))
+  year=rep(max(select(df.bugs,year))+1,9*4),
+  Month=rep(1:4, 9)
+  )
 extra.year
 
+# Full join adds NA's for station and sst for the extra.year
 df.bugs<-full_join(df.bugs,extra.year, by=NULL)
 #View(df.bugs)
 
 write_csv(df.bugs, path="Temperature/data.bugs.csv")
-# copy paste data from excel to OpenBUGS using paste special -> unicode text
+# copy paste data (year, month & sst) from excel to OpenBUGS using paste special -> unicode text
 # change column names as year[]	month[]	SST[]
 # Add text END at the bottom of the data file and press ENTER (empty line is needed at the end of the file)
 
