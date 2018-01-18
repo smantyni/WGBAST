@@ -1,0 +1,81 @@
+---
+title: "Some WGBAST results"
+#author: "hennip"
+#date:
+output: html_document
+---
+
+```{r setup, include=F, cache=F}
+#knitr::opts_chunk$set(echo = TRUE)
+
+source("models-select.r")
+```
+
+# Model versions
+BUGS: 2015 assessment model (grey boxplots)
+
+JAGS: current development version (black boxplots)
+
+data: red dots
+
+# Mps
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-Mps.r")
+
+```
+
+```{r load-mps, include=F}
+
+```
+
+```{r graphs-mps, echo=F}
+
+```
+
+# SR parameters
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-SR.r")
+
+```
+
+```{r load-SR, include=F}
+
+```
+
+```{r graphs-SR, echo=F}
+
+```
+
+
+# Number of smolts
+
+```{r cache=F, include=F, eval=T}
+knitr::read_chunk("compare-smolts.r")
+
+```
+
+```{r load-smolts, include=F}
+
+```
+
+```{r graphs-smolts, echo=F, warning=F}
+
+```
+
+
+
+# Number of spawners
+```{r cache=F, include=F}
+knitr::read_chunk("compare-Nsp.r")
+
+```
+
+```{r load-nsp, include=F}
+
+```
+
+```{r graphs-nsp, echo=F, warning=F}
+
+```

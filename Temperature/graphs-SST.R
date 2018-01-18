@@ -4,9 +4,10 @@
 
 # Workflow:
 
-# 1: Run data-temperature-17.R
+# 1: Run data-SST-17.R
 # 2: Input data to BUGS (data-SST-Aug17.odc) and run model-SST.odc 
 # 3: Run graphs-SST.R for figures
+# 4: Produce input data for the full life history model (SSTinputToJAGS.xlsx)
 
 
 #############
