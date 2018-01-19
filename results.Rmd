@@ -1,6 +1,6 @@
 ---
 title: "Some WGBAST results"
-#author: "hennip"
+#author: 
 #date:
 output: html_document
 ---
@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=F, cache=F}
 #knitr::opts_chunk$set(echo = TRUE)
 
-source("models-select.r")
+source("compare-models/models-select.r")
 ```
 
 # Model versions
@@ -21,7 +21,7 @@ data: red dots
 # Mps
 
 ```{r cache=F, include=F}
-knitr::read_chunk("compare-Mps.r")
+knitr::read_chunk("compare-models/compare-Mps.r")
 
 ```
 
@@ -36,7 +36,7 @@ knitr::read_chunk("compare-Mps.r")
 # SR parameters
 
 ```{r cache=F, include=F}
-knitr::read_chunk("compare-SR.r")
+knitr::read_chunk("compare-models/compare-SR.r")
 
 ```
 
@@ -52,7 +52,7 @@ knitr::read_chunk("compare-SR.r")
 # Number of smolts
 
 ```{r cache=F, include=F, eval=T}
-knitr::read_chunk("compare-smolts.r")
+knitr::read_chunk("compare-models/compare-smolts.r")
 
 ```
 
@@ -68,7 +68,7 @@ knitr::read_chunk("compare-smolts.r")
 
 # Number of spawners
 ```{r cache=F, include=F}
-knitr::read_chunk("compare-Nsp.r")
+knitr::read_chunk("compare-models/compare-Nsp.r")
 
 ```
 

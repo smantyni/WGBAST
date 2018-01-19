@@ -1,4 +1,6 @@
 
+*.html
+*.txt
 *.xlsx
 
 .Rproj.user

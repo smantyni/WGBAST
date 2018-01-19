@@ -41,23 +41,6 @@ df<-full_join(df,df3)
 df<-full_join(df,df4)
 
 df.bugs<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95", "par" )))
-#df.bugs<-mutate(df.bugs,river = fct_recode(factor(stock),
-#                                "Torne"="1", 
-#                                "Simo"="2", 
-#                                "Kalix"="3", 
-#                                "Råne"="4", 
-#                                "Pite"="5", 
-#                                "Åby"="6", 
-#                                "Byske"="7", 
-#                                "Rickle"="8", 
-#                                "Savarån"="9", 
-#                                "Ume"="10", 
-#                                "Öre"="11", 
-#                                "Lögde"="12", 
-#                                "Ljungan"="13", 
-#                                "Emån"="14", 
-#                                "Mörrum"="15", 
-#                                "Kåge"="16" ))
 
 # Model 2: JAGS
 # =================
@@ -99,8 +82,7 @@ ggplot(df2, aes(stock))+
     stat = "identity",fill=rgb(1,1,1,0.6))+
   labs(x="Stock", y="R0", title="Potential smolt production capacity")+
 #coord_cartesian(ylim=c(0,2500))+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
-  #scale_x_discrete(labels=Rivername)
+  scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
 
 df1<-filter(df.bugs, par=="z")
@@ -118,7 +100,7 @@ ggplot(df2, aes(stock))+
     stat = "identity",fill=rgb(1,1,1,0.6))+
   labs(x="Stock", y="z", title="Steepness")+
   #coord_cartesian(ylim=c(0,2500))+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
+  scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
 df1<-filter(df.bugs, par=="alpha")
 df2<-filter(df.jags, par=="alpha")
@@ -135,7 +117,7 @@ ggplot(df2, aes(stock))+
     stat = "identity",fill=rgb(1,1,1,0.6))+
   labs(x="Stock", y="alpha", title="alpha SR")+
   #coord_cartesian(ylim=c(0,2500))+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
+  scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
 
 df1<-filter(df.bugs, par=="beta")
@@ -153,5 +135,5 @@ ggplot(df2, aes(stock))+
     stat = "identity",fill=rgb(1,1,1,0.6))+
   labs(x="Stock", y="beta", title="beta SR")+
   #coord_cartesian(ylim=c(0,2500))+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
+  scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
