@@ -33,6 +33,22 @@ knitr::read_chunk("compare-models/compare-Mps.r")
 
 ```
 
+
+# Homing rates
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-maturation.r")
+
+```
+
+```{r load-mat, include=F}
+
+```
+
+```{r graphs-mat, echo=F}
+
+```
+
 # SR parameters
 
 ```{r cache=F, include=F}

@@ -21,18 +21,18 @@ for(y in 1:     length(Years)){
 
 for(a in 1:4){
   dfR<-boxplot.bugs.df2(LR, a ,1:length(Years))%>%
-    mutate(age=a, wild=0)
+    mutate(age=a, Type="Reared")
   ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 
   dfW<-boxplot.bugs.df2(LW, a ,1:length(Years))%>%
-    mutate(age=a, wild=1)
+    mutate(age=a, Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
 }
 
 df<-full_join(dfW2,dfR2, by=NULL)
 
-df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Wild")))%>%
-  select(Age, Wild, everything())%>%
+df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Type")))%>%
+  select(Age, Type, everything())%>%
   mutate(Age=fct_recode(factor(Age),
                         "Grilse"= "1",
                         "2SW"= "2",
@@ -49,19 +49,19 @@ df.bugs
 # Number of spawners per river
 for(a in 1:4){
   dfW<-boxplot.jags.df2(chains, "LW[",str_c(a,"]"),1:length(Years))%>%
-    mutate(Age=a, Wild=1)
+    mutate(Age=a, Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
 
 #  dfR<-boxplot.jags.df2(chains, "LR[",str_c(a,"]"),1:length(Years))%>%
-#    mutate(Age=a)
+#    mutate(Age=a, Type="Reared")
 #  ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 }
 
 #df<-full_join(dfW2,dfR2, by=NULL)
 df<-dfW2 # Reared is now missing
 
-df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age", "Wild")))%>%
-  select(Age, Wild, everything())%>%
+df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Type")))%>%
+  select(Age, Type, everything())%>%
   mutate(Age=fct_recode(factor(Age),
                                  "Grilse"= "1",
                                  "2SW"= "2",
@@ -75,8 +75,8 @@ df.jags
 ## ---- graphs-mat
 
 # Wild
-df1<-filter(df.bugs, Wild==1)
-df2<-filter(df.jags, Wild==1)
+df1<-filter(df.bugs, Type=="Wild")
+df2<-filter(df.jags, Type=="Wild")
 
 ggplot(df2, aes(Year))+
   theme_bw()+
