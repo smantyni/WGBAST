@@ -11,7 +11,8 @@ library(coda)
 source("functions/tidy-functions.r")
 
 
-Rivername<-c("Torne", "Simo","Kalix","Rane","Pite","Aby","Byske","Rickle","Savaran","Ume","Ore","Logde","Ljungan","Eman","Morrum","Kage")
+Rivername<-c("Torne", "Simo","Kalix","Rane","Pite","Aby","Byske","Rickle","Savaran",
+             "Ume","Ore","Logde","Ljungan","Morrum","Eman","Kage")
 nstocks<-16
 
 
