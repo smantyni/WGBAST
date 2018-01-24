@@ -35,19 +35,12 @@ length(Years2)
 
 # Read runjags results from file
 folder2<-"H:/Biom/FullLifeHistoryModel/2017/prg/output/JAGS/"; model<-"JAGS15"
-run1<-results.jags(str_c(folder2,"logN_Simo_500k"))
+#run1<-results.jags(str_c(folder2,"logN_Simo_500k"))
+#chains<-as.mcmc.list(run1)
 
-#summary(run1, var="R0")
-#summary(run1, var="alpha")
-#summary(run1, var="survMps")
+load(str_c(folder2,"FLHM_mov_average_Mps_2018-01-22.RData"))
 
-#plot(run1, var = "R0")
 
-chains<-as.mcmc.list(run1)
-
-#summary(chains[,"R0[1]"])
-
-#saveRDS(chains, file="chains_logN_Simo.rds")
 
 
 

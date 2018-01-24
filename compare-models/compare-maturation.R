@@ -33,6 +33,7 @@ df<-full_join(dfW2,dfR2, by=NULL)
 
 df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Type")))%>%
   select(Age, Type, everything())%>%
+  mutate(Year=Year+1986)%>%
   mutate(Age=fct_recode(factor(Age),
                         "Grilse"= "1",
                         "2SW"= "2",
@@ -46,7 +47,6 @@ df.bugs
 # =================
 #summary(chains[ ,regexpr("LR",varnames(chains))>0])
 
-# Number of spawners per river
 for(a in 1:4){
   dfW<-boxplot.jags.df2(chains, "LW[",str_c(a,"]"),1:length(Years))%>%
     mutate(Age=a, Type="Wild")
@@ -62,6 +62,7 @@ df<-dfW2 # Reared is now missing
 
 df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Type")))%>%
   select(Age, Type, everything())%>%
+  mutate(Year=Year+1986)%>%
   mutate(Age=fct_recode(factor(Age),
                                  "Grilse"= "1",
                                  "2SW"= "2",

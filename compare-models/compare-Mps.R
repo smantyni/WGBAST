@@ -29,10 +29,10 @@ df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>
   mutate(Year=Year+1986)
 df.bugs
 
-# JATKA TÄSTÄ!!!
 # adult M
-M<-read.table(paste(sep="", folder1,"/MW1.txt"))[,2]
-M<-cbind(M,read.table(paste(sep="", folder1,"/MR1.txt"))[,2])
+M<-cbind(read.table(paste(sep="", folder1,"/MW1.txt"))[,2],
+         read.table(paste(sep="", folder1,"/MR1.txt"))[,2])
+M<-exp(-M)
 M<-as.tibble(setNames(M,c("Wild", "Reared")))
 
 dfM<-boxplot.bugs.df(M, 1:2) #Both types in same!
@@ -55,8 +55,9 @@ df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>
 mutate(Year=Year+1986)
 df.jags
 
-
+# adult M
 M2<-cbind(chains[,"MW"][[1]],chains[,"MR"][[1]])
+M2<-exp(-M2)  
 dfM2<-boxplot.bugs.df(M2, 1:2) #Both types in same!
 dfM.jags<-as.tibble(setNames(dfM2,c("Type","q5","q25","q50","q75","q95")))%>%
   mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2"))
@@ -69,6 +70,7 @@ dfM.jags<-as.tibble(setNames(dfM2,c("Type","q5","q25","q50","q75","q95")))%>%
 df1<-df.bugs
 df2<-df.jags
 
+#for(i in 1:2){}
 ggplot(df2, aes(Year))+
   theme_bw()+
   geom_boxplot(
@@ -79,7 +81,7 @@ ggplot(df2, aes(Year))+
   geom_boxplot(
     aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
     stat = "identity",fill=rgb(1,1,1,0.6))+
-  labs(x="Year", y="Survival", title="Post-smolt survival, wild")+
+  labs(x="Year", y="Survival", title="Post-smolt survival")+
   geom_line(aes(Year,q50))+
   geom_line(data=df1,aes(Year,q50),col="grey")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
@@ -99,6 +101,7 @@ ggplot(df2, aes(Type))+
   geom_boxplot(
     aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
     stat = "identity",fill=rgb(1,1,1,0.6))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 4))+
   labs(x="Year", y="Survival", title="Adult survival")
   
  
