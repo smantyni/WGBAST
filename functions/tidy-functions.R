@@ -149,3 +149,41 @@ boxplot.bugs.df2<-function(param, R, Y){ # variable name, values to x-axis
 
 
 
+boxplot.bugs.df3<-function(param, R, Z, Y){ # variable name, values to x-axis
+
+  #param<-HcW
+  #R<-1
+  #Z<-1
+  #Y<-1:(length(Years)-1)
+  
+  Q5<-c();Q25<-c();Q50<-c();Q75<-c();Q95<-c()
+  n<-length(Y)
+  
+  for(i in 1:n){
+    #i<-1
+    
+    x<-as.mcmc(param[R,Z,i,])
+    if(is.na(x[1])==F){      
+      tmp<-summary(x,quantiles=c(0.05,0.25,0.5,0.75,0.95)) 
+      Q5[i] = tmp$quantiles[1]
+      Q25[i] = tmp$quantiles[2]
+      Q50[i] = tmp$quantiles[3]
+      Q75[i] = tmp$quantiles[4]
+      Q95[i] = tmp$quantiles[5]
+    }else{
+      Q5[i]<-NA;Q25[i]<-NA;Q50[i]<-NA;Q75[i]<-NA;Q95[i]<-NA}
+  }
+  
+  df<-data.frame(
+    y<-Y,
+    q5=Q5,
+    q25=Q25,
+    q50=Q50,
+    q75=Q75,
+    q95=Q95
+  )
+  colnames(df)<-c("y","q5","q25","q50","q75","q95")
+  return(df)
+}
+
+
