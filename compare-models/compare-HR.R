@@ -96,14 +96,14 @@ for(a in 1:5){
 
 df<-full_join(dfW2,dfR2, by=NULL)
 
-df.bugs.Hr<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Fishery","Type")))%>%
+df.bugs.Hdc<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Fishery","Type")))%>%
   select(Age, Fishery, Type, everything())%>%
   mutate(Year=Year+1986)%>%
   mutate(Age=fct_recode(factor(Age),
-                        "PS"= "1", "Grilse"="2",
-                        "2SW"= "3","3SW"= "4",
-                        "4SW"= "5","5SW"= "6"))
-df.bugs.Hr
+                        "Grilse"="1",
+                        "2SW"= "2","3SW"= "3",
+                        "4SW"= "4","5SW"= "5"))
+df.bugs.Hdc
 
 
 # Model 2: JAGS
