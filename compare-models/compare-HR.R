@@ -243,8 +243,8 @@ ggplot(df1, aes(Year))+
 
 
 # coastal TN & GN
-df1<-filter(df.bugs.Hc, Type=="Wild")
-#df1<-filter(df.bugs.Hc, Type=="Wild", AU==1)
+#df1<-filter(df.bugs.Hc, Type=="Wild")
+df1<-filter(df.bugs.Hc, Type=="Wild", AU==1)
 #df2<-filter(df.jags, Type=="Wild")
 
 ggplot(df1, aes(Year))+
@@ -261,8 +261,8 @@ ggplot(df1, aes(Year))+
   labs(x="Year", y="Harvest rate", title="Coastal TN & GN, wild AU1")+
   geom_line(aes(Year,q50),col="grey")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
-#  facet_wrap(~Age)
-  facet_grid(AU~Age)
+  facet_wrap(~Age)
+#  facet_grid(AU~Age)
 
 
 # coastal DN
