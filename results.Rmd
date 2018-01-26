@@ -95,3 +95,17 @@ knitr::read_chunk("compare-models/compare-Nsp.r")
 ```{r graphs-nsp, echo=F, warning=F}
 
 ```
+
+# Harvest rates
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-HR.r")
+
+```
+
+```{r load-HR, include=F}
+
+```
+
+```{r graphs-HR, echo=F, warning=F}
+
+```

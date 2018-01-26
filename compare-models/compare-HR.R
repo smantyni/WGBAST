@@ -13,14 +13,14 @@ HrW<-array(NA, dim=c(6,length(Years)-1, 1000))
 HrR<-array(NA, dim=c(6,length(Years)-1, 1000))
 HcW<-array(NA, dim=c(6,3,length(Years)-1, 1000))
 HcR<-array(NA, dim=c(6,3,length(Years)-1, 1000))
-for(y in 1:(length(Years)-1)){
+for(i in 1:(length(Years)-1)){
   for(a in 1:6){
-    HrW[a,y,]<-read.table(paste(sep="", folder1,"/HrW[",y,",",a,"]1.txt"))[,2]
-    HrR[a,y,]<-read.table(paste(sep="", folder1,"/HrR[",y,",",a,"]1.txt"))[,2]
+    HrW[a,i,]<-read.table(paste(sep="", folder1,"/HrW[",i,",",a,"]1.txt"))[,2]
+    HrR[a,i,]<-read.table(paste(sep="", folder1,"/HrR[",i,",",a,"]1.txt"))[,2]
 
     for(u in 1:3){
-      HcW[a,u,y,]<-read.table(paste(sep="", folder1,"/HcW[",y,",",a,",",u,"]1.txt"))[,2]
-      HcR[a,u,y,]<-read.table(paste(sep="", folder1,"/HcR[",y,",",a,",",u,"]1.txt"))[,2]
+      HcW[a,u,i,]<-read.table(paste(sep="", folder1,"/HcW[",i,",",a,",",u,"]1.txt"))[,2]
+      HcR[a,u,i,]<-read.table(paste(sep="", folder1,"/HcR[",i,",",a,",",u,"]1.txt"))[,2]
 
       }
 }}
@@ -31,38 +31,51 @@ HdoW<-array(NA, dim=c(5,length(Years)-1, 1000))
 HdoR<-array(NA, dim=c(5,length(Years)-1, 1000))
 HlW<-array(NA, dim=c(5,length(Years)-1, 1000))
 HlR<-array(NA, dim=c(5,length(Years)-1, 1000))
-for(y in 1:(length(Years)-1)){
+for(i in 1:(length(Years)-1)){
   for(a in 1:5){
-    HdcW[a,y,]<-read.table(paste(sep="", folder1,"/HdcW[",y,",",a,"]1.txt"))[,2]
-    HdcR[a,y,]<-read.table(paste(sep="", folder1,"/HdcR[",y,",",a,"]1.txt"))[,2]
-    HdoW[a,y,]<-read.table(paste(sep="", folder1,"/HdoW[",y,",",a,"]1.txt"))[,2]
-    HdoR[a,y,]<-read.table(paste(sep="", folder1,"/HdoR[",y,",",a,"]1.txt"))[,2]
-    HlW[a,y,]<-read.table(paste(sep="", folder1,"/HlW[",y,",",a,"]1.txt"))[,2]
-    HlR[a,y,]<-read.table(paste(sep="", folder1,"/HlR[",y,",",a,"]1.txt"))[,2]
+    HdcW[a,i,]<-read.table(paste(sep="", folder1,"/HdcW[",i,",",a,"]1.txt"))[,2]
+    HdcR[a,i,]<-read.table(paste(sep="", folder1,"/HdcR[",i,",",a,"]1.txt"))[,2]
+    HdoW[a,i,]<-read.table(paste(sep="", folder1,"/HdoW[",i,",",a,"]1.txt"))[,2]
+    HdoR[a,i,]<-read.table(paste(sep="", folder1,"/HdoR[",i,",",a,"]1.txt"))[,2]
+    HlW[a,i,]<-read.table(paste(sep="", folder1,"/HlW[",i,",",a,"]1.txt"))[,2]
+    HlR[a,i,]<-read.table(paste(sep="", folder1,"/HlR[",i,",",a,"]1.txt"))[,2]
   }
 }
 
 HoffsW<-array(NA, dim=c(5,(length(Years)-1),1000))
 HoffsR<-array(NA, dim=c(5,(length(Years)-1),1000))
 for(a in 1:5){
-  for(y in 1:(length(Years)-1)){
+  for(i in 1:(length(Years)-1)){
     for(s in 1:1000){
-      HoffsW[a,y,s]<-(1-((1-HdoW[a,y,s])*(1-HlW[a,y,s])))
-      HoffsR[a,y,s]<-(1-((1-HdoR[a,y,s])*(1-HlR[a,y,s])))
+      HoffsW[a,i,s]<-(1-((1-HdoW[a,i,s])*(1-HlW[a,i,s])))
+      HoffsR[a,i,s]<-(1-((1-HdoR[a,i,s])*(1-HlR[a,i,s])))
     }
   }
 }
+
+# from cohort+age to calendar years
+hrW<-array(NA, dim=c(2,length(Years)-2, 1000))
+hrR<-array(NA, dim=c(2,length(Years)-2, 1000))
+for(y in 3:(length(Years))){ #1990->
+  for(a in 2:3){ # Grilse & 2SW (=MSW)
+    #hrW[grilse:MSW, 1990-length(Years)-2]
+    hrW[a-1,y-2,]<-HrW[a,y-(a-1),]
+    hrR[a-1,y-2,]<-HrR[a,y-(a-1),]
+  }}
+    
 
 
 # wrangle
 ##########################
 # RIVER FISHERIES
-for(a in 1:6){
-  dfW<-boxplot.bugs.df2(HrW, a ,1:(length(Years)-1))%>%
+#for(a in 1:6){
+#  dfW<-boxplot.bugs.df2(HrW, a ,1:(length(Years)-1))%>%
+for(a in 1:2){ # grilse vs msw
+  dfW<-boxplot.bugs.df2(hrW, a ,1:(length(Years)-2))%>%
     mutate(age=a, Fishery="River", Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
 
-  dfR<-boxplot.bugs.df2(HrR, a ,1:(length(Years)-1))%>%
+  dfR<-boxplot.bugs.df2(hrR, a ,1:(length(Years)-2))%>%
     mutate(age=a, Fishery="River", Type="Reared")
   ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 }
@@ -73,9 +86,10 @@ df.bugs.Hr<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","F
   select(Age, Fishery, Type, everything())%>%
   mutate(Year=Year+1986)%>%
   mutate(Age=fct_recode(factor(Age),
-                        "PS"= "1","Grilse"= "2",
-                        "2SW"= "3","3SW"= "4",
-                        "4SW"= "5","5SW"= "6"))
+                        "Grilse"= "1","MSW"= "2"))                        
+#                        "PS"= "1","Grilse"= "2",
+#                        "2SW"= "3","3SW"= "4",
+#                        "4SW"= "5","5SW"= "6"))
 df.bugs.Hr
 
 # COASTAL FISHERIES (TRAPNET&GILLNET)
@@ -174,26 +188,123 @@ df.bugs.Hl
 # Model 2: JAGS
 # =================
 #
-#summary(chains[ ,regexpr("LW",varnames(chains))>0])
+#summary(chains[ ,regexpr("HrW",varnames(chains))>0])
 
-#for(a in 1:4){
-#  dfW<-boxplot.jags.df2(chains, "HrW[",str_c(a,"]"),1:length(Years))%>%
+#for(a in 1:6){
+#  dfW<-boxplot.jags.df2(chains, "HrW[",str_c(a,"]"),1:(length(Years)-1))%>%
 #    mutate(Age=a, Fishery="River", Type="Wild")
 #  ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
+
+#  dfR<-boxplot.jags.df2(chains, "HrR[",str_c(a,"]"),1:(length(Years)-1))%>%
+#    mutate(Age=a, Fishery="River", Type="Reared")
+#  ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 #}
 
 #df<-full_join(dfW2,dfR2, by=NULL)
-#df<-dfW2 # Reared is now missing
 
 #df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Fishery","Type")))%>%
 #  select(Age, Fishery, Type, everything())%>%
 #  mutate(Year=Year+1986)%>%
 #  mutate(Age=fct_recode(factor(Age),
-#                        "Grilse"= "1",
-#                        "2SW"= "2",
-#                        "3SW"= "3",
-#                        "4SW"= "4"))
-#df.jags
+#                        "PS"= "1","Grilse"= "2",
+#                        "2SW"= "3","3SW"= "4",
+#                        "4SW"= "5","5SW"= "6"))
+# df.jags.Hr
+
+
+
+
+# COASTAL FISHERIES (TRAPNET&GILLNET)
+#HcR[i,j,au]
+for(a in 1:6){
+  for(u in 1:3){
+    dfW<-boxplot.jags.df2(chains, "HcW[",str_c(a,"]"),1:(length(Years)-1))%>%
+      mutate(Age=a, Fishery="River", Type="Wild", AU=u)
+    ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
+  
+    dfR<-boxplot.jags.df2(chains, "HcR[",str_c(a,"]"),1:(length(Years)-1))%>%
+      mutate(Age=a, Fishery="River", Type="Reared", AU=u)  
+    ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
+  }}
+
+df<-full_join(dfW2,dfR2, by=NULL)
+
+df.jags.Hc<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Fishery","Type", "AU")))%>%
+  select(Age, Fishery, Type, AU, everything())%>%
+  mutate(Year=Year+1986)%>%
+  mutate(Age=fct_recode(factor(Age),
+                        "PS"= "1","Grilse"= "2",
+                        "2SW"= "3","3SW"= "4",
+                        "4SW"= "5","5SW"= "6"))
+df.jags.Hc
+
+
+# COASTAL DRIFTNET
+for(a in 1:5){
+  dfW<-boxplot.bugs.df2(HdcW, a ,1:(length(Years)-1))%>%
+    mutate(age=a, Fishery="CDN", Type="Wild")
+  ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
+  
+  dfR<-boxplot.bugs.df2(HdcR, a ,1:(length(Years)-1))%>%
+    mutate(age=a, Fishery="CDN", Type="Reared")
+  ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
+}
+
+df<-full_join(dfW2,dfR2, by=NULL)
+
+df.bugs.Hdc<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Fishery","Type")))%>%
+  select(Age, Fishery, Type, everything())%>%
+  mutate(Year=Year+1986)%>%
+  mutate(Age=fct_recode(factor(Age),
+                        "Grilse"="1",
+                        "2SW"= "2","3SW"= "3",
+                        "4SW"= "4","5SW"= "5"))
+df.bugs.Hdc
+
+# OFFSHORE DRIFTNET
+for(a in 1:5){
+  dfW<-boxplot.bugs.df2(HdoW, a ,1:(length(Years)-1))%>%
+    mutate(age=a, Fishery="ODN", Type="Wild")
+  ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
+  
+  dfR<-boxplot.bugs.df2(HdoR, a ,1:(length(Years)-1))%>%
+    mutate(age=a, Fishery="ODN", Type="Reared")
+  ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
+}
+
+df<-full_join(dfW2,dfR2, by=NULL)
+
+df.bugs.Hdo<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Fishery","Type")))%>%
+  select(Age, Fishery, Type, everything())%>%
+  mutate(Year=Year+1986)%>%
+  mutate(Age=fct_recode(factor(Age),
+                        "1SW"="1",
+                        "2SW"= "2","3SW"= "3",
+                        "4SW"= "4","5SW"= "5"))
+df.bugs.Hdo
+
+# OFFSHORE LONGLINE
+for(a in 1:5){
+  dfW<-boxplot.bugs.df2(HlW, a ,1:(length(Years)-1))%>%
+    mutate(age=a, Fishery="OLL", Type="Wild")
+  ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
+  
+  dfR<-boxplot.bugs.df2(HlR, a ,1:(length(Years)-1))%>%
+    mutate(age=a, Fishery="OLL", Type="Reared")
+  ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
+}
+
+df<-full_join(dfW2,dfR2, by=NULL)
+
+df.bugs.Hl<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Age","Fishery","Type")))%>%
+  select(Age, Fishery, Type, everything())%>%
+  mutate(Year=Year+1986)%>%
+  mutate(Age=fct_recode(factor(Age),
+                        "1SW"="1",
+                        "2SW"= "2","3SW"= "3",
+                        "4SW"= "4","5SW"= "5"))
+df.bugs.Hl
+
 
 # Draw boxplots to compare
 # ==========================
