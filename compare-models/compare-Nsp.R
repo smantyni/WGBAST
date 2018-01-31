@@ -57,8 +57,8 @@ df.jags
 
 # Spawner count datasets
 # =================
-counts<-read_tsv("data/spawner_counts.txt")%>%
-  mutate(Year=c(1:30))%>%
+counts1<-read_tsv("data/spawner_counts.txt")%>%
+  mutate(Year=c(1:length(Years)))%>%
   mutate(Year=Year+1986)%>%
   gather(key="River", value="Count", `Tornio[]`:`Kalix[]`)%>% # re-arrange 
   mutate(River=fct_recode(River,
@@ -68,8 +68,20 @@ counts<-read_tsv("data/spawner_counts.txt")%>%
   mutate(River=parse_integer(River))%>%
   mutate(Count=Count/1000)
 
-df.bugs<-  left_join(df.bugs,counts, by=NULL)
+counts2<-read_tsv("data/UmeKalixFL.txt", skip=5, col_names = T)%>%
+  mutate(Year=c(1:length(Years)))%>%
+  mutate(Year=Year+1986)%>%
+  gather(key="River", value="Count", `KalixFLtot[]`:`UmeFLtot[]`)%>% # re-arrange 
+  mutate(River=fct_recode(River,
+                          "3"="KalixFLtot[]",
+                          "10"="UmeFLtot[]"))%>%
+  mutate(River=parse_integer(River))%>%
+  mutate(Count=Count/1000)%>%
+  filter(River==10)
 
+counts<-full_join(counts1,counts2)
+df.bugs<-left_join(df.bugs,counts, by=NULL)
+#View(df.bugs)
 
 ## ---- graphs-nsp
 

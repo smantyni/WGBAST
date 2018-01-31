@@ -18,12 +18,12 @@ nstocks<-16
 
 # Model 1: BUGS model
 # =================
-folder1<-"H:/FLR/WGBAST15/NoExpertsNewFec"; model<-"BUGS15"
+#folder1<-"H:/FLR/WGBAST15/NoExpertsNewFec"; model<-"BUGS15"
+folder1<-"H:/FLR/WGBAST17/FLHM2016"; model<-"BUGS16"
 Years<-c(1987:2016)
 length(Years)
-Years2<-c(1992:2015)
+Years2<-c(1992:2016)
 length(Years2)
-#LastYear<-2015
 
 
 # Model 2:
@@ -34,7 +34,7 @@ length(Years2)
 
 
 # Read runjags results from file
-folder2<-"H:/Biom/FullLifeHistoryModel/2017/prg/output/JAGS/"; model<-"JAGS15"
+folder2<-"H:/Biom/FullLifeHistoryModel/2017/prg/output/JAGS/"; model<-"JAGS16"
 #run1<-results.jags(str_c(folder2,"logN_Simo_500k"))
 #chains<-as.mcmc.list(run1)
 

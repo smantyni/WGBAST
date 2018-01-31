@@ -106,6 +106,14 @@ knitr::read_chunk("compare-models/compare-HR.r")
 
 ```
 
-```{r graphs-HR, echo=F, warning=F}
+```{r graphs-Hl, echo=F, warning=F}
+
+```
+
+```{r graphs-Hc, echo=F, warning=F}
+
+```
+
+```{r graphs-Hr, echo=F, warning=F}
 
 ```
