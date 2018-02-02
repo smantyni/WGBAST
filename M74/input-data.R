@@ -16,7 +16,19 @@ Day<-c(c(1:30), c(1:31), c(1:31))
 Month<-c(rep(6,30), rep(7,31), rep(8,31))
 
 df<-read_xlsx(str_c(pathM74,"data/orig/Finnish_M74_data-2017_paivitetty.xlsx"), 
-              col_names = T, guess_max = 10000, sheet=1)
+              col_names = T, guess_max = 10000, sheet=1, na="")
+
+df<-df%>%   mutate(River=fct_recode(RIVER,
+                                    "1"="Simo",
+                                    "2"="Tornio",
+                                    "3"="Kemi",
+                                    "4"="Iijoki"))%>%
+  mutate(year=FEMALE_YEAR-1984)
+  
+  df<-df%>%mutate(Eggs=ifelse(is.na(eggs)==F,eggs,ifelse(year<10,100,115)))
+filter(df, is.na(Eggs)==T)
+
+
 View(df)
 
 read_xl
