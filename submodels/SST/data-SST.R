@@ -15,14 +15,15 @@
 library(tidyverse)
 library(readxl)
 library(lubridate)
+library(stringr)
 
 # Path for input data
-pathIn<-"H:/Biom/FullLifeHistoryModel/2017/data/orig/temperature/August/"
+pathIn<-"H:/Biom/FullLifeHistoryModel/2018/dat/orig/SST/"
 
 #############
 # Data from 8 stations
 
-(dat1<-read_xlsx(paste(sep="",pathIn,"SMHI tempdata 8 stations jan1980-apr2017.xlsx"),
+(dat1<-read_xlsx(str_c(pathIn,"SMHI tempdata 8 stations jan1980-apr2017.xlsx"),
                 sheet="Data", na="NaN"))%>%
   select(Station, Year, Month,Day,Depth,Temperature)
 
@@ -41,24 +42,26 @@ for(i in 1:(dim(dat1)[1])){
 dat1$station<-station
 
 dat1<-filter(dat1, Month<5 & Depth<=10 & Year>1991 & is.na(Temperature)==F)%>%
-  dplyr::mutate(year=Year-1991)%>%
+  mutate(year=Year-1991)%>%
   select(Temperature, Year, Month, Day, year, station)
 dat1
 
 #############
 # Knolls Grund -data (station nr. 9)
 
-dat2<-read_xlsx(paste(sep="",pathIn,"Knolls grund 2017-08-01.xlsx"),
-               sheet=1, skip=5)
+dat2<-read_xlsx(str_c(pathIn,"Knolls_grund_tom_6_feb_2018.xlsx"),
+               sheet=1, skip=5,col_names = T, range="A7:D50636")%>%
+  setNames(c("Date", "Temperature", "Quality", "Depth"))
+dat2
 
 # Never mind the warnings about column 'Station' etc.just some bug in the package
-dat2<-mutate(dat2,Year=year(as.POSIXct(dat2$Date)))%>%
-  mutate(Month=month(as.POSIXct(dat2$Date)))%>%
-  mutate(Day=day(as.POSIXct(dat2$Date)))%>%
+dat2<-dat2%>%
+  mutate(Year=year(Date))%>%
+  mutate(Month=month(Date))%>%
+  mutate(Day=day(Date))%>%
   filter(Month<5)%>%
   mutate(year=Year-1991)%>%
   mutate(station=9)%>%
-  setNames(c("Date", "Time", "Temperature", "Quality", "Depth", "Year", "Month", "Day", "year", "station"))%>%
   select(Temperature, Year, Month, Day, year, station)
 
 
@@ -86,7 +89,7 @@ extra.year
 df.bugs<-full_join(df.bugs,extra.year, by=NULL)
 #View(df.bugs)
 
-write_csv(df.bugs, path="Temperature/data.bugs.csv")
+write_csv(df.bugs, path="submodels/SST/data.bugs.csv")
 # copy paste data (year, month & sst) from excel to OpenBUGS using paste special -> unicode text
 # change column names as year[]	month[]	SST[]
 # Add text END at the bottom of the data file and press ENTER (empty line is needed at the end of the file)
