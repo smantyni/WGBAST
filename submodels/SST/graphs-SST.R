@@ -43,24 +43,13 @@ df.april<-full_join(df.obs, april)
 
 
 ggplot(data = df.april) +
-  geom_line(aes(x=Year, y=med), col="colEst")+
-  geom_line(aes(x=Year, y=low), col="colEst")+
-  geom_line(aes(x=Year, y=high), col="colEst")+
-  geom_line(aes(x=Year, y=sst), col="colDat")+
-  geom_errorbar(aes(x=Year, ymin=sst-sd.sst, ymax=sst+sd.sst), col="colDat")+
-  scale_colour_manual("", 
-                      breaks = c("colEst", "colDat"),
-                      values = c("colEst"="red", "colDat"="blue"))
+  geom_line(aes(x=Year, y=med), col="red")+
+  geom_line(aes(x=Year, y=low), col="red")+
+  geom_line(aes(x=Year, y=high), col="red")+
+  geom_line(aes(x=Year, y=sst), col="blue")+
+  geom_errorbar(aes(x=Year, ymin=sst-sd.sst, ymax=sst+sd.sst), col="blue")+
   labs(x="Year", y="Temperature (C)",title="April SST", col=c("Prediction", "Observation"))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 6))
 
-ggplot(data = datos, aes(x = fecha)) +
-  geom_line(aes(y = TempMax, colour = "TempMax")) +
-  geom_line(aes(y = TempMedia, colour = "TempMedia")) +
-  geom_line(aes(y = TempMin, colour = "TempMin")) +
-  scale_colour_manual("", 
-                      breaks = c("TempMedia", "TempMax", "TempMin"),
-                      values = c("TempMedia"="green", "TempMax"="red", 
-                                 "TempMin"="blue")) +
 
