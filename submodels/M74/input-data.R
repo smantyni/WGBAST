@@ -8,8 +8,6 @@ library(stringr)
 library(gridExtra)
 library(coda)
 
-source("functions/tidy-functions.r")
-
 pathM74<-"H:/Biom/SubE_M74/2018/"
 
 
@@ -21,9 +19,6 @@ df<-read_xlsx(str_c(pathM74,"data/orig/Finnish_M74_data-2017_paivitetty.xlsx"),
                                     "2"="Tornio",
                                     "3"="Kemi",
                                     "4"="Iijoki"))%>%
-  mutate(rivername=fct_recode(river,
-                          "Simojoki"="1","Tornionjoki"="2",
-                          "Kemijoki"="3","Iijoki"="4"))%>%
   mutate(YEAR=FEMALE_YEAR)%>%
   mutate(year=FEMALE_YEAR-1984)%>%
   mutate(Eggs=ifelse(is.na(eggs)==F,eggs,ifelse(year<10,100,115)))%>%
@@ -42,7 +37,7 @@ df<-read_xlsx(str_c(pathM74,"data/orig/Finnish_M74_data-2017_paivitetty.xlsx"),
 
 dfFI<-df%>% 
   mutate(M74=parse_double(M74_mort))%>%
-  select(YEAR, year, rivername, river, eggs, surv_eggs, M74, mortality100, YSFM)
+  select(YEAR, year, RIVER, river, eggs, surv_eggs, M74, mortality100, YSFM)
 #%>%filter(river!=4) # to remove iijoki, avoiding confusion with Luleälven.
   
 #View(filter(df, river==4))
@@ -103,7 +98,7 @@ write_tsv(dfSE.bugs, str_c(pathM74,"prg/input/M74dataSE17.txt"))
 # wrangle for figures
 
 by_ry<-dfFI%>%
-  group_by(river, YEAR)
+  group_by(RIVER, YEAR)
   
 ysfm<-by_ry%>%
   summarise(ysfm=round(mean(YSFM/100),2),
@@ -111,7 +106,7 @@ ysfm<-by_ry%>%
 
 n_M74notNA<-dfFI%>%
   filter(is.na(M74)==F)%>%
-  group_by(river, YEAR)%>%
+  group_by(RIVER, YEAR)%>%
   summarise(N_M74=n())
 
 cases_M74<-by_ry%>% 
@@ -124,39 +119,33 @@ cases_mort100<-by_ry%>%
   filter(mortality100==2)%>%
   mutate(N_mort100=n)
 
-tmp<-full_join(ysfm, n_M74notNA, by=c("river", "YEAR"))
-tmp<-full_join(tmp, cases_M74, by=c("river", "YEAR"))
-dfFI.2<-full_join(tmp, cases_mort100, by=c("river", "YEAR"))%>%
-  select(river, YEAR, ysfm, N_fem, N_M74, N_M74fem, N_mort100)%>%
+tmp<-full_join(ysfm, n_M74notNA, by=c("RIVER", "YEAR"))
+tmp<-full_join(tmp, cases_M74, by=c("RIVER", "YEAR"))
+dfFI.2<-full_join(tmp, cases_mort100, by=c("RIVER", "YEAR"))%>%
+  select(RIVER, YEAR, ysfm, N_fem, N_M74, N_M74fem, N_mort100)%>%
   mutate(N_M74fem=ifelse(is.na(N_M74fem)==T, ifelse(is.na(N_M74)==T, NA, 0),N_M74fem))%>%
   mutate(N_mort100=ifelse(is.na(N_mort100)==T, ifelse(is.na(N_M74)==T, NA, 0),N_mort100))%>%
   mutate(propM74=round(N_M74fem/N_fem,2))%>%
   mutate(prop_mort100=round(N_mort100/N_M74,2))
 
-
-#View(df)
+           
+View(df)
 
 dfSE.2<-dfSE%>%
   mutate(propM74=round(xx/ff,2))%>%
-  mutate(river=parse_factor(stock, levels=NULL))%>%
-  mutate(rivername=fct_recode(parse_character(stock),
-                          "Lulealven"="5","Skelleftealven"="6",
-                          "Umealven"="7","Angermanalven"="8",
-                          "Indalsalven"="9","Ljungan"="10",
-                          "Ljusnan"="11","Dalalven"="12",
-                          "Morrumsan"="13","Unsampled stock"="14"))%>%
+  mutate(RIVER=fct_recode(parse_character(stock),
+                          "Lule"="5","Skellefte"="6",
+                          "Ume"="7","Angerman"="8",
+                          "Indals"="9","Ljungan"="10",
+                          "Ljusnan"="11","Dal"="12",
+                          "Morrum"="13","Unknown"="14"))%>%
   mutate(YEAR=yy+1984)%>%
   mutate(N_fem=ff)%>%
   mutate(N_M74fem=xx)%>%
-  select(YEAR, river, N_fem, N_M74fem, propM74)
+  select(YEAR, RIVER, N_fem, N_M74fem, propM74)
 
+View(tmp)
 
-#filter(dfFI.2, rivername=="Simo")
-#filter(dfSE.2, rivername=="Simo")
-
-dfM74<-full_join(dfFI.2,dfSE.2)%>%
+tmp<-full_join(dfFI.2,dfSE.2)%>%
   select(-N_M74)
-
-#filter(dfM74, RIVER=="Simo")
-View(dfM74)
 
