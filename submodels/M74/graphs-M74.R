@@ -54,23 +54,28 @@ df1<-full_join(df.bugs, dfM74, by=c("YEAR","river"))%>%
   mutate(river=parse_factor(river, levels=c(1:14)))%>%
   mutate(rivername=fct_recode(river,
                               Simojoki="1", Tornionjoki="2", Kemijoki="3", Iijoki="4",
-                              Lulealven="5",Skelleftealven="6",Umealven="7",Angermanalven="8",
-                              Indalsalven="9",Ljungan="10",Ljusnan="11",Dalalven="12",
-                              Morrumsan="13",`Unsampled stock`="14"))
+                              Luleälven="5",Skellefteälven="6",Umeälven="7",Ångermanälven="8",
+                              Indalsälven="9",Ljungan="10",Ljusnan="11",Dalälven="12",
+                              Morrumsån="13",`Unsampled stock`="14"))
 
-ggplot(df1, aes(YEAR))+
-  theme_bw()+
-  geom_boxplot(
+for(i in 1:2){
+ifelse(i==1, df<-filter(df1, River<9), df<-filter(df1, River>9))
+df<-df1
+print(
+  ggplot(df, aes(YEAR))+
+    theme_bw()+
+    #geom_line(aes(YEAR,ysfm))+
+    #geom_line(aes(YEAR,propM74))+
+    geom_boxplot(
     aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-    stat = "identity",fill=rgb(1,1,1,0.6))+
-  labs(x="Year", y="Proportion", title="")+
-  geom_line(aes(YEAR,q50))+
-  geom_point(aes(YEAR,ysfm), shape=2)+
- # geom_line(aes(YEAR,ysfm))+
-  geom_point(aes(YEAR,propM74), shape=1)+
- # geom_line(aes(YEAR,propM74))+
-  facet_wrap(~rivername)
-
+    stat = "identity")+
+    labs(x="Year", y="Proportion", title="")+
+    #geom_line(aes(YEAR,q50))+
+    geom_point(aes(YEAR,ysfm), shape=2)+
+    geom_point(aes(YEAR,propM74), shape=1)+
+    facet_wrap(~rivername)
+  )
+}
 
 
 
@@ -105,7 +110,7 @@ ggplot(df1, aes(Year))+
     aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
     stat = "identity",fill=rgb(1,1,1,0.6))+
   labs(x="Year", y="Proportion", title="Proportion of M74 affected offspring that dies")+
-  geom_line(aes(Year,q50))+
+  #geom_line(aes(Year,q50))+
   facet_grid(rivername~.)+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
   
