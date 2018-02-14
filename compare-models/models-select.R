@@ -34,11 +34,13 @@ length(Years2)
 
 
 # Read runjags results from file
-folder2<-"H:/Biom/FullLifeHistoryModel/2017/prg/output/JAGS/"; model<-"JAGS16"
-#run1<-results.jags(str_c(folder2,"logN_Simo_500k"))
-#chains<-as.mcmc.list(run1)
+#folder2<-"H:/Biom/FullLifeHistoryModel/2017/prg/output/JAGS/"; model<-"JAGS16"
+#load(str_c(folder2,"FLHM_mov_average_Mps_2018-01-22.RData"))
 
-load(str_c(folder2,"FLHM_mov_average_Mps_2018-01-22.RData"))
+load(file="H:/FLR/WGBAST18/WGBAST_JAGS_comparison_2.RData")
+
+chains<-as.mcmc.list(run)
+#chains<-window(chains,start=1000000)
 
 
 

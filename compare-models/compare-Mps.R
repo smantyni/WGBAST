@@ -44,9 +44,23 @@ dfM.bugs<-as.tibble(setNames(dfM,c("Type","q5","q25","q50","q75","q95")))%>%
 # Model 2: JAGS
 # =================
 
-dfW<-boxplot.jags.df(chains, "survMpsW[", 1:length(Years))%>%
+#summary(chains[ ,regexpr("Mps",varnames(chains))>0])
+
+#dfW<-boxplot.jags.df(chains, "survMpsW[", 1:length(Years))%>%
+#  mutate(Type="Wild")
+#dfR<-boxplot.jags.df(chains, "survMpsR[", 1:length(Years))%>%
+#  mutate(Type="Reared")
+
+survMpsW<-array(NA, dim=c(length(Years),length(chains[,"MpsW[1]"][[1]])))
+survMpsR<-array(NA, dim=c(length(Years),length(chains[,"MpsW[1]"][[1]])))
+for(y in 1:(length(Years))){
+  survMpsW[y,]<-exp(-chains[,str_c("MpsW[",y,"]")][[1]])
+  survMpsR[y,]<-exp(-chains[,str_c("MpsR[",y,"]")][[1]])
+}
+
+dfW<-boxplot.bugs.df(survMpsW, 1:(length(Years)))%>%
   mutate(Type="Wild")
-dfR<-boxplot.jags.df(chains, "survMpsR[", 1:length(Years))%>%
+dfR<-boxplot.bugs.df(survMpsR, 1:(length(Years)))%>%
   mutate(Type="Reared")
 
 df<-full_join(dfW,dfR, by=NULL)
