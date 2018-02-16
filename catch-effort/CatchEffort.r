@@ -26,11 +26,14 @@ df<-df%>%
   filter(YEAR>2000)%>%
   mutate(NUMB=parse_double(NUMB))%>%
   select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())
-
+ 
+df%>%count(TP_TYPE) 
+#tmp<-df%>%
+#  mutate(TP_TYPE=factor(TP_TYPE, levels=))
 
 tmp<-df%>%group_by(FISHERY)%>%
   count(GEAR)
-View(tmp)
+#View(tmp)
 # https://datacollection.jrc.ec.europa.eu/wordef/gear-type
 # GND: driftnets (previously DN, banned since 2008)
 # LLD: longlines

@@ -3,14 +3,6 @@
 
 # Contents:		 Calculate catches and efforts for Poland
 
-# R-file:		   WGBAST_DB_Poland.r
-
-# input: 		   WGBAST_DB09.txt
-# output:  	
-
-# R ver:	  	  2.8.0
-
-# programmed:		2009 hpulkkin
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 #! #############################################################################
@@ -23,13 +15,12 @@
 #! combined CPUE*0.75, and from 2009 onwards with PL reported SAL+TRS catch*0.97
 #! #############################################################################
 
-salmon<-subset(dat_all, SUB_DIV!=32 & F_TYPE!="DISC" & F_TYPE!="SEAL")
 
-poland_catch<-subset(dat_all, (SPECIES=="SAL" | SPECIES=="TRS") &  COUNTRY=="PL" & FISHERY=="S")
-poland_catch_coast<-subset(dat_all, SPECIES=="SAL" &  COUNTRY=="PL" & FISHERY=="C")
+poland_catch<-subset(df, (SPECIES=="SAL" | SPECIES=="TRS") &  COUNTRY=="PL" & FISHERY=="S")
+poland_catch_coast<-subset(df, SPECIES=="SAL" &  COUNTRY=="PL" & FISHERY=="C")
 
-poland_eff_sal<-subset(dat_all, SPECIES=="SAL" &  COUNTRY=="PL" & FISHERY=="S")
-poland_eff_trs<-subset(dat_all, SPECIES=="TRS" &  COUNTRY=="PL" & FISHERY=="S")
+poland_eff_sal<-subset(df, SPECIES=="SAL" &  COUNTRY=="PL" & FISHERY=="S")
+poland_eff_trs<-subset(df, SPECIES=="TRS" &  COUNTRY=="PL" & FISHERY=="S")
 summary(poland_catch)
 summary(poland_eff_sal)  # Salmon Effort
 summary(poland_eff_trs)  # Trout Effort
@@ -38,8 +29,6 @@ summary(poland_eff_trs)  # Trout Effort
 # Driftnetting
 # ===================
 PolC_ODN<-subset(poland_catch, GEAR=="GND")
-summary(PolC_ODN)
-
 dim(PolC_ODN)[1]
 
 Catch<-vector()

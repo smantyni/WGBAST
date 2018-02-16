@@ -103,7 +103,18 @@ dim(SweOLL)[1]
 # Effort
 ##############
 filter(SweOLL, is.na(EFFORT)==F)%>%count(GEAR)
-SweE_OLL<-Effort_HYR(SweOLL)
+# A tibble: 3 x 2
+#GEAR     n
+#<chr> <int>
+#1    AN     8
+#2   LLD   142
+#3   MIS    92
+
+# addition 2018, surely only LLD effort belongs here?
+SweOLL_E<-filter(SweOLL, is.na(EFFORT)==F, GEAR=="LLD")
+
+
+SweE_OLL<-Effort_HYR(SweOLL_E)
 
 SweE1_OLL<-SweE_OLL[,2]; SweE2_OLL<-SweE_OLL[,3]
 
@@ -142,7 +153,7 @@ Swe_coast%>%count(GEAR)
 #3   MIS   137
 
 select(filter(Swe_coast, GEAR=="AN"), NUMB, EFFORT, everything())
-# Combine AN and offshore longline 
+# Combine AN and offshore longline (where does this happen?)
 
 Swe_coast%>%count(TP_TYPE)
 # A tibble: 2 x 2
@@ -151,18 +162,18 @@ Swe_coast%>%count(TP_TYPE)
 #1     HYR   373
 #2      YR    46
 
+# meneeks nää jonnekkin?
+filter(Swe_coast, TP_TYPE=="YR")%>%count(GEAR)
+filter(Swe_coast, TP_TYPE=="YR")%>%count(YEAR)
+
 ################################################################################
 #  Coastal trapnetting:
 ################################################################################
-SweCTN<-subset(Swe_coast, GEAR=="TN")
-SweCTN_COMM<-subset(Swe_coast, GEAR=="TN" & F_TYPE=="COMM")
-SweCTN_RECR<-subset(Swe_coast, GEAR=="TN" & F_TYPE=="RECR")
-summary(SweCTN)
-summary(SweCTN_COMM)
-summary(SweCTN_RECR)
-#attach(SweCTN)
+SweCTN<-filter(Swe_coast, GEAR=="FYK")
+SweCTN_COMM<-filter(Swe_coast, GEAR=="FYK", F_TYPE=="COMM")
+SweCTN_RECR<-filter(Swe_coast, GEAR=="FYK", F_TYPE=="RECR")
 
-summary(SweCTN$TP_TYPE)
+SweCTN%>%count(TP_TYPE)
 # Both HYR and YR data!
 
 dim(SweCTN)[1]
@@ -203,8 +214,10 @@ cbind(SweC_CTN_RECR,SweC_CTN,SweC_CTN_COMM,SweC_CTN_RECR+SweC_CTN_COMM)
 # Effort
 ####################
 # This would be used if REAL swedish data was available
-subset(SweCTN, is.na(EFFORT)==F & EFFORT>0)
-# all existing effort data HYR
+filter(SweCTN, is.na(EFFORT)==F & EFFORT>0)%>%count(TP_TYPE)
+
+View(filter(SweCTN, is.na(EFFORT==F), TP_TYPE=="YR"))
+# both HYR & YR, nevermind now if this is not used. Otherwise YR data should be accounted.
 
 SweE_CTN<-Effort_HYR(SweCTN)
 SweE1_CTN<-SweE_CTN[,2]; SweE2_CTN<-SweE_CTN[,3]
@@ -217,11 +230,8 @@ SweE_CTNx_real<-round(cbind(years,SweE1_CTN,SweE2_CTN),0)
 ################################################################################
 #  Coastal other gear:
 ################################################################################
-SweCOT<-subset(Swe_coast, GEAR=="OT")
-summary(SweCOT)
-#attach(SweCOT)
-
-summary(SweCOT$TP_TYPE)
+SweCOT<-subset(Swe_coast, GEAR=="MIS")
+SweCOT%>%count(TP_TYPE)
 # Both HYR and YR data!
 
 dim(SweCOT)[1]
@@ -284,19 +294,16 @@ SweE_COTx<-round(cbind(years,SweE1_COT,SweE2_COT),0)
 # need to be taken into account).
 
 summary(sweden)
-summary(SweCTN$TP_TYPE)
+SweCTN%>%count(TP_TYPE)
 # Both HYR and YR data!
 
 ########################
 # Coastal trapnet
 ########################
 # Area 30
-SweCTN30<-subset(Swe_coast, GEAR=="TN" & SUB_DIV==30 )
-SweCTN30_COMM<-subset(Swe_coast, GEAR=="TN" & SUB_DIV==30 & F_TYPE=="COMM" )
-SweCTN30_RECR<-subset(Swe_coast, GEAR=="TN" & SUB_DIV==30 & F_TYPE=="RECR" )
-summary(SweCTN30)
-#attach(SweCTN30)
-
+SweCTN30<-subset(Swe_coast, GEAR=="FYK" & SUB_DIV==30 )
+SweCTN30_COMM<-subset(Swe_coast, GEAR=="FYK" & SUB_DIV==30 & F_TYPE=="COMM" )
+SweCTN30_RECR<-subset(Swe_coast, GEAR=="FYK" & SUB_DIV==30 & F_TYPE=="RECR" )
 dim(SweCTN30)[1]
 
 ##############
@@ -336,12 +343,9 @@ SweE_CTN30x_real<-round(cbind(years,SweE1_CTN30,SweE2_CTN30),0)
                         
 ########################
 # Area 31
-SweCTN31<-subset(Swe_coast, GEAR=="TN" & SUB_DIV==31 )
-SweCTN31_COMM<-subset(Swe_coast, GEAR=="TN" & SUB_DIV==31 & F_TYPE=="COMM")
-SweCTN31_RECR<-subset(Swe_coast, GEAR=="TN" & SUB_DIV==31 & F_TYPE=="RECR")
-summary(SweCTN31)
-#attach(SweCTN31)
-
+SweCTN31<-subset(Swe_coast, GEAR=="FYK" & SUB_DIV==31 )
+SweCTN31_COMM<-subset(Swe_coast, GEAR=="FYK" & SUB_DIV==31 & F_TYPE=="COMM")
+SweCTN31_RECR<-subset(Swe_coast, GEAR=="FYK" & SUB_DIV==31 & F_TYPE=="RECR")
 dim(SweCTN31)[1]
 
 ##############
@@ -386,10 +390,7 @@ SweE_CTN31x_real<-round(cbind(years,SweE1_CTN31,SweE2_CTN31),0)
 ########################
 # Area 30
 
-SweCOT30<-subset(Swe_coast, GEAR=="OT" & SUB_DIV!=31 )
-summary(SweCOT30)
-#attach(SweCOT30)
-
+SweCOT30<-subset(Swe_coast, GEAR=="MIS" & SUB_DIV!=31 )
 dim(SweCOT30)[1]
 
 ##############
@@ -405,10 +406,7 @@ SweC_COT30x<-round(cbind(years,SweC1_COT30,SweC2_COT30),0)
                       
 ########################
 # Area 31
-SweCOT31<-subset(Swe_coast, GEAR=="OT" & SUB_DIV==31 )
-summary(SweCOT31)
-#attach(SweCOT31)
-
+SweCOT31<-subset(Swe_coast, GEAR=="MIS" & SUB_DIV==31 )
 dim(SweCOT31)[1]
 
 ##############
