@@ -3,62 +3,37 @@
 
 # Contents:		 Calculate catches and efforts for Denmark
 
-# R-file:		   WGBAST_DB_Denmark.r
-
-# input: 		   WGBAST_DB09.txt
-# output:  	
-
-# R ver:	  	  2.8.0
-
-# programmed:		2009 hpulkkin
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 
-salmon<-subset(dat_all, SPECIES=="SAL" & SUB_DIV!=32 & F_TYPE!="DISC" & F_TYPE!="SEAL")
-summary(salmon)
+denmark<-filter(salmon, COUNTRY=="DK")
 
-denmark<-subset(salmon, COUNTRY=="DK")
-summary(denmark)
 
-# We are interested in the OLL and ODN in case of Denmark
+# We are interested in the LLD and GND in case of Denmark
 
-summary(denmark$GEAR)
-# AN FPO GND GNS GTR LLD LLS MIS  OT OTB SDN  TN 
-#  8   0  88   0   0  76   0   0   0   0   0   0 
-# AN  GND  GNS  LLD  LLS   OT   TN NA's 
-#  10   88    0   97    0    0    0   35
+denmark%>%count(GEAR)
+# A tibble: 6 x 2
+#GEAR     n
+#<chr> <int>
+#1    AN    17
+#2   FYK     3
+#3   GND    83
+#4   GNS     1
+#5   LLD   189
+#6   MIS     6
 
-summary(denmark$FISHERY)
-#  C  CR   R   S  SC 
-# 11   0   0 219   0 
-   
-coast_den<-subset(denmark, FISHERY=="C")
-summary(coast_den$GEAR)
-# AN  GND  GNS  LLD  LLS   OT   TN NA's 
-#   9    0    0    0    0    0    0    2 
-# Catherine: Coastal angling goes to offshore longline
-# Same stuff for NA-fishery, since no other option left.. (02/10)
-subset(denmark, is.na(GEAR)==T)
-# But since this is before 2000, don't mind about it!
+denmark%>%count(FISHERY)
+# A tibble: 1 x 2
+#FISHERY     n
+#<chr> <int>
+#  1       S   299
 
-summary(as.factor(denmark$TIME_PERIOD))
-summary(denmark$TP_TYPE)
-
-summary(denmark)
 
 ################################################################################
 #  Driftnetting:                                                                  
 ################################################################################
 
 DenODN<-subset(denmark, GEAR=="GND")
-#attach(DenODN)
-summary(DenODN)
-yearly<-subset(DenODN, TP_TYPE=="YR")
-yearly
-# Let's take into account only monthly and half yearly Dena 
-#( in this case 2001-> is okay):
-# count effort and catch for each year for half years
-
 dim(DenODN)[1]
 
 ##############
@@ -86,14 +61,11 @@ DenC_ODNx<-cbind(years,DenC1_ODN,DenC2_ODN)
 ################################################################################
 #  Longlining:
 ################################################################################
-# Add to this also Coastal angling catch!!!!!!!!!
-# Effortille ei kait tehdä mitään, kun noita lienee paha yhdistellä vai kuinka? (Tapsa!)
 
-DenOLL_eff<-subset(denmark, GEAR=="LLD" | GEAR=="LL")
-DenOLL_catch<-subset(denmark, GEAR=="LLD"| GEAR=="LL" | GEAR=="AN")
+DenOLL_eff<-subset(denmark, GEAR=="LLD")
+DenOLL_catch<-subset(denmark, GEAR!="GND") # catch from all gears except GND goes to LLD
 summary(DenOLL_catch)
 summary(DenOLL_eff)
-subset(DenOLL_eff, TP_TYPE=="YR") # YR data only for 2000 so skip this
 summary(subset(DenOLL_catch, TP_TYPE=="YR")) # this needs to be taken into account
 # data rows with yearly data 
 #subset(DenOLL_eff, YEAR==2016)

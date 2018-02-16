@@ -3,33 +3,30 @@
 
 # Contents:		 Calculate catches for Germany
 
-# R-file:		   WGBAST_DB_Germany.r
-
-# input: 		   WGBAST_CEDB17.txt
-# output:  	
-
-# R ver:	  	 3.3.2
-
-# programmed:		2017 hpulkkin
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
-salmon<-subset(dat_all, SPECIES=="SAL" & SUB_DIV!=32 & F_TYPE!="DISC" & F_TYPE!="SEAL")
-summary(salmon)
 
-germany<-subset(salmon, COUNTRY=="DE")# & FISHERY=="S")
-summary(germany)
-test<-subset(germany, TP_TYPE=="YR")
-test
-# quarterly data after 2000
+germany<-filter(salmon, COUNTRY=="DE")
 
+germany%>%
+  count(TP_TYPE)
+# quarterly data
+
+germany%>%
+  group_by(FISHERY)%>%
+  count(GEAR)
+
+filter(germany, FISHERY=="SC")
+filter(germany, GEAR=="GND")
+#View(tmp)
 
 ################################################################################
 #  Offshore catches                                                                  
 ################################################################################
-# We are interested only in the offshore catches, icluding gears
-# LLD, GND and OT
+# All german fishery goes to LLD (no effort)
 
-datLL<-subset(germany, GEAR=="LLD" | GEAR=="OT" | GEAR=="GND")
+#datLL<-subset(germany, GEAR=="LLD" | GEAR=="OT" | GEAR=="GND")
+datLL<-germany
 summary(datLL)
 
 summary(datLL$GEAR)
@@ -38,8 +35,7 @@ summary(datLL$TP_TYPE)
 # Quarterly data only
 
 dim(datLL)[1]
-test<-subset(datLL, YEAR==2007)
-test
+subset(datLL, YEAR==2007)
 
 
 ##############

@@ -6,48 +6,28 @@
 
 # R-file:		   WGBAST_DB_Finland_CoastalCPUE.r
 
-# input: 		   WGBAST_DB09.txt
-# output:  	
-
-# R ver:	  	  2.8.0
-
-# programmed:		2009 hpulkkin
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 ################################################################################
 
 # include only those lines of data where both catch and effort data are known (Tapani)
 
-#dat_all <- read.table(
-#"C:/Biom/FullLifeHistoryModel/2013/data/der/catch&effort/WGBAST_DB13.txt", header=T)
-#summary(dat_all)
-
-salmon<-subset(dat_all, SPECIES=="SAL" & SUB_DIV!=32 & F_TYPE!="DISC" & F_TYPE!="SEAL")
-summary(salmon)
-
-finland<-subset(salmon, COUNTRY=="FI")
-summary(finland)
-
-fin_coast<-subset(finland, FISHERY=="C")
-summary(fin_coast)
+finland<-filter(salmon, COUNTRY=="FI")
+fin_coast<-filter(finland, FISHERY=="C")
 
 ################################################################################
 
 ################################################################################
 #  Coastal trapnetting:
 ################################################################################
-FinCTN<-subset(fin_coast, GEAR=="TN")
-summary(FinCTN)
+FinCTN<-filter(fin_coast, GEAR=="FYK")
 
-summary(FinCTN$NUMB)
-summary(FinCTN$EFFORT)
+filter(FinCTN, is.na(NUMB)==T)
+filter(FinCTN, is.na(EFFORT)==T)
 # check if there are NA's
 
-#attach(FinCTN)
-summary(FinCTN$TP_TYPE)
+FinCTN%>%count(TP_TYPE)
 # Only HYR data!
-
-dim(FinCTN)[1]
 
 ##############
 # Effort
@@ -106,19 +86,18 @@ cbind(years,Catch1,Catch2)
 ################################################################################
 #  Other coastal gear (OT)
 ################################################################################
-FinCoastOT<-subset(fin_coast, GEAR=="OT")
-summary(FinCoastOT)
+FinCoastOT<-filter(fin_coast, GEAR=="MIS")
 
-summary(FinCoastOT$NUMB)
-summary(FinCoastOT$EFFORT)
-# Check NA's
+filter(FinCoastOT, is.na(NUMB)==T)
+filter(FinCoastOT, is.na(EFFORT)==T)
+# check if there are NA's
 
-FinCoastOT_noNA<-subset(FinCoastOT, GEAR=="OT" & is.na(EFFORT)==F)
-summary(FinCoastOT_noNA)
+# There is, the 16 obs of gear MIS with YR data. Leave those out here
+FinCoastOT%>%count(TP_TYPE)
 
-#attach(FinCoastOT_noNA)
-summary(FinCoastOT_noNA$TP_TYPE)
-
+FinCoastOT_noNA<-filter(FinCoastOT, GEAR=="MIS", is.na(EFFORT)==F)
+FinCoastOT_noNA%>%count(TP_TYPE)
+# only HYR
 
 ##############
 # Effort
@@ -187,19 +166,14 @@ FinCOT2_CPUE<-FinC2_CoastOT/FinE2_CoastOT
 #  Coastal trapnetting, area 30
 ################################################################################
 FinCTN$SUB_DIV
-FinCTN30<-subset(fin_coast, GEAR=="TN" & SUB_DIV==30)
-summary(FinCTN30)
+FinCTN30<-filter(fin_coast, GEAR=="FYK", SUB_DIV==30)
 
-summary(FinCTN30$NUMB)
-summary(FinCTN30$EFFORT)
+filter(FinCTN30, is.na(NUMB)==T)
+filter(FinCTN30, is.na(EFFORT)==T)
 # check if there are NA's. None.
 
-
-#attach(FinCTN30)
-summary(FinCTN30$TP_TYPE)
+FinCTN30%>%count(TP_TYPE)
 # Only HYR data!
-
-dim(FinCTN30)[1]
 
 ##############
 # Effort
@@ -223,18 +197,14 @@ FinC_CTN30
 ################################################################################
 #  Coastal trapnetting, area 31
 ################################################################################
-FinCTN31<-subset(fin_coast, GEAR=="TN" & SUB_DIV==31)
-summary(FinCTN31)
+FinCTN31<-filter(fin_coast, GEAR=="FYK", SUB_DIV==31)
 
 summary(FinCTN31$NUMB)
 summary(FinCTN31$EFFORT)
 # check if there are NA's. None.
 
-#attach(FinCTN31)
-summary(FinCTN31$TP_TYPE)
+FinCTN31%>%count(TP_TYPE)
 # Only HYR data!
-
-dim(FinCTN31)[1]
 
 ##############
 # Effort
@@ -259,19 +229,14 @@ FinC_CTN31
 #  Coastal other gear, area 30
 ################################################################################
 FinCoastOT$SUB_DIV
-FinCOT30<-subset(fin_coast, GEAR=="OT" & SUB_DIV==30 & is.na(EFFORT)==F)
-summary(FinCOT30)
+FinCOT30<-filter(fin_coast, GEAR=="MIS", SUB_DIV==30, is.na(EFFORT)==F)
 
 summary(FinCOT30$NUMB)
 summary(FinCOT30$EFFORT)
 # check if there are NA's. None.
 
-
-#attach(FinCOT30)
-summary(FinCOT30$TP_TYPE)
+FinCOT30%>%count(TP_TYPE)
 # Only HYR data!
-
-dim(FinCOT30)[1]
 
 ##############
 # Effort
@@ -295,18 +260,15 @@ FinC_COT30
 ################################################################################
 #  Coastal trapnetting, area 31
 ################################################################################
-FinCOT31<-subset(fin_coast, GEAR=="OT" & SUB_DIV==31 & is.na(EFFORT)==F)
+FinCOT31<-filter(fin_coast, GEAR=="MIS", SUB_DIV==31, is.na(EFFORT)==F)
 summary(FinCOT31)
 
 summary(FinCOT31$NUMB)
 summary(FinCOT31$EFFORT)
 # check if there are NA's. None.
 
-#attach(FinCOT31)
-summary(FinCOT31$TP_TYPE)
+FinCOT31%>%count(TP_TYPE)
 # Only HYR data!
-
-dim(FinCOT31)[1]
 
 ##############
 # Effort

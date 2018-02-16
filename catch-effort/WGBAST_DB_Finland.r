@@ -3,29 +3,36 @@
 
 # Contents:		 Calculate catches and efforts for Finland
 
-# R-file:		   WGBAST_DB_Finland.r
-
-# input: 		   WGBAST_DB09.txt
-# output:  	
-
-# R ver:	  	  2.8.0
-
-# programmed:		2009 hpulkkin
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
-#dat_all <- read.table(
-#paste("data/der/catch&effort/WGBAST_DB",NumYears,".txt", sep=""), header=T)
 
-summary(dat_all)
+finland<-filter(salmon, COUNTRY=="FI")
 
-salmon<-subset(dat_all, SPECIES=="SAL" & SUB_DIV!=32 & F_TYPE!="DISC" & F_TYPE!="SEAL")
-summary(salmon)
+finland%>%count(TP_TYPE)
+#View(filter(finland, TP_TYPE=="YR"))
+# YR catch is RECR MIS at coast & river
 
-finland<-subset(salmon, COUNTRY=="FI")
-summary(finland)
+finland%>%count(TIME_PERIOD)
 
-################################################################################
-# Run WGBAST_DB_functions.R
+finland%>%
+  group_by(FISHERY)%>%
+  count(GEAR)
+
+# A tibble: 9 x 3
+# Groups:   FISHERY [3]
+#FISHERY  GEAR     n
+#<chr> <chr> <int>
+#1       C   FYK    98
+#2       C   GND    27
+#3       C   LLD    14
+#4       C   MIS   117
+#5       R   MIS    27
+#6       R  <NA>    32
+#7       S   GND   150
+#8       S   LLD   111
+#9       S   MIS    35
+
+
 
 ################################################################################
 # ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~
@@ -33,16 +40,20 @@ summary(finland)
 #  Offshore fishery                                                                  
 ################################################################################
 # ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~
-fin_offs<-subset(finland, FISHERY=="S")
-summary(fin_offs)
+fin_offs<-filter(finland, FISHERY=="S")
 
-summary(fin_offs$GEAR)
-# AN GND GNS LLD LLS  OT  TN 
-#  0 170   0  97   0  16   0
-  # Catherine: For GEAR=OT, add effort and catch to
+
+fin_offs%>%count(GEAR)
+# A tibble: 3 x 2
+#GEAR     n
+#<chr> <int>
+#1   GND   150
+#2   LLD   111
+#3   MIS    35
+# For GEAR=MIS, add effort and catch to
 # commercial costal other gear!!!! 
 
-summary(fin_offs$TP_TYPE)
+fin_offs%>%count(TP_TYPE)
 # Only HYR data!
                                    
 ################################################################################
@@ -84,8 +95,7 @@ FinC_ODNx<-cbind(years,FinC1_ODN,FinC2_ODN)
 #  Offshore longlining:
 ################################################################################
 FinOLL<-subset(fin_offs, GEAR=="LLD")
-summary(FinOLL)
-summary(FinOLL$TP_TYPE)
+FinOLL%>%count(TP_TYPE)
 
 dim(FinOLL)[1]
 
@@ -115,12 +125,8 @@ FinC_OLLx<-cbind(years,FinC1_OLL,FinC2_OLL)
 #  Other offshore gear (OT)
 ################################################################################
 # These will be added to commercial coastal other gear
-FinOffsOT<-subset(fin_offs, GEAR=="OT")
-#attach(FinOffsOT)
-summary(FinOffsOT)
-summary(FinOffsOT$TP_TYPE)
-
-dim(FinOffsOT)[1]
+FinOffsOT<-subset(fin_offs, GEAR=="MIS")
+FinOffsOT%>%count(TP_TYPE)
 
 ##############
 # Effort
@@ -148,38 +154,36 @@ FinC_OffsOT
 # ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~
 
 fin_coast<-subset(finland, FISHERY=="C")
-summary(fin_coast)
-fin_coast$SUB_DIV
+fin_coast%>%count(SUB_DIV)
 
-summary(fin_coast$GEAR)
-# AN  GND  GNS  LLD  LLS   OT   TN NA's 
-#   6   32    0    4    0   61   55   24 
- 
+fin_coast%>%count(GEAR)
+# A tibble: 4 x 2
+#GEAR     n
+#<chr> <int>
+#1   FYK    98
+#2   GND    27
+#3   LLD    14
+#4   MIS   117
+
 
 # Groups in coastal catch and effort for Finland are
-# CDN, CTN and Coastal OT. Corresponding groups here are
+# CDN (GND), CTN (FYK) and Coastal OT (MIS). Corresponding groups here are
 # GND, TN and OT
 # what is left are: 
-# AN=6, LLD=2, NA=18. What to do with those?
-# Because NA's RECR => put those with GEAR=OT (Tapani)
-test<-subset(fin_coast, GEAR=="AN")
-summary(test)
-test<-subset(fin_coast, is.na(GEAR)==T)
-summary(test)
-# Since AN only from 2000 and 2001, forget this!
+# LLD=14 What to do with those?
+# Because NA's RECR => put those with GEAR=MIS (Tapani)
+filter(fin_coast,GEAR=="LLD")
 
-summary(fin_coast$TP_TYPE)
-summary(subset(fin_coast,TP_TYPE=="YR"))
-# YR data is at gears AN and NA.
-# If those will be taken along, then YR needs to be taken into account!
+fin_coast%>%count(TP_TYPE) #HYR & YR
+filter(fin_coast,TP_TYPE=="YR")
+# YR data is at (RECR) MIS.
+# BUT there's also HYR MIS! -> need to combine HYR & YR MIS
 
 ################################################################################
 #  Coastal driftnetting:                                                                  
 ################################################################################
 FinCDN<-subset(fin_coast, GEAR=="GND")
-summary(FinCDN)
-#attach(FinCDN)
-summary(FinCDN$TP_TYPE)
+FinCDN%>%count(TP_TYPE)
 # Only HYR data!
 
 ##############
@@ -209,14 +213,10 @@ FinC_CDN
 ################################################################################
 #  Coastal trapnetting:
 ################################################################################
-FinCTN<-subset(fin_coast, GEAR=="TN")
-summary(FinCTN)
-#attach(FinCTN)
+FinCTN<-subset(fin_coast, GEAR=="FYK")
 
-summary(FinCTN$TP_TYPE)
+FinCTN%>%count(TP_TYPE)
 # Only HYR data!
-
-dim(FinCTN)[1]
 
 ##############
 # Effort
@@ -243,12 +243,10 @@ FinC_CTNx<-cbind(years, FinC1_CTN,FinC2_CTN)
 ################################################################################
 #  Other coastal gear (OT)
 ################################################################################
-FinCoastOT<-subset(fin_coast, GEAR=="OT")
-#attach(FinCoastOT)
-summary(FinCoastOT)
-summary(FinCoastOT$TP_TYPE)
+FinCoastOT<-subset(fin_coast, GEAR=="MIS" | GEAR=="LLD")
+FinCoastOT%>%count(TP_TYPE) # both HYR & YR
+FinCoastOT<-filter(fin_coast, GEAR=="MIS" | GEAR=="LLD", TP_TYPE=="HYR")# take HYR here and include YR later 
 
-dim(FinCoastOT)[1]  
 
 ##############
 # Effort
@@ -288,20 +286,16 @@ FinC_OTtot<-round(GatherHalfYears(FinC1_OTtot,FinC2_OTtot,NumYears),0)
 FinC_OTtot
 
 ################################################################################
-#  Coastal gear = NA
+#  Coastal gear = MIS, TP_TYPE= YR
+# THIS WAS PREVIOUSLY COASTAL GEAR==NA!!!
 ################################################################################
+fin_coast%>%count(TP_TYPE)
+filter(fin_coast, TP_TYPE=="YR")
 # This is done only for the catch (effort isn't available) 
-# Then divide by proportions to CDN, CTN and OT
 
-# TAPANI: Because AN is RECR fishing, put that to OT 
-
-FinCoastNA<-subset(fin_coast, is.na(GEAR)==T)
-#attach(FinCoastNA)
-summary(FinCoastNA)
-summary(FinCoastNA$TP_TYPE)
-# only YR data (18)
-
-dim(FinCoastNA)[1]
+FinCoastNA<-filter(fin_coast, TP_TYPE=="YR")
+FinCoastNA%>%count(TP_TYPE)
+# only YR data (16)
 
 ####################
 # Catches
@@ -323,7 +317,6 @@ cbind(years,Catch)
 ################################################################################
 # Combine OT catches and NA catches
 
-# Gear OT (includes both coastal and offshore OT)
 FinC1_OTtot
 FinC2_OTtot
 
@@ -349,15 +342,12 @@ FinC_CNAandOTx<-round(cbind(years,FinC1_CNAandOT,FinC2_CNAandOT),0)
 # need to be taken into account).
 
 
-summary(finland)
-summary(FinCTN$TP_TYPE)
+FinCTN%>%count(TP_TYPE)
 # Only HYR data!
 
 ########################
 # Area 30
-FinCTN30<-subset(fin_coast, GEAR=="TN" & SUB_DIV!=31 )
-summary(FinCTN30)
-#attach(FinCTN30)
+FinCTN30<-subset(fin_coast, GEAR=="FYK" & SUB_DIV!=31 )
 
 dim(FinCTN30)[1]
 
@@ -396,9 +386,7 @@ FinE_CTN30x<-round(cbind(years,FinE1_CTN30,FinE2_CTN30),0)
                         
 ########################
 # Area 31
-FinCTN31<-subset(fin_coast, GEAR=="TN" & SUB_DIV==31 )
-summary(FinCTN31)
-#attach(FinCTN31)
+FinCTN31<-subset(fin_coast, GEAR=="FYK" & SUB_DIV==31 )
 
 dim(FinCTN31)[1]
 
@@ -436,21 +424,17 @@ FinE_CTN31x<-round(cbind(years,FinE1_CTN31,FinE2_CTN31),0)
                                                                             
 # these are now the same!
 cbind(FinE_CTN30+FinE_CTN31, FinE_CTN)
-                                                                            
+
 ################################################################################
-# Other coastal gear seems to be gillnet, right!!!???
-                     
-summary(subset(finland, GEAR=="OT"))
-Fin_OT<-subset(finland, GEAR=="OT")
+# Other coastal gear
+
+subset(finland, GEAR=="MIS")
+Fin_OT<-subset(finland, GEAR=="MIS")
 
 ########################
 # Area 30
 
 FinOT30<-subset(Fin_OT, SUB_DIV!=31)
-summary(FinOT30)
-
-#attach(FinOT30)
-
 dim(FinOT30)[1]
 
 ##############
@@ -489,10 +473,6 @@ FinE_COT30x<-round(cbind(years,FinE1_OT30,FinE2_OT30),0)
 # Area 31
 
 FinOT31<-subset(Fin_OT, SUB_DIV==31)
-summary(FinOT31)
-
-#attach(FinOT31)
-
 dim(FinOT31)[1]
 
 ##############
@@ -529,7 +509,8 @@ FinE_COT31x<-round(cbind(years,FinE1_OT31,FinE2_OT31),0)
 
 # these are now the same!
 cbind(FinE_OT31+FinE_OT30, FinE_OTtot)
-                                                                      
+FinE_OTtot-(FinE_OT31+FinE_OT30) # difference is coastal LLD but it doesn't matter since
+# effort is taken only at subdiv level (right???)
 # ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~
 ################################################################################
 # River fishery                                                                  

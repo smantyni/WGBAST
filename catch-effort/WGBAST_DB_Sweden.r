@@ -3,54 +3,54 @@
 
 # Contents:		 Calculate catches and efforts for Sweden
 
-# R-file:		   WGBAST_DB_Sweden.r
-
-# input: 		   WGBAST_DB09.txt
-# output:  	
-
-# R ver:	  	  2.8.0
-
-# programmed:		2009 hpulkkin
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 
 
-salmon<-subset(dat_all, SPECIES=="SAL" & SUB_DIV!=32 & F_TYPE!="DISC" & F_TYPE!="SEAL")
-summary(salmon)
 
-sweden<-subset(salmon, COUNTRY=="SE")
-summary(sweden)
+sweden<-filter(salmon, COUNTRY=="SE")
 
-summary(sweden$GEAR)
-# No NA's!!!!
-summary(sweden$FISHERY)
-summary(sweden$TIME_PERIOD)
-summary(sweden$TP_TYPE)
+sweden%>%count(TP_TYPE)
 # only HYR and YR data
+sweden%>%count(TIME_PERIOD)
 
-swe_offs<-subset(sweden, FISHERY=="S")
-summary(swe_offs)
-summary(swe_offs$GEAR)
-# AN GND GNS LLD LLS  OT  TN 
-#  7 117   0 100   0 158   0 
+sweden%>%
+  group_by(FISHERY)%>%
+  count(GEAR)
 
-summary(sweden$SUB_DIV)
+# A tibble: 10 x 3
+# Groups:   FISHERY [3]
+#FISHERY  GEAR     n
+#<chr> <chr> <int>
+#1       C    AN     2
+#2       C   FYK   280
+#3       C   MIS   137
+#4       R    AN    64
+#5       R   FYK    32
+#6       R   MIS    35
+#7       S    AN    24
+#8       S   GND   118
+#9       S   LLD   142
+#10      S   MIS   222
+
+# No NA's!!!!
+
+
+sweden%>%count(SUB_DIV)
 
 ################################################################################
 #  Offshore driftnetting:                                                                  
 ################################################################################
 # Put OT to driftnet fishery 
 # V. 2008 -> put OT to LL when DN is gone.
-SweODN_catch<-subset(swe_offs, GEAR=="GND") # | GEAR=="OT")
-SweODN_eff<-subset(swe_offs, GEAR=="GND")
+SweODN_catch<-filter(swe_offs, GEAR=="GND") # | GEAR=="OT")
+SweODN_eff<-filter(swe_offs, GEAR=="GND")
 
 ##############
 # Effort
 ##############
-summary(SweODN_eff)
-summary(SweODN_eff$TP_TYPE)
+SweODN_eff%>%count(TP_TYPE)
 # only HYR
 
-dim(summary(SweODN_eff))[1]
 SweE_ODN<-Effort_HYR(SweODN_eff)
 SweE1_ODN<-SweE_ODN[,2]; SweE2_ODN<-SweE_ODN[,3]
 
@@ -62,9 +62,7 @@ SweE_ODNx<-cbind(years,SweE1_ODN,SweE2_ODN)
 ##############
 # Catches
 ##############
-summary(SweODN_catch)
 
-dim(summary(SweODN_catch))[1]
 SweC_ODN<-Catch_HYR(SweODN_catch)
 SweC1_ODN<-SweC_ODN[,2]; SweC2_ODN<-SweC_ODN[,3]
 
@@ -77,23 +75,34 @@ SweC_ODNx<-cbind(years,SweC1_ODN,SweC2_ODN)
 #  Offshore longlining:
 ################################################################################
 # Put angling with longline, divide it for half years based on longlining proportions
+swe_offs%>%count(GEAR)
+# A tibble: 4 x 2
+#GEAR     n
+#<chr> <int>
+#1    AN    24
+#2   GND   118
+#3   LLD   142
+#4   MIS   222
 
-SweOLL<-subset(swe_offs, GEAR=="LLD"| GEAR=="OT" | GEAR=="AN")
+SweOLL<-filter(swe_offs, GEAR=="LLD"| GEAR=="MIS" | GEAR=="AN")
 
 SweOLL_Call<-rbind(
-subset(sweden, FISHERY=="S" & (GEAR=="LLD"| GEAR=="OT" | GEAR=="AN")),
+subset(sweden, FISHERY=="S" & (GEAR=="LLD"| GEAR=="MIS" | GEAR=="AN")),
 subset(sweden, FISHERY=="C"& (SUB_DIV==29| SUB_DIV==28| SUB_DIV==27| SUB_DIV==26| SUB_DIV==25| SUB_DIV==24| SUB_DIV==23| SUB_DIV==22)))
 
-summary(SweOLL)
-summary(SweOLL$TP_TYPE)
-test<-subset(SweOLL, TP_TYPE=="YR")
-test
+
+sweden%>%count(SUB_DIV)
+
+SweOLL%>%count(TP_TYPE)
+#View(filter(SweOLL, TP_TYPE=="YR"))
+# YR: RECR AN & MIS
 
 dim(SweOLL)[1]
 
 ##############
 # Effort
 ##############
+filter(SweOLL, is.na(EFFORT)==F)%>%count(GEAR)
 SweE_OLL<-Effort_HYR(SweOLL)
 
 SweE1_OLL<-SweE_OLL[,2]; SweE2_OLL<-SweE_OLL[,3]
@@ -124,14 +133,23 @@ SweC_OLLx<-cbind(years,SweC1_OLL,SweC2_OLL)
 # Coastal fisheries
 
 Swe_coast<-subset(sweden, FISHERY=="C")
-summary(Swe_coast)
-summary(Swe_coast$GEAR)
-# AN FPO GND GNS GTR LLD LLS MIS  OT OTB SDN  TN 
-#  2   0   0   0   0   0   0   0  32   0   0  83 
+Swe_coast%>%count(GEAR)
+# A tibble: 3 x 2
+#GEAR     n
+#<chr> <int>
+#1    AN     2
+#2   FYK   280
+#3   MIS   137
+
+select(filter(Swe_coast, GEAR=="AN"), NUMB, EFFORT, everything())
 # Combine AN and offshore longline 
-summary(Swe_coast$TP_TYPE)
-# HYR MON QTR  YR 
-#  94   0   0  23 
+
+Swe_coast%>%count(TP_TYPE)
+# A tibble: 2 x 2
+#TP_TYPE     n
+#<chr> <int>
+#1     HYR   373
+#2      YR    46
 
 ################################################################################
 #  Coastal trapnetting:

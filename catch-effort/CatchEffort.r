@@ -3,24 +3,44 @@
 
 # Contents:   Combine information from different countries together in R
 
-# R-file:
-
-# input:
-# output:
-
-# R ver:
-
-# c:		2013 hpulkkin
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+library(tidyverse)
+library(readxl)
+library(forcats)
+library(lubridate)
+library(stringr)
+library(gridExtra)
 
-setwd("H:/Biom/FullLifeHistoryModel/2017/")
+
 min_year<-2000
-max_year<-2016
+max_year<-2017
 years<-min_year:max_year
 NumYears<-length(years)
 
-dat_all <- read.table(
-paste("data/der/catch&effort/WGBAST",NumYears,"_CEDB.txt", sep=""), header=T)
+pathIn<-"H:/Biom/FullLifeHistoryModel/2018/"
+
+df<-read_xlsx(str_c(pathIn, "dat/orig/catch&effort/WGBAST_Catch_2018_Turku_15022018_DK_LT_EE_RU_FI_LV_DE_SE_PL.xlsx"),
+                   range="A1:R8933", sheet="Catch data", col_names = T, guess_max = 8000, na=c("",".", "NaN"))
+
+df<-df%>%
+  filter(YEAR>2000)%>%
+  mutate(NUMB=parse_double(NUMB))%>%
+  select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())
+
+
+tmp<-df%>%group_by(FISHERY)%>%
+  count(GEAR)
+View(tmp)
+# https://datacollection.jrc.ec.europa.eu/wordef/gear-type
+# GND: driftnets (previously DN, banned since 2008)
+# LLD: longlines
+# FYK: fyke nets (previously TN)
+# MIS: miscellaneous (previously OT)
+# GNS: gillnet (stationary) (previously GN)
+# AN: angling
+
+salmon<-filter(df, SPECIES=="SAL", SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL")
+
 
 source("prg/catch&effort/WGBAST_DB_functions.r")
 source("prg/catch&effort/WGBAST_DB_Latvia.r")
