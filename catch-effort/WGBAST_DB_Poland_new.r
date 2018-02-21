@@ -21,9 +21,16 @@ poland_catch_coast<-subset(df, SPECIES=="SAL" &  COUNTRY=="PL" & FISHERY=="C")
 
 poland_eff_sal<-subset(df, SPECIES=="SAL" &  COUNTRY=="PL" & FISHERY=="S")
 poland_eff_trs<-subset(df, SPECIES=="TRS" &  COUNTRY=="PL" & FISHERY=="S")
-summary(poland_catch)
-summary(poland_eff_sal)  # Salmon Effort
-summary(poland_eff_trs)  # Trout Effort
+
+plsal<-poland_eff_sal%>%
+  group_by(GEAR,YEAR)%>%
+  summarise(Esal=sum(EFFORT), Csal=sum(NUMB))
+
+pltrs<-poland_eff_trs%>%
+  group_by(GEAR,YEAR)%>%
+  summarise(Etrs=sum(EFFORT), Ctrs=sum(NUMB))
+
+#View(full_join(plsal, pltrs, by=c("GEAR","YEAR")))
 
 
 # Driftnetting
@@ -55,9 +62,9 @@ PolC_ODN
 # ===================
 
 PolC_coast<-poland_catch_coast
-summary(PolC_coast)
 dim(PolC_coast)[1]
-PolC_coast$YEAR
+PolC_coast%>%group_by(YEAR)%>%count(TP_TYPE)
+# HYR, YR & MON data (HYR in 01-02 so forget)
 
 # YR data
 Catch_yr<-vector()
@@ -121,10 +128,18 @@ PolC_coast
 
 # Longline catch
 # ===================
-PolC_OLL<-subset(poland_catch, GEAR=="LLD" | GEAR=="OT")
-summary(PolC_OLL)
+PolC_OLL<-filter(poland_catch, GEAR=="LLD"|GEAR=="MIS"| GEAR=="GNS")
+#GEAR#subset(poland_catch, GEAR=="LLD" | GEAR=="MIS")
+
+PolC_OLL%>%count(GEAR)
+
+PolC_OLL%>%count(TP_TYPE)
+# MON, HYR & YR data!
+
+filter(PolC_OLL, YEAR>2009)%>%group_by(GEAR,YEAR)%>%count(TP_TYPE)
+# MON DATA!
+
 dim(PolC_OLL)[1]
-PolC_OLL
 
 # YR data 2003-2009!
 Catch_yr<-vector()
@@ -146,12 +161,12 @@ PolC1_OLL_yr
 PolC1_OLL<-PolC1_OLL_yr
 PolC2_OLL<-PolC2_OLL_yr
 
-# MON data, 2010!
+# MON data, 2010
 PolC1_OLL_mon<-vector()
 PolC2_OLL_mon<-vector()
 dat<-PolC_OLL
 
-for(y in 2010:max_year){
+for(y in 2010:(max_year)){ # NOTE!!!!!!!!!! CHECK IF THIS STILL HOLDS!!!!!
   temp1<-0
   temp2<-0
   
@@ -168,21 +183,30 @@ for(y in 2010:max_year){
   PolC2_OLL_mon[(y-2010+1)]<-temp2
 }
 
-#2010
+#2010-2016
 PolC1_OLL_mon<-round(PolC1_OLL_mon,0) 
 PolC2_OLL_mon<-round(PolC2_OLL_mon,0)
 PolC1_OLL_mon
 PolC2_OLL_mon
 
+
+
+
 length(PolC1_OLL_yr)
 # Combine
-PolC1_OLL[8:(length(PolC1_OLL_yr)+length(PolC1_OLL_mon))]<-PolC1_OLL_mon
-PolC2_OLL[8:(length(PolC1_OLL_yr)+length(PolC1_OLL_mon))]<-PolC2_OLL_mon
+L1<-(length(PolC1_OLL_yr)+length(PolC1_OLL_mon))
+PolC1_OLL[8:L1]<-PolC1_OLL_mon
+PolC2_OLL[8:L1]<-PolC2_OLL_mon
+
+#L2<-(length(PolC1_OLL_yr)+length(PolC1_OLL_mon)+length(PolC1_OLL_hyr))
+#PolC1_OLL[(L1+1):L2]<-PolC1_OLL_hyr
+#PolC2_OLL[(L1+1):L2]<-PolC2_OLL_hyr
 
 cbind(PolC1_OLL,PolC2_OLL)
 
 PolC_OLL<-round(GatherHalfYears(PolC1_OLL,PolC2_OLL,length(PolC1_OLL)),0)
 PolC_OLL
+
 
 # Effort
 # ==============================================================================
@@ -215,13 +239,30 @@ PolE_ODNx<-round(cbind(years,PolE1_ODN,PolE2_ODN),0)
 PolE_ODN<-round(GatherHalfYears(PolE1_ODN,PolE2_ODN,NumYears),0)
 PolE_ODN
 
+
+
+
 # Longline effort
-# ===================
+# ========================================
+
+
 PolE_OLL_S<-subset(poland_eff_sal, GEAR=="LLD")
 PolE_OLL_T<-subset(poland_eff_trs, GEAR=="LLD")
 dim(PolE_OLL_S)[1]
 dim(PolE_OLL_T)[1]
 
+
+PolE_OLL_S%>%count(TP_TYPE)
+PolE_OLL_T%>%count(TP_TYPE)
+# MON, HYR & YR data!
+
+filter(PolE_OLL_S, YEAR>2009)%>%group_by(GEAR,YEAR)%>%count(TP_TYPE)
+filter(PolE_OLL_T, YEAR>2009)%>%group_by(GEAR,YEAR)%>%count(TP_TYPE)
+# YR data until 2009
+# MON data 2010->
+
+PolE1_OLL<-vector()
+PolE2_OLL<-vector()
 
 # YR data!
 EffortS<-c()
@@ -262,7 +303,8 @@ PolE2_OLL_mon<-vector()
 dat1<-PolE_OLL_S
 dat2<-PolE_OLL_T
 
-for(y in 2010:max_year){
+for(y in 2010:(max_year)){
+  #y<-(max_year-1)
 	temp1S<-0
 	temp2S<-0
   temp1T<-0
@@ -295,15 +337,20 @@ PolE2_OLL_mon<-round(PolE2_OLL_mon,0)
 PolE1_OLL_mon
 PolE2_OLL_mon
 
-length(PolE1_OLL_yr)
-PolE1_OLL<-PolE1_OLL_yr
-PolE2_OLL<-PolE2_OLL_yr
-PolE1_OLL[8:(length(PolE1_OLL_yr)+length(PolE1_OLL_mon))]<-PolE1_OLL_mon
-PolE2_OLL[8:(length(PolE1_OLL_yr)+length(PolE2_OLL_mon))]<-PolE2_OLL_mon
 
-cbind(PolE1_OLL,PolE2_OLL)
-length(PolE1_OLL)
-length(PolE2_OLL)
+length(PolE1_OLL_yr)
+# Combine
+L1<-(length(PolE1_OLL_yr)+length(PolE1_OLL_mon))
+PolE1_OLL[8:L1]<-PolE1_OLL_mon
+PolE2_OLL[8:L1]<-PolE2_OLL_mon
+
+#L2<-(length(PolE1_OLL_yr)+length(PolE1_OLL_mon)+length(PolE1_OLL_hyr))
+#PolE1_OLL[(L1+1):L2]<-PolE1_OLL_hyr
+#PolE2_OLL[(L1+1):L2]<-PolE2_OLL_hyr
+
+round(cbind(PolE1_OLL,PolE2_OLL),0)
+
+
 
 PolE_OLLx<-round(cbind(years[4:length(years)],PolE1_OLL,PolE2_OLL),0)
 
@@ -318,6 +365,7 @@ PolE_OLL
 PolC1_OLL_new<-PolE1_OLL*CPUE1_OLL[4:length(CPUE1_OLL)]*0.75 
 PolC2_OLL_new<-PolE2_OLL*CPUE2_OLL[4:length(CPUE2_OLL)]*0.75
 
+# to compare reported catch and catch generated from effort (and CPUE of others) 
 round(cbind(years[4:length(years)],PolC1_OLL*0.97, PolC1_OLL_new, 
 PolC2_OLL*0.97, PolC2_OLL_new),0)
 
@@ -326,6 +374,7 @@ PolC2_OLL*0.97, PolC2_OLL_new),0)
 #PolC1_coastZ<-c(rep(0,6),PolC1_coast)
 #PolC2_coastZ<-c(rep(0,6),PolC2_coast)
 
+# This combines different methods!! 2009 is the change point in time
 PolC_OLLx<-round(cbind(years[4:length(years)],
 c(PolC1_OLL_new[1:6],PolC1_OLL[7:(length(years)-3)]*0.97)+PolC1_coast, # 1:6 = 2000-2008
 c(PolC2_OLL_new[1:6],PolC2_OLL[7:(length(years)-3)]*0.97)+PolC2_coast)

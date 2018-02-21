@@ -11,6 +11,8 @@ library(lubridate)
 library(stringr)
 library(gridExtra)
 
+source("catch-effort/WGBAST_DB_functions.r")
+
 
 min_year<-2000
 max_year<-2017
@@ -19,8 +21,9 @@ NumYears<-length(years)
 
 pathIn<-"H:/Biom/FullLifeHistoryModel/2018/"
 
-df<-read_xlsx(str_c(pathIn, "dat/orig/catch&effort/WGBAST_Catch_2018_Turku_15022018_DK_LT_EE_RU_FI_LV_DE_SE_PL.xlsx"),
-                   range="A1:R8933", sheet="Catch data", col_names = T, guess_max = 8000, na=c("",".", "NaN"))
+df<-read_xlsx(str_c(pathIn, "dat/orig/catch&effort/WGBAST_Catch_2018_Turku_20022018.xlsx"),
+                   range="A1:R9113", # NOTE!!!! UPDATE!!!!
+              sheet="Catch data", col_names = T, guess_max = 8000, na=c("",".", "NaN"))
 
 df<-df%>%
   filter(YEAR>2000)%>%
@@ -45,15 +48,14 @@ tmp<-df%>%group_by(FISHERY)%>%
 salmon<-filter(df, SPECIES=="SAL", SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL")
 
 
-source("prg/catch&effort/WGBAST_DB_functions.r")
-source("prg/catch&effort/WGBAST_DB_Latvia.r")
-source("prg/catch&effort/WGBAST_DB_Denmark.r")
-source("prg/catch&effort/WGBAST_DB_Finland.r")
-source("prg/catch&effort/WGBAST_DB_Finland_CoastalCPUE.r")
-source("prg/catch&effort/WGBAST_DB_Sweden.r")
-source("prg/catch&effort/WGBAST_DB_Poland_CPUEothers.r")
-source("prg/catch&effort/WGBAST_DB_Poland_new.r")
-source("prg/catch&effort/WGBAST_DB_Germany.r")
+source("catch-effort/WGBAST_DB_Germany.r")
+source("catch-effort/WGBAST_DB_Latvia.r")
+source("catch-effort/WGBAST_DB_Denmark.r")
+source("catch-effort/WGBAST_DB_Finland.r")
+source("catch-effort/WGBAST_DB_Finland_CoastalCPUE.r")
+source("catch-effort/WGBAST_DB_Sweden.r")
+source("catch-effort/WGBAST_DB_Poland_CPUEothers.r")
+source("catch-effort/WGBAST_DB_Poland_new.r")
 
 # ==============================================================================
 

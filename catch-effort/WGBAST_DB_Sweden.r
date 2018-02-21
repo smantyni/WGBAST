@@ -42,6 +42,8 @@ sweden%>%count(SUB_DIV)
 ################################################################################
 # Put OT to driftnet fishery 
 # V. 2008 -> put OT to LL when DN is gone.
+swe_offs<-filter(sweden, FISHERY=="S")
+
 SweODN_catch<-filter(swe_offs, GEAR=="GND") # | GEAR=="OT")
 SweODN_eff<-filter(swe_offs, GEAR=="GND")
 
@@ -216,7 +218,7 @@ cbind(SweC_CTN_RECR,SweC_CTN,SweC_CTN_COMM,SweC_CTN_RECR+SweC_CTN_COMM)
 # This would be used if REAL swedish data was available
 filter(SweCTN, is.na(EFFORT)==F & EFFORT>0)%>%count(TP_TYPE)
 
-View(filter(SweCTN, is.na(EFFORT==F), TP_TYPE=="YR"))
+#View(filter(SweCTN, is.na(EFFORT==F), TP_TYPE=="YR"))
 # both HYR & YR, nevermind now if this is not used. Otherwise YR data should be accounted.
 
 SweE_CTN<-Effort_HYR(SweCTN)
