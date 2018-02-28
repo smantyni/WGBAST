@@ -15,6 +15,8 @@ Rivername<-c("Torne", "Simo","Kalix","Rane","Pite","Aby","Byske","Rickle","Savar
              "Ume","Ore","Logde","Ljungan","Morrum","Eman","Kage")
 nstocks<-16
 
+#pathData<-"C:/Users/412hpulkkin/Dropbox/WGBAST/JAGS/data_2018"
+pathData<-"C:/R/JAGS17/data_2016/"
 
 # Model 1: BUGS model
 # =================
@@ -37,10 +39,12 @@ length(Years2)
 #folder2<-"H:/Biom/FullLifeHistoryModel/2017/prg/output/JAGS/"; model<-"JAGS16"
 #load(str_c(folder2,"FLHM_mov_average_Mps_2018-01-22.RData"))
 
-load(file="H:/FLR/WGBAST18/WGBAST_JAGS_comparison_2.RData")
-
-chains<-as.mcmc.list(run)
+#load(file="H:/FLR/WGBAST18/WGBAST_JAGS_comparison_2.RData")
+#chains<-as.mcmc.list(run)
 #chains<-window(chains,start=1000000)
+
+load(file="H:/FLR/WGBAST18/comp_1_20022018.RData")
+chains<-chains1
 
 
 

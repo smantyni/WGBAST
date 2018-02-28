@@ -1,5 +1,5 @@
 ---
-title: "Some WGBAST results"
+#title: "Some WGBAST results"
 #author: 
 #date:
 output: html_document
@@ -11,12 +11,6 @@ output: html_document
 source("compare-models/models-select.r")
 ```
 
-# Model versions
-BUGS: 2015 assessment model (grey boxplots)
-
-JAGS: current development version (black boxplots)
-
-data: red dots
 
 # Mps
 

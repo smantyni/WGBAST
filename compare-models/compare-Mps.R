@@ -17,6 +17,7 @@ for(y in 1:(length(Years))){
 
 WSurv<-(exp(-as.mcmc(WMort)))
 RSurv<-(exp(-as.mcmc(RMort)))
+#dim(WSurv)
 
 dfW<-boxplot.bugs.df(WSurv, 1:(length(Years)))%>%
   mutate(Type="Wild")
@@ -51,12 +52,26 @@ dfM.bugs<-as.tibble(setNames(dfM,c("Type","q5","q25","q50","q75","q95")))%>%
 #dfR<-boxplot.jags.df(chains, "survMpsR[", 1:length(Years))%>%
 #  mutate(Type="Reared")
 
-survMpsW<-array(NA, dim=c(length(Years),length(chains[,"MpsW[1]"][[1]])))
-survMpsR<-array(NA, dim=c(length(Years),length(chains[,"MpsW[1]"][[1]])))
+#summary(chains[,"MpsW[1]"][[1]])
+#summary(exp(-chains[,"MpsW[1]"][[1]]))
+
+survMpsW<-array(NA, dim=c(length(chains[,"MpsW[1]"][[1]]),length(Years)))
+survMpsR<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
 for(y in 1:(length(Years))){
-  survMpsW[y,]<-exp(-chains[,str_c("MpsW[",y,"]")][[1]])
-  survMpsR[y,]<-exp(-chains[,str_c("MpsR[",y,"]")][[1]])
+  survMpsW[,y]<-exp(-chains[,str_c("MpsW[",y,"]")][[2]])
+  survMpsR[,y]<-exp(-chains[,str_c("MpsR[",y,"]")][[2]])
 }
+
+par(mfrow=c(3,3))
+for(i in 1:length(Years)){
+  gd<-gelman.diag(chains[,str_c("MpsR[",i,"]")])
+  if(gd$psrf[2]>3){
+    print(c(i, gd$psrf))
+    traceplot(chains[,str_c("MpsR[",i,"]")], main=i)
+  }
+  
+  }
+
 
 dfW<-boxplot.bugs.df(survMpsW, 1:(length(Years)))%>%
   mutate(Type="Wild")

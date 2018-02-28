@@ -393,8 +393,8 @@ for(i in 1:2){
   
   ifelse(i==1, age<-"1SW", age<-"MSW")
   
-  df1<-filter(df.bugs.Hdo, Type=="Wild", Age==age)
-  df2<-filter(df.jags.Hdo, Type=="Wild", Age==age)
+  df1<-filter(df.bugs.Hdo, Type=="Reared", Age==age)
+  df2<-filter(df.jags.Hdo, Type=="Reared", Age==age)
   
   plot<-ggplot(df1, aes(Year))+
     theme_bw()+
@@ -426,8 +426,8 @@ for(i in 1:2){
 
   ifelse(i==1, age<-"1SW", age<-"MSW")
   
-  df1<-filter(df.bugs.Hl, Type=="Wild", Age==age)
-  df2<-filter(df.jags.Hl, Type=="Wild", Age==age)
+  df1<-filter(df.bugs.Hl, Type=="Reared", Age==age)
+  df2<-filter(df.jags.Hl, Type=="Reared", Age==age)
   
 plot<-ggplot(df1, aes(Year))+
   theme_bw()+
@@ -457,8 +457,8 @@ grid.arrange(plot1, plot2, ncol=2)
 ## ---- graphs-Hc
 
 # coastal TN & GN
-df1<-filter(df.bugs.Hc, Type=="Wild", Year<2017)
-df2<-filter(df.jags.Hc, Type=="Wild")
+df1<-filter(df.bugs.Hc, Type=="Reared", Year<2017)
+df2<-filter(df.jags.Hc, Type=="Reared")
 
 ggplot(df1, aes(Year))+
   theme_bw()+
@@ -482,8 +482,8 @@ ggplot(df1, aes(Year))+
 ## ---- graphs-Hdc
 
 # coastal DN
-df1<-filter(df.bugs.Hdc, Type=="Wild")
-df2<-filter(df.jags.Hdc, Type=="Wild")
+df1<-filter(df.bugs.Hdc, Type=="Reared")
+df2<-filter(df.jags.Hdc, Type=="Reared")
 
 ggplot(df1, aes(Year))+
   theme_bw()+
@@ -503,7 +503,7 @@ ggplot(df1, aes(Year))+
 
 ## ---- graphs-Hr
 
-# river
+# river wild
 df1<-filter(df.bugs.Hr, Type=="Wild", Year<2019)
 df2<-filter(df.jags.Hr, Type=="Wild")
 
@@ -523,4 +523,23 @@ ggplot(df1, aes(Year))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
   facet_wrap(~Age)
 
+# river reared
+df1<-filter(df.bugs.Hr, Type=="Reared", Year<2019)
+df2<-filter(df.jags.Hr, Type=="Reared")
+
+ggplot(df1, aes(Year))+
+  theme_bw()+
+  geom_boxplot(
+    mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",
+    colour="grey", fill="grey95")+
+  geom_boxplot(
+    data=df2,
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  geom_line(data=df2,aes(Year,q50))+
+  labs(x="Year", y="Harvest rate", title="River, reared")+
+  geom_line(aes(Year,q50),col="grey")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  facet_wrap(~Age)
 
