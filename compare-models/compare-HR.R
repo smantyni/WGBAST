@@ -9,11 +9,11 @@
 
 # input
 ##########################
-HrW<-array(NA, dim=c(6,length(Years)-1, 1000))
-HrR<-array(NA, dim=c(6,length(Years)-1, 1000))
-HcW<-array(NA, dim=c(6,3,length(Years)-1, 1000))
-HcR<-array(NA, dim=c(6,3,length(Years)-1, 1000))
-for(i in 1:(length(Years)-1)){
+HrW<-array(NA, dim=c(6,length(YearsB)-1, 1000))
+HrR<-array(NA, dim=c(6,length(YearsB)-1, 1000))
+HcW<-array(NA, dim=c(6,3,length(YearsB)-1, 1000))
+HcR<-array(NA, dim=c(6,3,length(YearsB)-1, 1000))
+for(i in 1:(length(YearsB)-1)){
   for(a in 1:6){
     HrW[a,i,]<-read.table(paste(sep="", folder1,"/HrW[",i,",",a,"]1.txt"))[,2]
     HrR[a,i,]<-read.table(paste(sep="", folder1,"/HrR[",i,",",a,"]1.txt"))[,2]
@@ -25,13 +25,13 @@ for(i in 1:(length(Years)-1)){
       }
 }}
 
-HdcW<-array(NA, dim=c(5,length(Years)-1, 1000))
-HdcR<-array(NA, dim=c(5,length(Years)-1, 1000))
-HdoW<-array(NA, dim=c(5,length(Years)-1, 1000))
-HdoR<-array(NA, dim=c(5,length(Years)-1, 1000))
-HlW<-array(NA, dim=c(5,length(Years)-1, 1000))
-HlR<-array(NA, dim=c(5,length(Years)-1, 1000))
-for(i in 1:(length(Years)-1)){
+HdcW<-array(NA, dim=c(5,length(YearsB)-1, 1000))
+HdcR<-array(NA, dim=c(5,length(YearsB)-1, 1000))
+HdoW<-array(NA, dim=c(5,length(YearsB)-1, 1000))
+HdoR<-array(NA, dim=c(5,length(YearsB)-1, 1000))
+HlW<-array(NA, dim=c(5,length(YearsB)-1, 1000))
+HlR<-array(NA, dim=c(5,length(YearsB)-1, 1000))
+for(i in 1:(length(YearsB)-1)){
   for(a in 1:5){
     HdcW[a,i,]<-read.table(paste(sep="", folder1,"/HdcW[",i,",",a,"]1.txt"))[,2]
     HdcR[a,i,]<-read.table(paste(sep="", folder1,"/HdcR[",i,",",a,"]1.txt"))[,2]
@@ -42,10 +42,10 @@ for(i in 1:(length(Years)-1)){
   }
 }
 
-HoffsW<-array(NA, dim=c(5,(length(Years)-1),1000))
-HoffsR<-array(NA, dim=c(5,(length(Years)-1),1000))
+HoffsW<-array(NA, dim=c(5,(length(YearsB)-1),1000))
+HoffsR<-array(NA, dim=c(5,(length(YearsB)-1),1000))
 for(a in 1:5){
-  for(i in 1:(length(Years)-1)){
+  for(i in 1:(length(YearsB)-1)){
     for(s in 1:1000){
       HoffsW[a,i,s]<-(1-((1-HdoW[a,i,s])*(1-HlW[a,i,s])))
       HoffsR[a,i,s]<-(1-((1-HdoR[a,i,s])*(1-HlR[a,i,s])))
@@ -54,11 +54,11 @@ for(a in 1:5){
 }
 
 # from cohort+age to calendar years
-hrW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hrR<-array(NA, dim=c(2,length(Years)-2, 1000))
-hcW.au1<-array(NA, dim=c(2,length(Years)-2, 1000))
-hcR.au1<-array(NA, dim=c(2,length(Years)-2, 1000))
-for(y in 3:(length(Years))){ 
+hrW<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hrR<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hcW.au1<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hcR.au1<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+for(y in 3:(length(YearsB))){ 
   for(a in 2:3){ # Grilse & 2SW (=MSW)
     #hrW[grilse:MSW, ]
     hrW[a-1,y-2,]<-HrW[a,y-(a-1),]
@@ -69,13 +69,13 @@ for(y in 3:(length(Years))){
     hcR.au1[a-1,y-2,]<-HcR[a,1,y-(a-1),]
   }}
 
-hdcW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hdcR<-array(NA, dim=c(2,length(Years)-2, 1000))
-hdoW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hdoR<-array(NA, dim=c(2,length(Years)-2, 1000))
-hlW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hlR<-array(NA, dim=c(2,length(Years)-2, 1000))
-for(y in 3:(length(Years))){ 
+hdcW<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hdcR<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hdoW<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hdoR<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hlW<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+hlR<-array(NA, dim=c(2,length(YearsB)-2, 1000))
+for(y in 3:(length(YearsB))){ 
   for(a in 1:2){ # Grilse & 2SW (=MSW)
     #hdcW[grilse:MSW, ]
     hdcW[a,y-2,]<-HdcW[a,y-a,]
@@ -95,13 +95,13 @@ for(y in 3:(length(Years))){
 ##########################
 # RIVER FISHERIES
 #for(a in 1:6){
-#  dfW<-boxplot.bugs.df2(HrW, a ,1:(length(Years)-1))%>%
+#  dfW<-boxplot.bugs.df2(HrW, a ,1:(length(YearsB)-1))%>%
 for(a in 1:2){ # grilse vs msw
-  dfW<-boxplot.bugs.df2(hrW, a ,1:(length(Years)-2))%>%
+  dfW<-boxplot.bugs.df2(hrW, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="River", Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
 
-  dfR<-boxplot.bugs.df2(hrR, a ,1:(length(Years)-2))%>%
+  dfR<-boxplot.bugs.df2(hrR, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="River", Type="Reared")
   ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 }
@@ -122,15 +122,15 @@ df.bugs.Hr
 # COASTAL FISHERIES (TRAPNET&GILLNET)
 for(a in 1:2){
 #  for(u in 1:3){
-#    dfW<-boxplot.bugs.df3(HcW, a, u, 1:(length(Years)-1))%>%
+#    dfW<-boxplot.bugs.df3(HcW, a, u, 1:(length(YearsB)-1))%>%
 #      mutate(age=a, Fishery="Coast", Type="Wild", AU=u)
 #    ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
 #  a<-1
-     dfW<-boxplot.bugs.df2(hcW.au1, a, 1:(length(Years)-2))%>%
+     dfW<-boxplot.bugs.df2(hcW.au1, a, 1:(length(YearsB)-2))%>%
         mutate(age=a, Fishery="Coast", Type="Wild")
       ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
   
-    dfR<-boxplot.bugs.df2(hcR.au1, a, 1:(length(Years)-2))%>%
+    dfR<-boxplot.bugs.df2(hcR.au1, a, 1:(length(YearsB)-2))%>%
       mutate(age=a, Fishery="Coast", Type="Reared")
     ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 }
@@ -149,11 +149,11 @@ df.bugs.Hc
 
 # COASTAL DRIFTNET
 for(a in 1:2){
-  dfW<-boxplot.bugs.df2(hdcW, a ,1:(length(Years)-2))%>%
+  dfW<-boxplot.bugs.df2(hdcW, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="CDN", Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
   
-  dfR<-boxplot.bugs.df2(hdcR, a ,1:(length(Years)-2))%>%
+  dfR<-boxplot.bugs.df2(hdcR, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="CDN", Type="Reared")
   ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 }
@@ -169,11 +169,11 @@ df.bugs.Hdc
 
 # OFFSHORE DRIFTNET
 for(a in 1:2){
-  dfW<-boxplot.bugs.df2(hdoW, a ,1:(length(Years)-2))%>%
+  dfW<-boxplot.bugs.df2(hdoW, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="ODN", Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
   
-  dfR<-boxplot.bugs.df2(hdoR, a ,1:(length(Years)-2))%>%
+  dfR<-boxplot.bugs.df2(hdoR, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="ODN", Type="Reared")
   ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 }
@@ -190,11 +190,11 @@ df.bugs.Hdo
 
 # OFFSHORE LONGLINE
 for(a in 1:2){
-  dfW<-boxplot.bugs.df2(hlW, a ,1:(length(Years)-2))%>%
+  dfW<-boxplot.bugs.df2(hlW, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="OLL", Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
   
-  dfR<-boxplot.bugs.df2(hlR, a ,1:(length(Years)-2))%>%
+  dfR<-boxplot.bugs.df2(hlR, a ,1:(length(YearsB)-2))%>%
     mutate(age=a, Fishery="OLL", Type="Reared")
   ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 }
@@ -393,8 +393,8 @@ for(i in 1:2){
   
   ifelse(i==1, age<-"1SW", age<-"MSW")
   
-  df1<-filter(df.bugs.Hdo, Type=="Reared", Age==age)
-  df2<-filter(df.jags.Hdo, Type=="Reared", Age==age)
+  df1<-filter(df.bugs.Hdo, Type=="Wild", Age==age)
+  df2<-filter(df.jags.Hdo, Type=="Wild", Age==age)
   
   plot<-ggplot(df1, aes(Year))+
     theme_bw()+
@@ -420,14 +420,46 @@ for(i in 1:2){
 
 grid.arrange(plot1, plot2, ncol=2)
 
+
+for(i in 1:2){
+  
+  ifelse(i==1, age<-"1SW", age<-"MSW")
+  
+  df1<-filter(df.bugs.Hdo, Type=="Reared", Age==age)
+  df2<-filter(df.jags.Hdo, Type=="Reared", Age==age)
+  
+  plot<-ggplot(df1, aes(Year))+
+    theme_bw()+
+    geom_boxplot(
+      data=df1,
+      mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+      stat = "identity",
+      colour="grey", fill="grey95")+
+    geom_boxplot(
+      data=df2,
+      aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+      stat = "identity",fill=rgb(1,1,1,0.6))+
+    geom_line(data=df2,aes(Year,q50))+
+    labs(x="Year", y="Harvest rate", title=str_c("Offshore driftnet, reared ", age))+
+    geom_line(aes(Year,q50),col="grey")+
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
+  
+  if(i==1){plot1<-plot} 
+  if(i==2){plot2<-plot} 
+}
+
+
+grid.arrange(plot1, plot2, ncol=2)
+
 ## ---- graphs-Hl
 
 for(i in 1:2){
 
   ifelse(i==1, age<-"1SW", age<-"MSW")
   
-  df1<-filter(df.bugs.Hl, Type=="Reared", Age==age)
-  df2<-filter(df.jags.Hl, Type=="Reared", Age==age)
+  df1<-filter(df.bugs.Hl, Type=="Wild", Age==age)
+  df2<-filter(df.jags.Hl, Type=="Wild", Age==age)
   
 plot<-ggplot(df1, aes(Year))+
   theme_bw()+
@@ -453,10 +485,62 @@ if(i==2){plot2<-plot}
 
 grid.arrange(plot1, plot2, ncol=2)
 
+for(i in 1:2){
+  
+  ifelse(i==1, age<-"1SW", age<-"MSW")
+  
+  df1<-filter(df.bugs.Hl, Type=="Reared", Age==age)
+  df2<-filter(df.jags.Hl, Type=="Reared", Age==age)
+  
+  plot<-ggplot(df1, aes(Year))+
+    theme_bw()+
+    geom_boxplot(
+      data=df1,
+      mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+      stat = "identity",
+      colour="grey", fill="grey95")+
+    geom_boxplot(
+      data=df2,
+      aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+      stat = "identity",fill=rgb(1,1,1,0.6))+
+    geom_line(data=df2,aes(Year,q50))+
+    labs(x="Year", y="Harvest rate", title=str_c("Offshore longline, reared ", age))+
+    geom_line(aes(Year,q50),col="grey")+
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
+  
+  if(i==1){plot1<-plot} 
+  if(i==2){plot2<-plot} 
+}
+
+
+grid.arrange(plot1, plot2, ncol=2)
+
 
 ## ---- graphs-Hc
 
 # coastal TN & GN
+
+df1<-filter(df.bugs.Hc, Type=="Wild", Year<2017)
+df2<-filter(df.jags.Hc, Type=="Wild")
+
+ggplot(df1, aes(Year))+
+  theme_bw()+
+  geom_boxplot(
+    mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",
+    colour="grey", fill="grey95")+
+  geom_boxplot(
+    data=df2,
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  geom_line(data=df2,aes(Year,q50))+
+  labs(x="Year", y="Harvest rate", title="Coastal TN & GN, wild AU1")+
+  geom_line(aes(Year,q50),col="grey")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  coord_cartesian(ylim=c(0,1))+
+  facet_wrap(~Age)
+
 df1<-filter(df.bugs.Hc, Type=="Reared", Year<2017)
 df2<-filter(df.jags.Hc, Type=="Reared")
 
@@ -471,7 +555,7 @@ ggplot(df1, aes(Year))+
       aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
       stat = "identity",fill=rgb(1,1,1,0.6))+
   geom_line(data=df2,aes(Year,q50))+
-  labs(x="Year", y="Harvest rate", title="Coastal TN & GN, wild AU1")+
+  labs(x="Year", y="Harvest rate", title="Coastal TN & GN, reared AU1")+
   geom_line(aes(Year,q50),col="grey")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
   coord_cartesian(ylim=c(0,1))+
@@ -482,6 +566,25 @@ ggplot(df1, aes(Year))+
 ## ---- graphs-Hdc
 
 # coastal DN
+df1<-filter(df.bugs.Hdc, Type=="Wild")
+df2<-filter(df.jags.Hdc, Type=="Wild")
+
+ggplot(df1, aes(Year))+
+  theme_bw()+
+  geom_boxplot(
+    mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",
+    colour="grey", fill="grey95")+
+  geom_boxplot(
+    data=df2,
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  geom_line(data=df2,aes(Year,q50))+
+  labs(x="Year", y="Harvest rate", title="Coastal DN, wild")+
+  geom_line(aes(Year,q50),col="grey")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  facet_wrap(~Age)
+
 df1<-filter(df.bugs.Hdc, Type=="Reared")
 df2<-filter(df.jags.Hdc, Type=="Reared")
 
@@ -496,7 +599,7 @@ ggplot(df1, aes(Year))+
       aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
       stat = "identity",fill=rgb(1,1,1,0.6))+
   geom_line(data=df2,aes(Year,q50))+
-  labs(x="Year", y="Harvest rate", title="Coastal DN, wild")+
+  labs(x="Year", y="Harvest rate", title="Coastal DN, reared")+
   geom_line(aes(Year,q50),col="grey")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
   facet_wrap(~Age)

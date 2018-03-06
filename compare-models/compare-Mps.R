@@ -7,7 +7,7 @@
 # Model 1: BUGS
 # =================
 
-for(y in 1:(length(Years))){
+for(y in 1:(length(YearsB))){
   x1<-read.table(paste(sep="", folder1,"/MpsW[",y,"]1.txt") )
   ifelse(y==1, WMort<-x1[,2], WMort<-cbind(WMort,x1[,2]))
 
@@ -19,9 +19,9 @@ WSurv<-(exp(-as.mcmc(WMort)))
 RSurv<-(exp(-as.mcmc(RMort)))
 #dim(WSurv)
 
-dfW<-boxplot.bugs.df(WSurv, 1:(length(Years)))%>%
+dfW<-boxplot.bugs.df(WSurv, 1:(length(YearsB)))%>%
   mutate(Type="Wild")
-dfR<-boxplot.bugs.df(RSurv, 1:(length(Years)))%>%
+dfR<-boxplot.bugs.df(RSurv, 1:(length(YearsB)))%>%
   mutate(Type="Reared")
 
 df<-full_join(dfW,dfR, by=NULL)

@@ -58,6 +58,39 @@ knitr::read_chunk("compare-models/compare-SR.r")
 
 ```
 
+# catches
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-catches.r")
+
+```
+
+```{r load-catches, include=F}
+
+```
+
+```{r graphs-catches, echo=F, warning=F}
+
+```
+
+
+# Wild proportions
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-wprop.r")
+
+```
+
+```{r load-wprop, include=F}
+
+```
+
+```{r graphs-wprop, echo=F, warning=F}
+
+```
+
+
+
 
 # Number of smolts
 

@@ -9,9 +9,9 @@
 
 
 
-LW<-array(NA, dim=c(4,length(Years)+1,1000))
-LR<-array(NA, dim=c(4,length(Years)+1,1000))
-for(y in 1:     length(Years)){
+LW<-array(NA, dim=c(4,length(YearsB)+1,1000))
+LR<-array(NA, dim=c(4,length(YearsB)+1,1000))
+for(y in 1: length(YearsB)){
 #    ifelse(prevAss==1,length(Years),length(Years)+1)){
   for(a in 1:4){
     LR[a,y,]<-read.table(paste(sep="", folder1,"/LR[",y,",",a,"]1.txt"))[,2]
@@ -20,11 +20,11 @@ for(y in 1:     length(Years)){
 }
 
 for(a in 1:4){
-  dfR<-boxplot.bugs.df2(LR, a ,1:length(Years))%>%
+  dfR<-boxplot.bugs.df2(LR, a ,1:length(YearsB))%>%
     mutate(age=a, Type="Reared")
   ifelse(a>1, dfR2<-bind_rows(dfR2,dfR),dfR2<-dfR)
 
-  dfW<-boxplot.bugs.df2(LW, a ,1:length(Years))%>%
+  dfW<-boxplot.bugs.df2(LW, a ,1:length(YearsB))%>%
     mutate(age=a, Type="Wild")
   ifelse(a>1, dfW2<-bind_rows(dfW2,dfW),dfW2<-dfW)
 }

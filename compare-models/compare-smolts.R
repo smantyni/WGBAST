@@ -9,23 +9,23 @@
 # Model 1: BUGS
 # =================
 
-smolts<-array(NA, dim=c(16,length(Years2)+7, 1000))
+smolts<-array(NA, dim=c(16,length(Years2B)+7, 1000))
 
-for(y in 6:(length(Years2)+7)){
+for(y in 6:(length(Years2B)+7)){
   for(r in 1:15){
     x<-read.table(paste(sep="", folder1,"/SmoltWW[",y,",",r,"]1.txt"))
     smolts[r,y,]<-x[1:1000,2]
   }
 }
 for(r in 16:16){ #Kåge
-  for(y in 27:(length(Years2)+7)){ # 2013->
+  for(y in 27:(length(Years2B)+7)){ # 2013->
     x<-read.table(paste(sep="", folder1,"/SmoltWW[",y,",",r,"]1.txt"))
     smolts[r,y,]<-x[1:1000,2]
   }
 }
 
 for(r in 1:nstocks){
-  df<-boxplot.bugs.df2(smolts, r ,1:length(Years))%>%
+  df<-boxplot.bugs.df2(smolts, r ,1:length(YearsB))%>%
     mutate(River=r)
   ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
 }

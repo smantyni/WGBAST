@@ -41,18 +41,19 @@ boxplot.jags.df2<-function(mcmc.chains, name1, name2, X){ # chain object, variab
   #name2<-str_c(r,"]")
   #X<-1:30
 
-  #mcmc.chains<-dsub
-  #name1<-"NspWtot["
-  #name2<-str_c(r,"]")
-  #X<-1:30
+  #mcmc.chains<-chains
+  #name1<-"Wprop["
+  #name2<-"1]" 
+  #X<-6:(length(Years)-1)
   
   Q5<-c();Q25<-c();Q50<-c();Q75<-c();Q95<-c()
   n<-length(X)
   
-  for(i in 1:n){
-    #i<-6
+  for(i in X[1]:X[n]){
+    #i<-length(Years)-1
     #str_c(name1,i,",",name2)
     #y <- as.mcmc(mcmc.chains[,str_c(name1,i,",",name2)]) # if only one chain
+    
     y <- as.mcmc(mcmc.chains[,str_c(name1,i,",",name2)][[1]]) # if several chains
     tmp<-summary(y,quantiles=c(0.05,0.25,0.5,0.75,0.95))
     Q5[i] = tmp$quantiles[1]
@@ -62,6 +63,7 @@ boxplot.jags.df2<-function(mcmc.chains, name1, name2, X){ # chain object, variab
     Q95[i] = tmp$quantiles[5]
   }
   
+  if(X[1]>1){X<-c(rep(NA,X[1]-1),X)}
   df<-data.frame(
     x<-X,
     q5=Q5,

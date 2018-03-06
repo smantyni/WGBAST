@@ -11,14 +11,14 @@
 
 Nsp<-array(NA, dim=c(16,30, 1000))
 
-for(y in 6:(length(Years2)+5)){
+for(y in 6:(length(Years2B)+5)){
   for(r in 1:15){
     x<-read.table(paste(sep="", folder1,"/NspWtot[",y,",",r,"]1.txt"))
     Nsp[r,y,]<-x[1:1000,2]
   }
 }
 for(r in 16:16){ #Kåge
-  for(y in 27:(length(Years2)+5)){ # 2013->
+  for(y in 27:(length(Years2B)+5)){ # 2013->
     x<-paste(sep="", folder1,"/NspWtot[",y,",",r,"]1.txt")
     temp <-read.table(x)
     Nsp[r,y,]<-temp[1:1000,2]
@@ -28,7 +28,7 @@ for(r in 16:16){ #Kåge
 dim(Nsp)
 
 for(r in 1:nstocks){
-  df<-boxplot.bugs.df2(Nsp, r ,1:length(Years))%>%
+  df<-boxplot.bugs.df2(Nsp, r ,1:length(YearsB))%>%
     mutate(River=r)
   ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
 }
@@ -57,30 +57,23 @@ df.jags
 
 # Spawner count datasets
 # =================
-counts1<-read_tsv("data/spawner_counts.txt")%>%
-  mutate(Year=c(1:length(Years)))%>%
+
+counts<-read_tsv(str_c(pathData,"spawner_counts.txt"),skip=7,col_names=T, na="NA")
+colnames(counts)<-Rivername
+counts<-counts%>%
+  mutate(Year=c(1:(length(Years)+1)))%>%
   mutate(Year=Year+1986)%>%
-  gather(key="River", value="Count", `Tornio[]`:`Kalix[]`)%>% # re-arrange 
+  select(Torne, Simo, Kalix, Ume, Year)%>%
+  gather(key="River", value="Count", `Torne`:`Ume`)%>%
   mutate(River=fct_recode(River,
-                          "1"="Tornio[]",
-                          "2"="Simo[]",
-                          "3"="Kalix[]"))%>%
+                          "1"="Torne",
+                          "2"="Simo",
+                          "3"="Kalix",
+                          "10"="Ume"))%>%
   mutate(River=parse_integer(River))%>%
   mutate(Count=Count/1000)
 
-counts2<-read_tsv("data/UmeKalixFL.txt", skip=5, col_names = T)%>%
-  mutate(Year=c(1:length(Years)))%>%
-  mutate(Year=Year+1986)%>%
-  gather(key="River", value="Count", `KalixFLtot[]`:`UmeFLtot[]`)%>% # re-arrange 
-  mutate(River=fct_recode(River,
-                          "3"="KalixFLtot[]",
-                          "10"="UmeFLtot[]"))%>%
-  mutate(River=parse_integer(River))%>%
-  mutate(Count=Count/1000)%>%
-  filter(River==10)
-
-counts<-full_join(counts1,counts2)
-df.bugs<-left_join(df.bugs,counts, by=NULL)
+df.jags<-left_join(df.jags,counts, by=NULL)
 #View(df.bugs)
 
 ## ---- graphs-nsp
@@ -109,7 +102,7 @@ print(ggplot(df2, aes(Year))+
   labs(x="Year", y="Number of spawners (1000s)", title=Rivername[r])+
   geom_line(aes(Year,q50))+
   geom_line(data=df1,aes(Year,q50),col="grey")+  
-  geom_point(data=df1, aes(Year, Count),col="red")+
+  geom_point(data=df2, aes(Year, Count),col="red")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))#+
   #coord_cartesian(xlim = 1992:2016)
 #  facet_wrap(~River) # Facet if you like to have all graphs together, downside is you cannot easily control ylim and scales are very different
