@@ -8,7 +8,7 @@
 
 
 #Run first CatchEffort.r
-source("H:/Biom/FullLifeHistoryModel/2017/prg/catch&effort/CatchEffort17.r")
+source("catch-effort/CatchEffort.r")
 
 
 # =======================================================================
