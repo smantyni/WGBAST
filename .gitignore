@@ -1,7 +1,12 @@
 
+Inputs*
+ProjEffort*
+InitArrays*
+
 *.html
 *.txt
 *.xlsx
+*.csv
 
 .Rproj.user
 .Rhistory

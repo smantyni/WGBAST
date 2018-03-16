@@ -11,12 +11,14 @@ library(coda)
 source("functions/tidy-functions.r")
 
 
-Rivername<-c("Torne", "Simo","Kalix","Rane","Pite","Aby","Byske","Rickle","Savaran",
-             "Ume","Ore","Logde","Ljungan","Morrum","Eman","Kage")
 nstocks<-16
 
 pathData<-"C:/Users/412hpulkkin/Dropbox/WGBAST/JAGS/data_2018/"
 #pathData<-"C:/R/JAGS17/data_2016/"
+
+Rivername<-c("Torne", "Simo","Kalix","Rane","Pite","Aby","Byske","Rickle","Savaran",
+             "Ume","Ore","Logde","Ljungan","Morrum","Eman","Kage")
+Rivername_long<-read.table(str_c(pathData, "rivernames.txt"))[,1]
 
 # Model 1: BUGS model
 # =================
