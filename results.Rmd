@@ -1,7 +1,7 @@
 ---
-#title: "Some WGBAST results"
-#author: 
-#date:
+title: ""
+author: ""
+date: ""
 output: html_document
 ---
 
@@ -9,6 +9,20 @@ output: html_document
 #knitr::opts_chunk$set(echo = TRUE)
 
 source("compare-models/models-select.r")
+```
+
+# SR curves
+```{r cache=F, include=F}
+knitr::read_chunk("figures/F4233_SR.r")
+
+```
+
+```{r load-SRcurves, include=F}
+
+```
+
+```{r graphs-SRcurves, echo=F}
+
 ```
 
 
@@ -27,6 +41,10 @@ knitr::read_chunk("compare-models/compare-Mps.r")
 
 ```
 
+```{r graphs-mortality-traces, echo=F}
+
+```
+
 
 # Homing rates
 
@@ -40,6 +58,10 @@ knitr::read_chunk("compare-models/compare-maturation.r")
 ```
 
 ```{r graphs-mat, echo=F}
+
+```
+
+```{r graphs-mat-traces, echo=F}
 
 ```
 

@@ -17,14 +17,18 @@ for(y in 1:(length(YearsB))){
 
 WSurv<-(exp(-as.mcmc(WMort)))
 RSurv<-(exp(-as.mcmc(RMort)))
+ratio<-RSurv/WSurv
 #dim(WSurv)
 
 dfW<-boxplot.bugs.df(WSurv, 1:(length(YearsB)))%>%
   mutate(Type="Wild")
 dfR<-boxplot.bugs.df(RSurv, 1:(length(YearsB)))%>%
   mutate(Type="Reared")
+df_ratio<-boxplot.bugs.df(ratio, 1:(length(YearsB)))%>%
+  mutate(Type="Ratio")
 
 df<-full_join(dfW,dfR, by=NULL)
+df<-full_join(df,df_ratio, by=NULL)
 
 df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
   mutate(Year=Year+1986)
@@ -57,28 +61,24 @@ dfM.bugs<-as.tibble(setNames(dfM,c("Type","q5","q25","q50","q75","q95")))%>%
 
 survMpsW<-array(NA, dim=c(length(chains[,"MpsW[1]"][[1]]),length(Years)))
 survMpsR<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
+ratio<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
 for(y in 1:(length(Years))){
   survMpsW[,y]<-exp(-chains[,str_c("MpsW[",y,"]")][[2]])
   survMpsR[,y]<-exp(-chains[,str_c("MpsR[",y,"]")][[2]])
+  ratio[,y]<-survMpsR[,y]/survMpsW[,y]
 }
 
-par(mfrow=c(3,3))
-for(i in 1:length(Years)){
-  gd<-gelman.diag(chains[,str_c("MpsR[",i,"]")])
-  if(gd$psrf[2]>3){
-    print(c(i, gd$psrf))
-    traceplot(chains[,str_c("MpsR[",i,"]")], main=i)
-  }
-  
-  }
 
 
 dfW<-boxplot.bugs.df(survMpsW, 1:(length(Years)))%>%
   mutate(Type="Wild")
 dfR<-boxplot.bugs.df(survMpsR, 1:(length(Years)))%>%
   mutate(Type="Reared")
+df_ratio<-boxplot.bugs.df(ratio, 1:(length(Years)))%>%
+  mutate(Type="Ratio")
 
 df<-full_join(dfW,dfR, by=NULL)
+df<-full_join(df,df_ratio, by=NULL)
 
 df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
 mutate(Year=Year+1986)
@@ -133,5 +133,20 @@ ggplot(df2, aes(Type))+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 4))+
   labs(x="Year", y="Survival", title="Adult survival")
   
- 
+
+## ---- graphs-mortality-traces
+
+
+par(mfrow=c(2,3))
+for(i in 1:length(Years)){
+  gd<-gelman.diag(chains[,str_c("MpsW[",i,"]")])
+  if(gd$psrf[2]>2){
+    #print(c(i, gd$psrf))
+    traceplot(chains[,str_c("MpsW[",i,"]")], main=str_c("MpsW ",df.jags$Year[i]))
+  }
+}
+
+traceplot(chains[,"MW"], main="MW")
+traceplot(chains[,"MR"], main="MR")
+
 

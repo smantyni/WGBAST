@@ -147,3 +147,11 @@ ggplot(df2, aes(stock))+
   #coord_cartesian(ylim=c(0,2500))+
   scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
+
+## ---- graphs-SR-traces
+
+
+
+#traceplot(chains[,"MW"], main="MW")
+#traceplot(chains[,"MR"], main="MR")
+

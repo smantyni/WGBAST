@@ -9,7 +9,7 @@
 # Model 1: BUGS
 # =================
 
-Nsp<-array(NA, dim=c(16,30, 1000))
+Nsp<-array(NA, dim=c(16,(length(Years2B)+5), 1000))
 
 for(y in 6:(length(Years2B)+5)){
   for(r in 1:15){
@@ -36,6 +36,7 @@ df.bugs<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))
   select(River, everything())%>%
   mutate(Year=Year+1986)
 df.bugs
+#View(df.bugs)
 
 
 # Model 2: JAGS
@@ -44,7 +45,7 @@ df.bugs
 # Number of spawners per river
 for(r in 1:nstocks){
 #r<-1
-  df<-boxplot.jags.df2(chains, "NspWtot[",str_c(r,"]"),1:length(Years))
+  df<-boxplot.jags.df2(chains, "NspWtot[",str_c(r,"]"),1:(length(Years)+1))
   #df<-boxplot.jags.df2(dsub, "NspWtot[",str_c(r,"]"),1:length(Years))
   df<-mutate(df, River=r)
   ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
@@ -53,6 +54,7 @@ df.jags<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))
   select(River, everything())%>%
   mutate(Year=Year+1986)
 df.jags
+#View(df.jags)
 
 
 # Spawner count datasets

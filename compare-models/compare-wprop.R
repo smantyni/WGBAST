@@ -89,7 +89,23 @@ ggplot(df2, aes(Year))+
   coord_cartesian(ylim=c(0,1))+
   geom_point(aes(x=Year, y=obs_prop))+
   facet_grid(Type~.)
-  
-  
+
+
+## ---- graphs-wprop-traces
+
+par(mfrow=c(1,2))
+for(i in 6:length(Years)){
+  for(a in 1:2){
+    #i<-1
+    #a<-1
+    gd<-gelman.diag(chains[,str_c("Wprop[",i,",",a,"]")])
+    if(gd$psrf[2]>2){
+      #print(c(a,i, gd$psrf))
+      traceplot(chains[,str_c("Wprop[",i,",",a,"]")], main=str_c("Wprop age=",a," ",df.jags$Year[i]))
+    }
+  }
+}
+
+
 
 

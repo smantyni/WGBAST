@@ -8,6 +8,7 @@ library(stringr)
 library(gridExtra)
 library(coda)
 
+# setwd("C:/R/WGBAST/")
 source("functions/tidy-functions.r")
 
 
@@ -53,10 +54,11 @@ length(Years2)
 
 #load(file="H:/FLR/WGBAST18/comp_1_20022018.RData")
 
-load(file="H:/FLR/WGBAST18/WGBAST_JAGS_SRorig.RData"); SRnew<-"no"
+#load(file="H:/FLR/WGBAST18/WGBAST_JAGS_SRorig.RData"); SRnew<-"no"
 #load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR.RData"); SRnew<-"yes"
+load(file="H:/FLR/WGBAST18/new_SR_long2018-03-19.RData"); SRnew<-"yes"
 
-chains<-as.mcmc.list(run1)
+#chains<-as.mcmc.list(run1)
 
 
 
