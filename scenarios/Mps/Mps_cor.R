@@ -7,6 +7,7 @@
 
 # ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 # POST-SMOLT-MORTALITY, input (Wild smolts)
+load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData")
 
 MpsW<-array(NA, dim=c(length(chains[,"MpsW[1]"][[1]]),length(Years)))
 for(y in 1:length(Years)){   
@@ -59,3 +60,4 @@ for(i in 1:(length(Years))){
   CVR[i]<-SummaryMpsR$statistics[2]/SummaryMpsR$statistics[1]
 }
 cbind(MpsMedR,CVR)
+

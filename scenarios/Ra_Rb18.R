@@ -3,6 +3,7 @@
 Ra<-chains[,"Ra"]
 Rb<-chains[,"Rb"]
 
+par(mfrow=c(1,2))
 traceplot(Ra)
 traceplot(Rb)
 

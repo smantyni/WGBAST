@@ -38,7 +38,7 @@ model{
   tau<-1/sigma2e
   w~dunif(0,1) # autocorrelation coefficient
   
-  pred_averageMean<-mean(x[25:28]) #2011-2014, 4 year average without last year which is more uncertain
+  pred_averageMean<-mean(x[27:30]) #2013-2016, 4 year average without last year which is more uncertain
   #pred_averageLow<-x[19] # 19= 2005
   #pred_averageLast<-x[25] # 25= 2011
   #pred_average<-mu
@@ -48,7 +48,7 @@ Mname<-"model_Mps.txt"
 cat(M1,file=str_c("scenarios/", Mname))
 
 data<-list(
-  m=29, # until 2015
+  m=31, # until 2017
   Mps_obs=MpsMed,
   cv_obs=CV
 )
@@ -60,7 +60,7 @@ var_names<-c(
 )
 
 run<-run.jags(str_c("scenarios/", Mname),monitor=var_names, data=data, n.chains=2,sample=10000, burnin=5000,
-               method='rjparallel', modules = "mix", keep.jags.files = "test")
+               method='parallel', modules = "mix", keep.jags.files = "test")
 
 plot(run)
 
