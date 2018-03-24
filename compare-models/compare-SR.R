@@ -47,18 +47,26 @@ df.bugs<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95", "par" )))
 
 if(SRnew=="no"){
   df1<-boxplot.jags.df(chains, "R0[", 1:nstocks)%>%
-  mutate(par="R0")
-
+    mutate(par="R0")
+  
   df2<-boxplot.jags.df(chains, "z[", 1:nstocks)%>%
     mutate(par="z")
-
+  df5<-df1%>%
+    mutate(par="R0_rep")
   df<-full_join(df1,df2)
   
 }
 if(SRnew=="yes"){
-df1<-boxplot.jags.df(chains, "K[", 1:nstocks)%>%
-  mutate(par="R0")
-df<-df1
+  df1<-boxplot.jags.df(chains, "K[", 1:nstocks)%>%
+    mutate(par="K")
+  
+  df2<-boxplot.jags.df(chains, "z[32,", 1:nstocks)%>%
+    mutate(par="z")
+  df<-full_join(df1,df2)
+  
+  df5<-boxplot.jags.df(chains, "R0[32,", 1:nstocks)%>%
+    mutate(par="R0")
+  
 }
 df3<-boxplot.jags.df(chains, "alphaSR[", 1:nstocks)%>%
   mutate(par="alpha")
@@ -67,6 +75,7 @@ df4<-boxplot.jags.df(chains, "betaSR[", 1:nstocks)%>%
 
 df<-full_join(df,df3)
 df<-full_join(df,df4)
+df<-full_join(df,df5)
 
 df.jags<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95","par")))
 df.jags
