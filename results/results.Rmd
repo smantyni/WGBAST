@@ -11,20 +11,6 @@ output: html_document
 source("compare-models/models-select.r")
 ```
 
-# SR curves
-```{r cache=F, include=F}
-knitr::read_chunk("figures/F4233_SR.r")
-
-```
-
-```{r load-SRcurves, include=F}
-
-```
-
-```{r graphs-SRcurves, echo=F}
-
-```
-
 
 # Mps
 
@@ -44,6 +30,7 @@ knitr::read_chunk("compare-models/compare-Mps.r")
 ```{r graphs-mortality-traces, echo=F}
 
 ```
+
 
 
 # Homing rates
@@ -80,6 +67,22 @@ knitr::read_chunk("compare-models/compare-SR.r")
 
 ```
 
+# SR curves
+```{r cache=F, include=F}
+knitr::read_chunk("figures/F4233_SR.r")
+
+```
+
+```{r load-SRcurves, include=F}
+
+```
+
+```{r graphs-SRcurves, echo=F}
+
+```
+
+
+
 # catches
 
 ```{r cache=F, include=F}
@@ -111,6 +114,9 @@ knitr::read_chunk("compare-models/compare-wprop.r")
 
 ```
 
+```{r graphs-wprop-traces, echo=F, warning=F}
+
+```
 
 
 

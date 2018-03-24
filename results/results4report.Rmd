@@ -1,0 +1,43 @@
+---
+title: ""
+author: ""
+date: ""
+output: html_document
+---
+
+```{r setup, include=F, cache=F}
+#knitr::opts_chunk$set(echo = TRUE)
+
+source("compare-models/models-select.r")
+```
+
+
+
+
+
+# Sea surface temperature
+
+
+```{r cache=F, include=F}
+knitr::read_chunk("submodels/SST/data-SST.r")
+
+```
+
+```{r load-data-sst, include=F}
+
+```
+
+
+
+```{r cache=F, include=F}
+knitr::read_chunk("submodels/SST/graphs-SST.r")
+
+```
+
+```{r load-sst-april, include=F}
+
+```
+
+```{r graphs-sst-april, echo=F}
+
+```

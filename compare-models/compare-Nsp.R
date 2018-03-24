@@ -75,6 +75,20 @@ counts<-counts%>%
   mutate(River=parse_integer(River))%>%
   mutate(Count=Count/1000)
 
+counts2<-read_tsv(str_c(pathData,"spawner_counts_notInJAGS.txt"),col_names=T, na="NA")
+counts2<-counts2%>%
+  gather(key="River", value="Count2", `Rane`:`Ore`)%>%
+  mutate(River=fct_recode(River,
+                        "4"="Rane","5"="Pite",
+                        "6"="Aby","7"="Byske", "8"="Rickle", "11"="Ore"))%>%
+  mutate(River=parse_integer(River))%>%
+  mutate(Count2=Count2/1000)
+  
+
+counts<-full_join(counts, counts2, by=NULL)
+#View(counts2)
+
+
 df.jags<-left_join(df.jags,counts, by=NULL)
 #View(df.bugs)
 
@@ -84,14 +98,15 @@ df.jags<-left_join(df.jags,counts, by=NULL)
 # Draw boxplots to compare
 # ==========================
 
-#df1<-filter(df.bugs, Year>1991)
-#df2<-filter(df.jags, Year>1991)
 
-for(r in 1:16){
-#r<-1
-df1<-filter(df.bugs, River==r, Year>1991)
-df2<-filter(df.jags, River==r, Year>1991)
-print(ggplot(df2, aes(Year))+
+#for(r in 1:16){
+#r<-5
+#df1<-filter(df.bugs, River==r, Year>1991)
+#df2<-filter(df.jags, River==r, Year>1991)
+df1<-filter(df.bugs, Year>1991)
+df2<-filter(df.jags, Year>1991)
+#print(
+  ggplot(df2, aes(Year))+
   theme_bw()+
   geom_boxplot(
     data=df1,
@@ -101,13 +116,59 @@ print(ggplot(df2, aes(Year))+
   geom_boxplot(
     aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
     stat = "identity",fill=rgb(1,1,1,0.6))+
-  labs(x="Year", y="Number of spawners (1000s)", title=Rivername[r])+
+  labs(x="Year", y="Number of spawners (1000s)", title=Rivername_long[r])+
   geom_line(aes(Year,q50))+
   geom_line(data=df1,aes(Year,q50),col="grey")+  
   geom_point(data=df2, aes(Year, Count),col="red")+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))#+
-  #coord_cartesian(xlim = 1992:2016)
-#  facet_wrap(~River) # Facet if you like to have all graphs together, downside is you cannot easily control ylim and scales are very different
-)
+  geom_point(data=df2, aes(Year, Count2),col="blue", shape=17)+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  facet_wrap(~River, scales="free") # Facet if you like to have all graphs together, downside is you cannot easily control ylim and scales are very different
+  
+#)
+#}
+
+## ---- graphs-nsp-report
+
+
+# Draw boxplots to compare
+# ==========================
+
+#df1<-filter(df.bugs, Year>1991)
+#df2<-filter(df.jags, Year>1991)
+
+plots<-list()
+for(r in 1:16){
+  #r<-1
+  df1<-filter(df.bugs, River==r, Year>1991)
+  df2<-filter(df.jags, River==r, Year>1991)
+  plot<-ggplot(df2, aes(Year))+
+          theme_bw()+
+          geom_boxplot(
+            aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+            stat = "identity",fill=rgb(1,1,1,0.6))+
+          labs(x="Year", y="1000s spawners", title=Rivername_long[r])+
+          geom_line(aes(Year,q50))+
+          geom_point(data=df2, aes(Year, Count),col="red")+
+          geom_point(data=df2, aes(Year, Count2),col="blue", shape=17)+
+          scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
+  plots[[r]]<-plot
 }
 
+res <- 6
+name_figure <- "spawners1.png"
+png(filename = name_figure, height = 500*res, width = 500*res, res=72*res)
+
+grid.arrange(plots[[1]],plots[[2]], plots[[3]],plots[[4]], 
+             plots[[5]],plots[[6]], plots[[7]],plots[[8]], 
+             plots[[9]],ncol=3)
+
+dev.off()
+
+res <- 6
+name_figure <- "spawners2.png"
+png(filename = name_figure, height = 500*res, width = 500*res, res=72*res)
+
+grid.arrange(plots[[10]], plots[[11]],plots[[12]], 
+             plots[[13]],plots[[14]], plots[[15]],plots[[16]],ncol=3)
+
+dev.off()
