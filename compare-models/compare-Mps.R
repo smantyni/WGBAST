@@ -35,15 +35,22 @@ df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>
 df.bugs
 
 # adult M
+
+#traceplot(as.mcmc(M[,1]))
+#traceplot(as.mcmc(M[,2]))
+
+                  
 M<-cbind(read.table(paste(sep="", folder1,"/MW1.txt"))[,2],
          read.table(paste(sep="", folder1,"/MR1.txt"))[,2])
 M<-exp(-M)
-M<-as.tibble(setNames(M,c("Wild", "Reared")))
+M<-as.tibble(M)%>%
+  setNames(c("Wild", "Reared"))
 
-dfM<-boxplot.bugs.df(M, 1:2) #Both types in same!
+M<-M%>%mutate(Ratio=Reared/Wild)
+
+dfM<-boxplot.bugs.df(M, 1:3) #Both types in same!
 dfM.bugs<-as.tibble(setNames(dfM,c("Type","q5","q25","q50","q75","q95")))%>%
-  mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2"))
-
+  mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2", "Ratio"="3"))
 
 
 # Model 2: JAGS
@@ -86,10 +93,14 @@ df.jags
 
 # adult M
 M2<-cbind(chains[,"MW"][[1]],chains[,"MR"][[1]])
-M2<-exp(-M2)  
-dfM2<-boxplot.bugs.df(M2, 1:2) #Both types in same!
+M2<-exp(-M2)
+M2<-as.tibble(M2)%>%
+  setNames(c("Wild", "Reared"))%>%
+  mutate(Ratio=Reared/Wild)
+
+dfM2<-boxplot.bugs.df(M2, 1:3) #Both types in same!
 dfM.jags<-as.tibble(setNames(dfM2,c("Type","q5","q25","q50","q75","q95")))%>%
-  mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2"))
+  mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2", "Ratio"="3"))
 
 
 # Draw boxplots to compare

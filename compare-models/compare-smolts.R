@@ -41,7 +41,7 @@ df.bugs
 # Number of spawners per river
 for(r in 1:nstocks){
   #r<-1
-  df<-boxplot.jags.df2(chains, "SmoltWW[",str_c(r,"]"),1:length(Years))
+  df<-boxplot.jags.df2(chains, "SmoltWW[",str_c(r,"]"),1:(length(Years)+3))
   #df<-boxplot.jags.df2(dsub, "NspWtot[",str_c(r,"]"),1:length(Years))
   df<-mutate(df, River=r)
   ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
@@ -75,7 +75,7 @@ for(r in 1:16){
           geom_boxplot(
             aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
             stat = "identity",fill=rgb(1,1,1,0.6))+
-          labs(x="Year", y="Number of smolts (1000s)", title=Rivername[r])+
+          labs(x="Year", y="Number of smolts (1000s)", title=Rivername_long[r])+
           geom_line(aes(Year,q50))+
           geom_line(data=df1,aes(Year,q50),col="grey")+  
           scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
