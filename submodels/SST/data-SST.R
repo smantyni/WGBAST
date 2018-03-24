@@ -3,6 +3,8 @@
 ##
 #######################
 
+## ---- load-data-sst
+
 
 # Workflow:
 
@@ -23,9 +25,10 @@ pathIn<-"H:/Biom/FullLifeHistoryModel/2018/dat/orig/SST/"
 #############
 # Data from 8 stations
 
-(dat1<-read_xlsx(str_c(pathIn,"SMHI tempdata 8 stations jan1980-apr2017.xlsx"),
-                sheet="Data", na="NaN"))%>%
+(dat1<-read_xlsx(str_c(pathIn,"SMHI tempdata 8 stations jan1980-feb2018.xlsx"),
+                sheet="Data", na=c("","NaN")))%>%
   select(Station, Year, Month,Day,Depth,Temperature)
+
 
 station<-c()
 for(i in 1:(dim(dat1)[1])){
@@ -41,6 +44,8 @@ for(i in 1:(dim(dat1)[1])){
 }
 dat1$station<-station
 
+#filter(dat1, is.na(station)==T)
+
 dat1<-filter(dat1, Month<5 & Depth<=10 & Year>1991 & is.na(Temperature)==F)%>%
   mutate(year=Year-1991)%>%
   select(Temperature, Year, Month, Day, year, station)
@@ -49,9 +54,10 @@ dat1
 #############
 # Knolls Grund -data (station nr. 9)
 
-dat2<-read_xlsx(str_c(pathIn,"Knolls_grund_tom_6_feb_2018.xlsx"),
-               sheet=1, skip=5,col_names = T, range="A7:D50636")%>%
-  setNames(c("Date", "Temperature", "Quality", "Depth"))
+dat2<-read_xlsx(str_c(pathIn,"Knolls_grund_tom_21_march_2018.xlsx"),
+               sheet=1, skip=6,col_names = T, range="A8:E51422")%>%
+  setNames(c("Date", "Time", "Temperature", "Quality", "Depth"))
+#setNames(c("Date", "Temperature", "Quality", "Depth"))
 dat2
 
 # Never mind the warnings about column 'Station' etc.just some bug in the package
@@ -74,7 +80,7 @@ dat2<-dat2%>%
 
 #############
 # Data to be inputted to BUGS
-df.bugs<-dat %>%
+df.bugs<-dat%>%
     group_by(station,year, Month) %>%
     summarise(sst.station=mean(Temperature)) # mean SST per station
 

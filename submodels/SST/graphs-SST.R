@@ -10,7 +10,7 @@
 # 4: Produce input data for the full life history model (SSTinputToJAGS.xlsx)
 
 
-#############
+## ---- load-sst-april
 
 
 # Plot SST data (this graph not currently needed anywhere, but nice to check out )
@@ -41,8 +41,10 @@ df.obs<-filter(df.plot, Month==4)
 df.april<-full_join(df.obs, april)
 #View(df.april)
 
+## ---- graphs-sst-april
 
 ggplot(data = df.april) +
+  theme_bw()+
   geom_line(aes(x=Year, y=med), col="red")+
   geom_line(aes(x=Year, y=low), col="red")+
   geom_line(aes(x=Year, y=high), col="red")+
