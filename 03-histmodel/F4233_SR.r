@@ -102,7 +102,7 @@ for(r in 1:16){
 
 ############
 #windows(12,12,record=TRUE,title="Stock-Recruitment")
-windows(12,12)
+#windows(12,12)
 par(mfrow=c(2,2),mar=c(4.5,4,3.5,1))
 #par(mfrow=c(1,2),mar=c(4.5,4,3.5,1))
 

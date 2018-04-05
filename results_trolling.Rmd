@@ -1,0 +1,146 @@
+---
+title: "With/without trolling comparison"
+author: ""
+date: ""
+output: html_document
+---
+
+```{r setup, include=F, cache=F}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("compare-models/models-select.r")
+```
+
+Black boxplots: Model with trolling (sample size 1000)
+Grey boxplots: Model without trolling (sample size 100)
+
+In both models reared river harvest rate varies from year to year (uncorrected version).
+Trace plots are from the run with trolling.
+
+# Mps
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-Mps.r")
+
+```
+
+```{r load-mps, include=F}
+
+```
+
+```{r graphs-mps, echo=F}
+
+```
+
+```{r graphs-mortality-traces, echo=F}
+
+```
+
+
+
+# Homing rates
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-maturation.r")
+
+```
+
+```{r load-mat, include=F}
+
+```
+
+```{r graphs-mat, echo=F}
+
+```
+
+```{r graphs-mat-traces, echo=F}
+
+```
+
+# SR parameters
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-SR.r")
+
+```
+
+```{r load-SR, include=F}
+
+```
+
+```{r graphs-SR, echo=F}
+
+```
+
+
+
+# catches
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-catches.r")
+
+```
+
+```{r load-catches, include=F}
+
+```
+
+```{r graphs-catches, echo=F, warning=F}
+
+```
+
+
+# Wild proportions
+
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-wprop.r")
+
+```
+
+```{r load-wprop, include=F}
+
+```
+
+```{r graphs-wprop, echo=F, warning=F}
+
+```
+
+```{r graphs-wprop-traces, echo=F, warning=F}
+
+```
+
+
+# Harvest rates
+```{r cache=F, include=F}
+knitr::read_chunk("compare-models/compare-HR.r")
+
+```
+
+```{r load-HR, include=F}
+
+```
+
+
+
+```{r graphs-Hr, echo=F, warning=F}
+
+```
+
+```{r graphs-Hc, echo=F, warning=F}
+
+```
+
+```{r graphs-Hdc, echo=F, warning=F}
+
+```
+
+```{r graphs-Hdo, echo=F, warning=F}
+
+```
+
+```{r graphs-Hl, echo=F, warning=F}
+
+```
+
+
+
