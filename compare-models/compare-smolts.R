@@ -8,32 +8,47 @@
 
 # Model 1: BUGS
 # =================
-
-smolts<-array(NA, dim=c(16,length(Years2B)+7, 1000))
-
-for(y in 6:(length(Years2B)+7)){
-  for(r in 1:15){
-    x<-read.table(paste(sep="", folder1,"/SmoltWW[",y,",",r,"]1.txt"))
-    smolts[r,y,]<-x[1:1000,2]
+if(compare=="BJ"){
+  
+  smolts<-array(NA, dim=c(16,length(Years2B)+7, 1000))
+  
+  for(y in 6:(length(Years2B)+7)){
+    for(r in 1:15){
+      x<-read.table(paste(sep="", folder1,"/SmoltWW[",y,",",r,"]1.txt"))
+      smolts[r,y,]<-x[1:1000,2]
+    }
   }
-}
-for(r in 16:16){ #Kåge
-  for(y in 27:(length(Years2B)+7)){ # 2013->
-    x<-read.table(paste(sep="", folder1,"/SmoltWW[",y,",",r,"]1.txt"))
-    smolts[r,y,]<-x[1:1000,2]
+  for(r in 16:16){ #Kåge
+    for(y in 27:(length(Years2B)+7)){ # 2013->
+      x<-read.table(paste(sep="", folder1,"/SmoltWW[",y,",",r,"]1.txt"))
+      smolts[r,y,]<-x[1:1000,2]
+    }
   }
+  
+  for(r in 1:nstocks){
+    df<-boxplot.bugs.df2(smolts, r ,1:length(YearsB))%>%
+      mutate(River=r)
+    ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
+  }
+  df.1<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
+    select(River, everything())%>%
+    mutate(Year=Year+1986)
+  df.1
 }
 
-for(r in 1:nstocks){
-  df<-boxplot.bugs.df2(smolts, r ,1:length(YearsB))%>%
-    mutate(River=r)
-  ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
+if(compare=="JJ"){
+  for(r in 1:nstocks){
+    #r<-1
+    df<-boxplot.jags.df2(chains1, "SmoltWW[",str_c(r,"]"),1:(length(Years)+3))
+    #df<-boxplot.jags.df2(dsub, "NspWtot[",str_c(r,"]"),1:length(Years))
+    df<-mutate(df, River=r)
+    ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
+  }
+  df.1<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
+    select(River, everything())%>%
+    mutate(Year=Year+1986)
+  df.1
 }
-df.bugs<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
-  select(River, everything())%>%
-  mutate(Year=Year+1986)
-df.bugs
-
 
 # Model 2: JAGS
 # =================
@@ -46,10 +61,10 @@ for(r in 1:nstocks){
   df<-mutate(df, River=r)
   ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
 }
-df.jags<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
+df.2<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
   select(River, everything())%>%
   mutate(Year=Year+1986)
-df.jags
+df.2
 
 
 ## ---- graphs-smolts
@@ -58,13 +73,13 @@ df.jags
 # Draw boxplots to compare
 # ==========================
 
-#df1<-df.bugs
-#df2<-df.jags
+#df1<-df.1
+#df2<-df.2
 
 for(r in 1:16){
   #r<-1
-  df1<-filter(df.bugs, River==r, Year>1991)
-  df2<-filter(df.jags, River==r, Year>1991)
+  df1<-filter(df.1, River==r, Year>1991)
+  df2<-filter(df.2, River==r, Year>1991)
   print(ggplot(df2, aes(Year))+
           theme_bw()+
           geom_boxplot(

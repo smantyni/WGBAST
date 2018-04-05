@@ -7,50 +7,93 @@
 # Model 1: BUGS
 # =================
 
-for(y in 1:(length(YearsB))){
-  x1<-read.table(paste(sep="", folder1,"/MpsW[",y,"]1.txt") )
-  ifelse(y==1, WMort<-x1[,2], WMort<-cbind(WMort,x1[,2]))
-
-  x2<-read.table(paste(sep="", folder1,"/MpsR[",y,"]1.txt") )
-  ifelse(y==1, RMort<-x2[,2], RMort<-cbind(RMort,x2[,2]))
+if(compare=="BJ"){
+    
+  for(y in 1:(length(YearsB))){
+    x1<-read.table(paste(sep="", folder1,"/MpsW[",y,"]1.txt") )
+    ifelse(y==1, WMort<-x1[,2], WMort<-cbind(WMort,x1[,2]))
+  
+    x2<-read.table(paste(sep="", folder1,"/MpsR[",y,"]1.txt") )
+    ifelse(y==1, RMort<-x2[,2], RMort<-cbind(RMort,x2[,2]))
+  }
+  
+  WSurv<-(exp(-as.mcmc(WMort)))
+  RSurv<-(exp(-as.mcmc(RMort)))
+  ratio<-RSurv/WSurv
+  #dim(WSurv)
+  
+  dfW<-boxplot.bugs.df(WSurv, 1:(length(YearsB)))%>%
+    mutate(Type="Wild")
+  dfR<-boxplot.bugs.df(RSurv, 1:(length(YearsB)))%>%
+    mutate(Type="Reared")
+  df_ratio<-boxplot.bugs.df(ratio, 1:(length(YearsB)))%>%
+    mutate(Type="Ratio")
+  
+  df<-full_join(dfW,dfR, by=NULL)
+  df<-full_join(df,df_ratio, by=NULL)
+  
+  df.1<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+    mutate(Year=Year+1986)
+  df.1
+  
+  # adult M
+  
+  #traceplot(as.mcmc(M[,1]))
+  #traceplot(as.mcmc(M[,2]))
+  
+                    
+  M<-cbind(read.table(paste(sep="", folder1,"/MW1.txt"))[,2],
+           read.table(paste(sep="", folder1,"/MR1.txt"))[,2])
+  M<-exp(-M)
+  M<-as.tibble(M)%>%
+    setNames(c("Wild", "Reared"))
+  
+  M<-M%>%mutate(Ratio=Reared/Wild)
+  
+  dfM<-boxplot.bugs.df(M, 1:3) #Both types in same!
+  dfM.1<-as.tibble(setNames(dfM,c("Type","q5","q25","q50","q75","q95")))%>%
+    mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2", "Ratio"="3"))
 }
 
-WSurv<-(exp(-as.mcmc(WMort)))
-RSurv<-(exp(-as.mcmc(RMort)))
-ratio<-RSurv/WSurv
-#dim(WSurv)
 
-dfW<-boxplot.bugs.df(WSurv, 1:(length(YearsB)))%>%
-  mutate(Type="Wild")
-dfR<-boxplot.bugs.df(RSurv, 1:(length(YearsB)))%>%
-  mutate(Type="Reared")
-df_ratio<-boxplot.bugs.df(ratio, 1:(length(YearsB)))%>%
-  mutate(Type="Ratio")
 
-df<-full_join(dfW,dfR, by=NULL)
-df<-full_join(df,df_ratio, by=NULL)
 
-df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
-  mutate(Year=Year+1986)
-df.bugs
-
-# adult M
-
-#traceplot(as.mcmc(M[,1]))
-#traceplot(as.mcmc(M[,2]))
-
-                  
-M<-cbind(read.table(paste(sep="", folder1,"/MW1.txt"))[,2],
-         read.table(paste(sep="", folder1,"/MR1.txt"))[,2])
-M<-exp(-M)
-M<-as.tibble(M)%>%
-  setNames(c("Wild", "Reared"))
-
-M<-M%>%mutate(Ratio=Reared/Wild)
-
-dfM<-boxplot.bugs.df(M, 1:3) #Both types in same!
-dfM.bugs<-as.tibble(setNames(dfM,c("Type","q5","q25","q50","q75","q95")))%>%
-  mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2", "Ratio"="3"))
+if(compare=="JJ"){
+  survMpsW<-array(NA, dim=c(length(chains1[,"MpsW[1]"][[1]]),length(Years)))
+  survMpsR<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]]),length(Years)))
+  ratio<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]]),length(Years)))
+  for(y in 1:(length(Years))){
+    survMpsW[,y]<-exp(-chains1[,str_c("MpsW[",y,"]")][[2]])
+    survMpsR[,y]<-exp(-chains1[,str_c("MpsR[",y,"]")][[2]])
+    ratio[,y]<-survMpsR[,y]/survMpsW[,y]
+  }
+  
+  dfW<-boxplot.bugs.df(survMpsW, 1:(length(Years)))%>%
+    mutate(Type="Wild")
+  dfR<-boxplot.bugs.df(survMpsR, 1:(length(Years)))%>%
+    mutate(Type="Reared")
+  df_ratio<-boxplot.bugs.df(ratio, 1:(length(Years)))%>%
+    mutate(Type="Ratio")
+  
+  df<-full_join(dfW,dfR, by=NULL)
+  df<-full_join(df,df_ratio, by=NULL)
+  
+  df.1<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+    mutate(Year=Year+1986)
+  df.1
+  
+  # adult M
+  M<-cbind(chains1[,"MW"][[1]],chains1[,"MR"][[1]])
+  M<-exp(-M)
+  M<-as.tibble(M)%>%
+    setNames(c("Wild", "Reared"))%>%
+    mutate(Ratio=Reared/Wild)
+  
+  dfM1<-boxplot.bugs.df(M, 1:3) #Both types in same!
+  dfM.1<-as.tibble(setNames(dfM1,c("Type","q5","q25","q50","q75","q95")))%>%
+    mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2", "Ratio"="3"))
+} 
+  
 
 
 # Model 2: JAGS
@@ -87,9 +130,9 @@ df_ratio<-boxplot.bugs.df(ratio, 1:(length(Years)))%>%
 df<-full_join(dfW,dfR, by=NULL)
 df<-full_join(df,df_ratio, by=NULL)
 
-df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+df.2<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
 mutate(Year=Year+1986)
-df.jags
+df.2
 
 # adult M
 M2<-cbind(chains[,"MW"][[1]],chains[,"MR"][[1]])
@@ -99,7 +142,7 @@ M2<-as.tibble(M2)%>%
   mutate(Ratio=Reared/Wild)
 
 dfM2<-boxplot.bugs.df(M2, 1:3) #Both types in same!
-dfM.jags<-as.tibble(setNames(dfM2,c("Type","q5","q25","q50","q75","q95")))%>%
+dfM.2<-as.tibble(setNames(dfM2,c("Type","q5","q25","q50","q75","q95")))%>%
   mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2", "Ratio"="3"))
 
 
@@ -107,8 +150,8 @@ dfM.jags<-as.tibble(setNames(dfM2,c("Type","q5","q25","q50","q75","q95")))%>%
 # ==========================
 
 ## ---- graphs-mps
-df1<-df.bugs
-df2<-df.jags
+df1<-df.1
+df2<-df.2
 
 #for(i in 1:2){}
 ggplot(df2, aes(Year))+
@@ -128,8 +171,8 @@ ggplot(df2, aes(Year))+
   facet_grid(Type~.)
 
 # AdultM
-df1<-dfM.bugs
-df2<-dfM.jags
+df1<-dfM.1
+df2<-dfM.2
 
 ggplot(df2, aes(Type))+
   theme_bw()+
@@ -153,7 +196,7 @@ for(i in 1:length(Years)){
   gd<-gelman.diag(chains[,str_c("MpsW[",i,"]")])
   if(gd$psrf[2]>2){
     #print(c(i, gd$psrf))
-    traceplot(chains[,str_c("MpsW[",i,"]")], main=str_c("MpsW ",df.jags$Year[i]))
+    traceplot(chains[,str_c("MpsW[",i,"]")], main=str_c("MpsW ",df.2$Year[i]))
   }
 }
 

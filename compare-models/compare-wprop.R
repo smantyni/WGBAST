@@ -22,27 +22,44 @@ colnames(obs)<-c("obs_prop", "Type", "Year")
 
 # Model 1: BUGS
 # =================
-
-Wprop2SW<-array(NA, dim=c(1000,length(YearsB)))
-Wprop3SW<-array(NA, dim=c(1000,length(YearsB)))
-
-for(y in 7:(length(YearsB)-3)){
-  Wprop2SW[,y]<-read.table(str_c(folder1,"/Wprop[",y,",1]1.txt"))[,2] # 2SW
-  Wprop3SW[,y]<-read.table(str_c(folder1,"/Wprop[",y,",2]1.txt"))[,2] # 3SW
+if(compare=="BJ"){
+  
+  Wprop2SW<-array(NA, dim=c(1000,length(YearsB)))
+  Wprop3SW<-array(NA, dim=c(1000,length(YearsB)))
+  
+  for(y in 7:(length(YearsB)-3)){
+    Wprop2SW[,y]<-read.table(str_c(folder1,"/Wprop[",y,",1]1.txt"))[,2] # 2SW
+    Wprop3SW[,y]<-read.table(str_c(folder1,"/Wprop[",y,",2]1.txt"))[,2] # 3SW
+  }
+  
+  df_2sw<-boxplot.bugs.df(Wprop2SW, 1:(length(YearsB)))%>%
+    mutate(Type="2SW")
+  df_3sw<-boxplot.bugs.df(Wprop3SW, 1:(length(YearsB)))%>%
+    mutate(Type="3SW")
+  
+  df<-full_join(df_2sw,df_3sw, by=NULL)
+  
+  df.1<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+    mutate(Year=Year+1986)
+  df.1
 }
 
-df_2sw<-boxplot.bugs.df(Wprop2SW, 1:(length(YearsB)))%>%
-  mutate(Type="2SW")
-df_3sw<-boxplot.bugs.df(Wprop3SW, 1:(length(YearsB)))%>%
-  mutate(Type="3SW")
-
-df<-full_join(df_2sw,df_3sw, by=NULL)
-
-df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
-  mutate(Year=Year+1986)
-df.bugs
-
-
+if(compare=="JJ"){
+  df_2sw<-boxplot.jags.df2(chains1, "Wprop[", "1]", 6:(length(Years)-1))%>%
+    mutate(Type="2SW")
+  df_3sw<-boxplot.jags.df2(chains1, "Wprop[", "2]", 6:(length(Years)-1))%>%
+    mutate(Type="3SW")
+  
+  df<-full_join(df_2sw,df_3sw, by=NULL)
+  
+  df.1<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+    mutate(Year=Year+1986)
+  
+  df.1<-full_join(df.1,obs, by=NULL)
+  
+  df.1
+  
+}
 
 # Model 2: JAGS
 # =================
@@ -56,12 +73,12 @@ df_3sw<-boxplot.jags.df2(chains, "Wprop[", "2]", 6:(length(Years)-1))%>%
 
 df<-full_join(df_2sw,df_3sw, by=NULL)
 
-df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+df.2<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
   mutate(Year=Year+1986)
 
-df.jags<-full_join(df.jags,obs, by=NULL)
+df.2<-full_join(df.2,obs, by=NULL)
 
-df.jags
+df.2
 
 # Draw boxplots to compare
 # ==========================
@@ -69,8 +86,8 @@ df.jags
 ## ---- graphs-wprop
 
 
-df1<-df.bugs
-df2<-df.jags
+df1<-df.1
+df2<-df.2
 
 ggplot(df2, aes(Year))+
   theme_bw()+
@@ -101,7 +118,7 @@ for(i in 6:length(Years)){
     gd<-gelman.diag(chains[,str_c("Wprop[",i,",",a,"]")])
     if(gd$psrf[2]>2){
       #print(c(a,i, gd$psrf))
-      traceplot(chains[,str_c("Wprop[",i,",",a,"]")], main=str_c("Wprop age=",a," ",df.jags$Year[i]))
+      traceplot(chains[,str_c("Wprop[",i,",",a,"]")], main=str_c("Wprop age=",a," ",df.2$Year[i]))
     }
   }
 }

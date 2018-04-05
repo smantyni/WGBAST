@@ -11,6 +11,8 @@ library(coda)
 # setwd("C:/R/WGBAST/")
 source("functions/tidy-functions_2chains.r")
 
+#compare<-"BJ" #BUGS-JAGS comparison
+compare<-"JJ" #JAGS-JAGS comparison
 
 nstocks<-16
 
@@ -21,6 +23,7 @@ Rivername<-c("Torne", "Simo","Kalix","Rane","Pite","Aby","Byske","Rickle","Savar
              "Ume","Ore","Logde","Ljungan","Morrum","Eman","Kage")
 Rivername_long<-read.table(str_c(pathData, "rivernames.txt"))[,1]
 
+if(compare=="BJ"){
 # Model 1: BUGS model
 # =================
 #folder1<-"H:/FLR/WGBAST15/NoExpertsNewFec"; model<-"BUGS15"
@@ -29,6 +32,19 @@ YearsB<-c(1987:2016)
 length(YearsB)
 Years2B<-c(1992:2016)
 length(Years2B)
+}
+
+if(compare=="JJ"){
+  # Model 1: JAGS model
+  # =================
+  load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR_withoutTrolling.RData"); SRnew<-"yes"
+  chains1<-as.mcmc.list(run1)
+  
+  YearsB<-c(1987:2017)
+  length(YearsB)
+  Years2B<-c(1992:2017)
+  length(Years2B)
+}
 
 
 # Model 2:
@@ -38,6 +54,8 @@ length(Years)
 Years2<-c(1992:2017)
 length(Years2)
 
+load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR.RData"); SRnew<-"yes"
+chains<-as.mcmc.list(run3)
 
 #load("all_stocks_Simo_2017-11-21.RData")   #2015 data
 #load("output/spawners_JAGS_2112.RData") 
@@ -58,12 +76,11 @@ length(Years2)
 #load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR.RData"); SRnew<-"yes"
 
 #load(file="H:/FLR/WGBAST18/new_SR_long2018-03-19.RData"); SRnew<-"yes"
-#traceplot(chains[,"K[1]"])
 
-load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
-#traceplot(chains[,"K[1]"])
 
-#chains<-as.mcmc.list(run1)
+
+#load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
+
 
 
 

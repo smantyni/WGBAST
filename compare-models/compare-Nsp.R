@@ -8,36 +8,53 @@
 
 # Model 1: BUGS
 # =================
-
-Nsp<-array(NA, dim=c(16,(length(Years2B)+5), 1000))
-
-for(y in 6:(length(Years2B)+5)){
-  for(r in 1:15){
-    x<-read.table(paste(sep="", folder1,"/NspWtot[",y,",",r,"]1.txt"))
-    Nsp[r,y,]<-x[1:1000,2]
+if(compare=="BJ"){
+  
+  Nsp<-array(NA, dim=c(16,(length(Years2B)+5), 1000))
+  
+  for(y in 6:(length(Years2B)+5)){
+    for(r in 1:15){
+      x<-read.table(paste(sep="", folder1,"/NspWtot[",y,",",r,"]1.txt"))
+      Nsp[r,y,]<-x[1:1000,2]
+    }
   }
-}
-for(r in 16:16){ #Kåge
-  for(y in 27:(length(Years2B)+5)){ # 2013->
-    x<-paste(sep="", folder1,"/NspWtot[",y,",",r,"]1.txt")
-    temp <-read.table(x)
-    Nsp[r,y,]<-temp[1:1000,2]
+  for(r in 16:16){ #Kåge
+    for(y in 27:(length(Years2B)+5)){ # 2013->
+      x<-paste(sep="", folder1,"/NspWtot[",y,",",r,"]1.txt")
+      temp <-read.table(x)
+      Nsp[r,y,]<-temp[1:1000,2]
+    }
   }
+  
+  dim(Nsp)
+  
+  for(r in 1:nstocks){
+    df<-boxplot.bugs.df2(Nsp, r ,1:length(YearsB))%>%
+      mutate(River=r)
+    ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
+  }
+  df.1<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
+    select(River, everything())%>%
+    mutate(Year=Year+1986)
+  df.1
+  #View(df.1)
 }
 
-dim(Nsp)
-
-for(r in 1:nstocks){
-  df<-boxplot.bugs.df2(Nsp, r ,1:length(YearsB))%>%
-    mutate(River=r)
-  ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
+if(compare=="JJ"){
+  # Number of spawners per river
+  for(r in 1:nstocks){
+    #r<-1
+    df<-boxplot.jags.df2(chains1, "NspWtot[",str_c(r,"]"),1:(length(Years)+1))
+    #df<-boxplot.jags.df2(dsub, "NspWtot[",str_c(r,"]"),1:length(Years))
+    df<-mutate(df, River=r)
+    ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
+  }
+  df.1<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
+    select(River, everything())%>%
+    mutate(Year=Year+1986)
+  df.1
+  #View(df.1)
 }
-df.bugs<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
-  select(River, everything())%>%
-  mutate(Year=Year+1986)
-df.bugs
-#View(df.bugs)
-
 
 # Model 2: JAGS
 # =================
@@ -50,11 +67,11 @@ for(r in 1:nstocks){
   df<-mutate(df, River=r)
   ifelse(r>1, df2<-bind_rows(df2,df),df2<-df)
 }
-df.jags<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
+df.2<-as.tibble(setNames(df2,c("Year","q5","q25","q50","q75","q95","River")))%>%
   select(River, everything())%>%
   mutate(Year=Year+1986)
-df.jags
-#View(df.jags)
+df.2
+#View(df.2)
 
 
 # Spawner count datasets
@@ -89,8 +106,8 @@ counts<-full_join(counts, counts2, by=NULL)
 #View(counts2)
 
 
-df.jags<-left_join(df.jags,counts, by=NULL)
-#View(df.bugs)
+df.2<-left_join(df.2,counts, by=NULL)
+#View(df.1)
 
 ## ---- graphs-nsp
 
@@ -99,13 +116,13 @@ df.jags<-left_join(df.jags,counts, by=NULL)
 # ==========================
 
 
-#for(r in 1:16){
+for(r in 1:16){
 #r<-5
-#df1<-filter(df.bugs, River==r, Year>1991)
-#df2<-filter(df.jags, River==r, Year>1991)
-df1<-filter(df.bugs, Year>1991)
-df2<-filter(df.jags, Year>1991)
-#print(
+df1<-filter(df.1, River==r, Year>1991)
+df2<-filter(df.2, River==r, Year>1991)
+#df1<-filter(df.1, Year>1991)
+#df2<-filter(df.2, Year>1991)
+print(
   ggplot(df2, aes(Year))+
   theme_bw()+
   geom_boxplot(
@@ -121,11 +138,11 @@ df2<-filter(df.jags, Year>1991)
   geom_line(data=df1,aes(Year,q50),col="grey")+  
   geom_point(data=df2, aes(Year, Count),col="red")+
   geom_point(data=df2, aes(Year, Count2),col="blue", shape=17)+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
-  facet_wrap(~River, scales="free") # Facet if you like to have all graphs together, downside is you cannot easily control ylim and scales are very different
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))#+
+  #facet_wrap(~River, scales="free") # Facet if you like to have all graphs together, downside is you cannot easily control ylim and scales are very different
   
-#)
-#}
+)
+}
 
 ## ---- graphs-nsp-report
 
@@ -133,14 +150,14 @@ df2<-filter(df.jags, Year>1991)
 # Draw boxplots to compare
 # ==========================
 
-#df1<-filter(df.bugs, Year>1991)
-#df2<-filter(df.jags, Year>1991)
+#df1<-filter(df.1, Year>1991)
+#df2<-filter(df.2, Year>1991)
 
 plots<-list()
 for(r in 1:16){
   #r<-1
-  df1<-filter(df.bugs, River==r, Year>1991)
-  df2<-filter(df.jags, River==r, Year>1991)
+  df1<-filter(df.1, River==r, Year>1991)
+  df2<-filter(df.2, River==r, Year>1991)
   plot<-ggplot(df2, aes(Year))+
           theme_bw()+
           geom_boxplot(

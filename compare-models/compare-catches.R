@@ -40,36 +40,69 @@ obs<-full_join(obs, obs_t, by=NULL)
 
 # Model 1: BUGS
 # =================
-
-for(y in 6:length(YearsB)){ 
-  tempR<-read.table(str_c(folder1,"/ncr_Tot[",y,"]1.txt"))/coef_r[y]
-  tempC<-read.table(str_c(folder1,"/ncc_Tot[",y,"]1.txt"))/coef_c[y]
-  tempO<-read.table(str_c(folder1,"/nco_Tot[",y,"]1.txt"))/coef_o[y]
+if(compare=="BJ"){
   
-  ifelse(y==6, catch_r<-tempR[,2], catch_r<-cbind(catch_r,tempR[,2]))
-  ifelse(y==6, catch_c<-tempC[,2], catch_c<-cbind(catch_c,tempC[,2]))
-  ifelse(y==6, catch_o<-tempO[,2], catch_o<-cbind(catch_o,tempO[,2]))
+  for(y in 6:length(YearsB)){ 
+    tempR<-read.table(str_c(folder1,"/ncr_Tot[",y,"]1.txt"))/coef_r[y]
+    tempC<-read.table(str_c(folder1,"/ncc_Tot[",y,"]1.txt"))/coef_c[y]
+    tempO<-read.table(str_c(folder1,"/nco_Tot[",y,"]1.txt"))/coef_o[y]
+    
+    ifelse(y==6, catch_r<-tempR[,2], catch_r<-cbind(catch_r,tempR[,2]))
+    ifelse(y==6, catch_c<-tempC[,2], catch_c<-cbind(catch_c,tempC[,2]))
+    ifelse(y==6, catch_o<-tempO[,2], catch_o<-cbind(catch_o,tempO[,2]))
+  }
+  #dim(catch_t)
+  catch_t<-catch_r+catch_c+catch_o
+  
+  dfr<-boxplot.bugs.df(catch_r, 6:(length(YearsB)))%>%
+    mutate(Type="River")
+  dfc<-boxplot.bugs.df(catch_c, 6:(length(YearsB)))%>%
+    mutate(Type="Coast")
+  dfo<-boxplot.bugs.df(catch_o, 6:(length(YearsB)))%>%
+    mutate(Type="Offshore")
+  dft<-boxplot.bugs.df(catch_t, 6:(length(YearsB)))%>%
+    mutate(Type="Total")
+  
+  df<-full_join(dfr,dfc, by=NULL)
+  df<-full_join(df, dfo, by=NULL)
+  df<-full_join(df, dft, by=NULL)
+  
+  df.1<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+    mutate(Year=Year+1986)
+  df.1
+}  
+
+if(compare=="JJ"){
+  
+  catch_tot<-array(NA, dim=c(length(chains1[,"ncr_ObsTotX[1]"][[1]]),length(Years)-0))
+  dim(catch_tot)
+  for(y in 1:(length(Years)-0)){
+    catch_tot[,y]<-chains1[,str_c("ncr_ObsTotX[",y,"]")][[1]]+
+      chains1[,str_c("ncc_ObsTotX[",y,"]")][[1]]+
+      chains1[,str_c("nco_ObsTotX[",y,"]")][[1]]
+  }
+  
+  
+  dfr<-boxplot.jags.df(chains1, "ncr_ObsTotX[", 1:(length(Years)-0))%>%
+    mutate(Type="River")
+  dfc<-boxplot.jags.df(chains1, "ncc_ObsTotX[", 1:(length(Years)-0))%>%
+    mutate(Type="Coast")
+  dfo<-boxplot.jags.df(chains1, "nco_ObsTotX[", 1:(length(Years)-0))%>%
+    mutate(Type="Offshore")
+  dft<-boxplot.bugs.df(catch_tot, 1:(length(Years)-0))%>%
+    mutate(Type="Total", x=y)%>%select(-y)
+  
+  df<-full_join(dfr,dfc,by=NULL)
+  df<-full_join(df,dfo,by=NULL)
+  df<-full_join(df,dft,by=NULL)
+  
+  df.1<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+    mutate(Year=Year+1986)
+  df.1
+  
+  df.1<-full_join(df.1,obs,by=NULL)
+  
 }
-#dim(catch_t)
-catch_t<-catch_r+catch_c+catch_o
-
-dfr<-boxplot.bugs.df(catch_r, 6:(length(YearsB)))%>%
-  mutate(Type="River")
-dfc<-boxplot.bugs.df(catch_c, 6:(length(YearsB)))%>%
-  mutate(Type="Coast")
-dfo<-boxplot.bugs.df(catch_o, 6:(length(YearsB)))%>%
-  mutate(Type="Offshore")
-dft<-boxplot.bugs.df(catch_t, 6:(length(YearsB)))%>%
-  mutate(Type="Total")
-
-df<-full_join(dfr,dfc, by=NULL)
-df<-full_join(df, dfo, by=NULL)
-df<-full_join(df, dft, by=NULL)
-
-df.bugs<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
-  mutate(Year=Year+1986)
-df.bugs
-
 
 
 # Model 2: JAGS
@@ -100,16 +133,16 @@ df<-full_join(dfr,dfc,by=NULL)
 df<-full_join(df,dfo,by=NULL)
 df<-full_join(df,dft,by=NULL)
 
-df.jags<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
+df.2<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
   mutate(Year=Year+1986)
-df.jags
+df.2
 
-df.jags<-full_join(df.jags,obs,by=NULL)
+df.2<-full_join(df.2,obs,by=NULL)
 
 
 
-#View(df.jags)
-#View(df.bugs)
+#View(df.2)
+#View(df.1)
 
 
 # Draw boxplots to compare
@@ -117,15 +150,15 @@ df.jags<-full_join(df.jags,obs,by=NULL)
 
 ## ---- graphs-catches
 
-df.bugs<-filter(df.bugs, Year>1991)
-df.jags<-filter(df.jags, Year>1991)
+df.1<-filter(df.1, Year>1991)
+df.2<-filter(df.2, Year>1991)
 
 for(i in 1:4){
   #i<-4
-  if(i==1){ df1<-filter(df.bugs, Type=="River");df2<-filter(df.jags, Type=="River")}
-  if(i==2){ df1<-filter(df.bugs, Type=="Coast");df2<-filter(df.jags, Type=="Coast")}
-  if(i==3){ df1<-filter(df.bugs, Type=="Offshore");df2<-filter(df.jags, Type=="Offshore")}
-  if(i==4){ df1<-filter(df.bugs, Type=="Total");df2<-filter(df.jags, Type=="Total")}
+  if(i==1){ df1<-filter(df.1, Type=="River");df2<-filter(df.2, Type=="River")}
+  if(i==2){ df1<-filter(df.1, Type=="Coast");df2<-filter(df.2, Type=="Coast")}
+  if(i==3){ df1<-filter(df.1, Type=="Offshore");df2<-filter(df.2, Type=="Offshore")}
+  if(i==4){ df1<-filter(df.1, Type=="Total");df2<-filter(df.2, Type=="Total")}
   
 plot<-ggplot(df2, aes(Year))+
   theme_bw()+

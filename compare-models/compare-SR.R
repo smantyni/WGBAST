@@ -6,41 +6,82 @@
 
 # Model 1: BUGS
 # =================
-
-for(i in 1:nstocks){
-  x1<-read.table(paste(sep="", folder1,"/R[",i,"]1.txt")) 
-  ifelse(i==1, R0<-x1[,2], R0<-cbind(R0,x1[,2]))
+if(compare=="BJ"){
   
-  x2<-read.table(paste(sep="", folder1,"/z[",i,"]1.txt")) 
-  ifelse(i==1, z<-x2[,2], z<-cbind(z,x2[,2]))
-
-  x3<-read.table(paste(sep="", folder1,"/alpha[",i,"]1.txt")) 
-  ifelse(i==1, alpha<-x3[,2], alpha<-cbind(alpha,x3[,2]))
-
-  x4<-read.table(paste(sep="", folder1,"/beta[",i,"]1.txt")) 
-  ifelse(i==1, beta<-x4[,2], beta<-cbind(beta,x4[,2]))
-
-#  x5<-read.table(paste(sep="", folder1,"/SBPR[",i,"]1.txt")) 
-#  ifelse(i==1, EPR<-x5[,2], beta<-cbind(EPR,x5[,2]))
+  for(i in 1:nstocks){
+    x1<-read.table(paste(sep="", folder1,"/R[",i,"]1.txt")) 
+    ifelse(i==1, R0<-x1[,2], R0<-cbind(R0,x1[,2]))
+    
+    x2<-read.table(paste(sep="", folder1,"/z[",i,"]1.txt")) 
+    ifelse(i==1, z<-x2[,2], z<-cbind(z,x2[,2]))
+  
+    x3<-read.table(paste(sep="", folder1,"/alpha[",i,"]1.txt")) 
+    ifelse(i==1, alpha<-x3[,2], alpha<-cbind(alpha,x3[,2]))
+  
+    x4<-read.table(paste(sep="", folder1,"/beta[",i,"]1.txt")) 
+    ifelse(i==1, beta<-x4[,2], beta<-cbind(beta,x4[,2]))
+  
+  #  x5<-read.table(paste(sep="", folder1,"/SBPR[",i,"]1.txt")) 
+  #  ifelse(i==1, EPR<-x5[,2], beta<-cbind(EPR,x5[,2]))
+  }
+  
+  
+  df1<-boxplot.bugs.df(R0, 1:nstocks)%>%
+    mutate(par="R0")
+  df2<-boxplot.bugs.df(z, 1:nstocks)%>%
+    mutate(par="z")
+  df3<-boxplot.bugs.df(alpha, 1:nstocks)%>%
+    mutate(par="alpha")
+  df4<-boxplot.bugs.df(beta, 1:nstocks)%>%
+    mutate(par="beta")
+  #df5<-boxplot.bugs.df(EPR, 1:nstocks)%>%
+  #  mutate(par="EPR")
+  
+  df<-full_join(df1,df2)
+  df<-full_join(df,df3)
+  df<-full_join(df,df4)
+  
+  df.1<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95", "par" )))
 }
 
-
-df1<-boxplot.bugs.df(R0, 1:nstocks)%>%
-  mutate(par="R0")
-df2<-boxplot.bugs.df(z, 1:nstocks)%>%
-  mutate(par="z")
-df3<-boxplot.bugs.df(alpha, 1:nstocks)%>%
-  mutate(par="alpha")
-df4<-boxplot.bugs.df(beta, 1:nstocks)%>%
-  mutate(par="beta")
-#df5<-boxplot.bugs.df(EPR, 1:nstocks)%>%
-#  mutate(par="EPR")
-
-df<-full_join(df1,df2)
-df<-full_join(df,df3)
-df<-full_join(df,df4)
-
-df.bugs<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95", "par" )))
+if(compare=="JJ"){
+  
+    
+  if(SRnew=="no"){
+    df1<-boxplot.jags.df(chains1, "R0[", 1:nstocks)%>%
+      mutate(par="R0")
+    
+    df2<-boxplot.jags.df(chains1, "z[", 1:nstocks)%>%
+      mutate(par="z")
+    df5<-df1%>%
+      mutate(par="R0_rep")
+    df<-full_join(df1,df2)
+    
+  }
+  if(SRnew=="yes"){
+    df1<-boxplot.jags.df(chains1, "K[", 1:nstocks)%>%
+      mutate(par="K")
+    
+    df2<-boxplot.jags.df(chains1, "z[32,", 1:nstocks)%>%
+      mutate(par="z")
+    df<-full_join(df1,df2)
+    
+    df5<-boxplot.jags.df(chains1, "R0[32,", 1:nstocks)%>%
+      mutate(par="R0")
+    
+  }
+  df3<-boxplot.jags.df(chains1, "alphaSR[", 1:nstocks)%>%
+    mutate(par="alpha")
+  df4<-boxplot.jags.df(chains1, "betaSR[", 1:nstocks)%>%
+    mutate(par="beta")
+  
+  df<-full_join(df,df3)
+  df<-full_join(df,df4)
+  df<-full_join(df,df5)
+  
+  df.1<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95","par")))
+  df.1
+}
 
 # Model 2: JAGS
 # =================
@@ -77,16 +118,16 @@ df<-full_join(df,df3)
 df<-full_join(df,df4)
 df<-full_join(df,df5)
 
-df.jags<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95","par")))
-df.jags
+df.2<-as.tibble(setNames(df,c("stock","q5","q25","q50","q75","q95","par")))
+df.2
 
 # Draw boxplots to compare
 # ==========================
 
 ## ---- graphs-SR
 
-df1<-filter(df.bugs, par=="R0")
-df2<-filter(df.jags, par=="R0")
+df1<-filter(df.1, par=="R0")
+df2<-filter(df.2, par=="R0")
 
 
 ggplot(df2, aes(stock))+
@@ -104,8 +145,8 @@ ggplot(df2, aes(stock))+
   scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
 
-df1<-filter(df.bugs, par=="z")
-df2<-filter(df.jags, par=="z")
+df1<-filter(df.1, par=="z")
+df2<-filter(df.2, par=="z")
 
 ggplot(df2, aes(stock))+
   theme_bw()+
@@ -121,8 +162,8 @@ ggplot(df2, aes(stock))+
   #coord_cartesian(ylim=c(0,2500))+
   scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
-df1<-filter(df.bugs, par=="alpha")
-df2<-filter(df.jags, par=="alpha")
+df1<-filter(df.1, par=="alpha")
+df2<-filter(df.2, par=="alpha")
 
 ggplot(df2, aes(stock))+
   theme_bw()+
@@ -139,8 +180,8 @@ ggplot(df2, aes(stock))+
   scale_x_continuous(breaks = c(1:16), labels=Rivername)
 
 
-df1<-filter(df.bugs, par=="beta")
-df2<-filter(df.jags, par=="beta")
+df1<-filter(df.1, par=="beta")
+df2<-filter(df.2, par=="beta")
 
 ggplot(df2, aes(stock))+
   theme_bw()+
