@@ -7,6 +7,9 @@ library(coda)
 library(forcats)
 
 
+pathData<-"C:/Users/412hpulkkin/Dropbox/WGBAST/JAGS/data_2018/"
+Rivername_long<-read.table(str_c(pathData, "rivernames.txt"))[,1]
+
 load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData");modelname<-"2018" 
 #chains<-as.mcmc.list(run1)
 
@@ -20,7 +23,7 @@ dim(d)
 
 nyears<-length(c(1987:2018))
 nstocks<-16
-nareas<-7 # AU1:4, GB, MB (AU4-5), Total AU1-6
+nareas<-8 # AU1:4, AU1-2, GB (AU1-3), MB (AU4-5), Total (AU1-4)
 niter<-dim(d)[1]
 
 
@@ -37,12 +40,14 @@ for(y in 1:nyears){
     R0AU[i,2,y]<-sum(tmp[i,5:12])+tmp[i,16]
     R0AU[i,3,y]<-tmp[i,13]
     R0AU[i,4,y]<-sum(tmp[i,14:15])
-    R0AU[i,5,y]<-sum(tmp[i,1:13])+tmp[i,16] # GoB
-    R0AU[i,6,y]<-sum(tmp[i,14:15]) # MB
-    R0AU[i,7,y]<-sum(tmp[i,1:16]) # Tot AU1-6
+    R0AU[i,5,y]<-sum(tmp[i,1:12])+tmp[i,16] # AU1-2
+    R0AU[i,6,y]<-sum(tmp[i,1:13])+tmp[i,16] # GB (AU1-3)
+    R0AU[i,7,y]<-sum(tmp[i,14:15]) # MB (AU4)
+    R0AU[i,8,y]<-sum(tmp[i,1:16]) # Tot AU1-4
   }
 }
 
+# Unit sums
 for(u in 1:nareas){
   for(y in 1:nyears){
     x<-R0AU[,u,y]
@@ -66,12 +71,11 @@ df<-as.tibble(df)%>%
   mutate(Area=parse_factor(Area, levels=NULL), year=parse_double(year),
          mean=parse_double(mean),mode=parse_double(mode),sd=parse_double(sd),cv=parse_double(cv),
          q5=parse_double(q5),q50=parse_double(q50), q95=parse_double(q95))%>%
-  mutate(Area=fct_recode(Area, "AU1"="1","AU2"="2","AU3"="3","AU4"="4","GoB"="5","MB"="6", "AU1-4"="7"))%>%
+  mutate(Area=fct_recode(Area, "AU1"="1","AU2"="2","AU3"="3","AU4"="4","AU1-2"="5","GB"="6","MB"="7", "AU1-4"="8"))%>%
   mutate(Year=year+1986)
 
-df<-df%>%select(Area,year,Year,mode,q50,mean,q50,`90%PI`)%>%
+df<-df%>%select(Area,year,Year,mode,q50,mean,q5,q95,`90%PI`)%>%
   filter(Year==2017)
 
-write.xlsx(df,"results/stats_R0_AUsums.xlsx")
-
+write.xlsx(df,"05-results/stats_R0_AUsums.xlsx")
 

@@ -9,7 +9,7 @@ library(gridExtra)
 library(coda)
 
 # setwd("C:/R/WGBAST/")
-source("functions/tidy-functions_2chains.r")
+source("00-functions/tidy-functions_2chains.r")
 
 #compare<-"BJ" #BUGS-JAGS comparison
 compare<-"JJ" #JAGS-JAGS comparison
@@ -54,8 +54,13 @@ length(Years)
 Years2<-c(1992:2017)
 length(Years2)
 
-load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR.RData"); SRnew<-"yes"
-chains<-as.mcmc.list(run3)
+# With trolling comparison
+#load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR.RData"); SRnew<-"yes"
+#chains<-as.mcmc.list(run3)
+
+# Assessment model
+load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
+
 
 #load("all_stocks_Simo_2017-11-21.RData")   #2015 data
 #load("output/spawners_JAGS_2112.RData") 
@@ -79,7 +84,6 @@ chains<-as.mcmc.list(run3)
 
 
 
-#load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
 
 
 

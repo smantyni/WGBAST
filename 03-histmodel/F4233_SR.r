@@ -103,6 +103,7 @@ for(r in 1:16){
 ############
 #windows(12,12,record=TRUE,title="Stock-Recruitment")
 #windows(12,12)
+tiff("figures/F4233_SR1.tiff",  width=1600, height=2000, res=200) 
 par(mfrow=c(2,2),mar=c(4.5,4,3.5,1))
 #par(mfrow=c(1,2),mar=c(4.5,4,3.5,1))
 
@@ -196,8 +197,13 @@ for(j in 2:length(samp)){
 #  points(E_med[i,4]/1000, S_med[i,4], pch=19)
 #  text(E_med[i,4]/1000+1,S_med[i,4], Year[i])
 #}
+
+dev.off()
+
+
 ################################################################################
 #windows(12,12,record=TRUE,title="Stock-Recruitment")
+tiff("figures/F4233_SR2.tiff",  width=1600, height=2000, res=200) 
 par(mfrow=c(2,2),mar=c(4.5,4,3.5,1))
 
 ############
@@ -267,8 +273,13 @@ for(j in 2:length(samp)){
 #  points(E_med[i,8]/1000, S_med[i,8], pch=19)
 #  text(E_med[i,8]/1000+0.03,S_med[i,8], Year[i])
 #}
-####################################################
+
+dev.off()
+
+
+################################################################################
 #windows(12,12,record=TRUE,title="Stock-Recruitment")
+tiff("figures/F4233_SR3.tiff",  width=1600, height=2000, res=200) 
 par(mfrow=c(2,2),mar=c(4.5,4,3.5,1))
 
 ############
@@ -341,8 +352,13 @@ for(j in 2:length(samp)){
 #  points(E_med[i,12]/1000, S_med[i,12], pch=19)
 #  text(E_med[i,12]/1000+0.2,S_med[i,12], Year[i])
 #}
-####################################################
+
+dev.off()
+
+
+################################################################################
 #windows(12,12,record=TRUE,title="Stock-Recruitment")
+tiff("figures/F4233_SR4.tiff",  width=1600, height=2000, res=200) 
 par(mfrow=c(2,2),mar=c(4.5,4,3.5,1))
 
 ############
@@ -419,7 +435,7 @@ for(j in 2:length(samp)){
 #  text(E_med[i,15]/1000+0.5,S_med[i,15], Year[i])
 #}
 
-
+dev.off()
 
 ## ---- graphs-SRcurves-tornereport
 
