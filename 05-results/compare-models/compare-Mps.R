@@ -17,8 +17,8 @@ if(compare=="BJ"){
     ifelse(y==1, RMort<-x2[,2], RMort<-cbind(RMort,x2[,2]))
   }
   
-  WSurv<-(exp(-as.mcmc(WMort)))
-  RSurv<-(exp(-as.mcmc(RMort)))
+  WSurv<-(exp(-as.mcmc(WMort*(11/12))))
+  RSurv<-(exp(-as.mcmc(RMort*(9/12))))
   ratio<-RSurv/WSurv
   #dim(WSurv)
   
@@ -100,24 +100,29 @@ if(compare=="JJ"){
 # =================
 
 #summary(chains[ ,regexpr("Mps",varnames(chains))>0])
-
-#dfW<-boxplot.jags.df(chains, "survMpsW[", 1:length(Years))%>%
-#  mutate(Type="Wild")
-#dfR<-boxplot.jags.df(chains, "survMpsR[", 1:length(Years))%>%
-#  mutate(Type="Reared")
-
 #summary(chains[,"MpsW[1]"][[1]])
 #summary(exp(-chains[,"MpsW[1]"][[1]]))
 
-survMpsW<-array(NA, dim=c(length(chains[,"MpsW[1]"][[1]]),length(Years)))
-survMpsR<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
-ratio<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
-for(y in 1:(length(Years))){
-  survMpsW[,y]<-exp(-chains[,str_c("MpsW[",y,"]")][[2]])
-  survMpsR[,y]<-exp(-chains[,str_c("MpsR[",y,"]")][[2]])
-  ratio[,y]<-survMpsR[,y]/survMpsW[,y]
-}
+if(JAGSversion=="old"){
+  survMpsW<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]]),length(Years)))
+  survMpsR<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]]),length(Years)))
+  ratio<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]]),length(Years)))
+  for(y in 1:(length(Years))){
+    survMpsW[,y]<-chains[,str_c("survMpsW[",y,"]")][[1]]
+    survMpsR[,y]<-chains[,str_c("survMpsR[",y,"]")][[1]]
+    ratio[,y]<-survMpsR[,y]/survMpsW[,y]
+  }
+}else{
 
+  survMpsW<-array(NA, dim=c(length(chains[,"MpsW[1]"][[1]]),length(Years)))
+  survMpsR<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
+  ratio<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
+  for(y in 1:(length(Years))){
+    survMpsW[,y]<-exp(-chains[,str_c("MpsW[",y,"]")][[2]])
+    survMpsR[,y]<-exp(-chains[,str_c("MpsR[",y,"]")][[2]])
+    ratio[,y]<-survMpsR[,y]/survMpsW[,y]
+  }
+}
 
 
 dfW<-boxplot.bugs.df(survMpsW, 1:(length(Years)))%>%
@@ -129,6 +134,7 @@ df_ratio<-boxplot.bugs.df(ratio, 1:(length(Years)))%>%
 
 df<-full_join(dfW,dfR, by=NULL)
 df<-full_join(df,df_ratio, by=NULL)
+
 
 df.2<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
 mutate(Year=Year+1986)
@@ -191,12 +197,32 @@ ggplot(df2, aes(Type))+
 ## ---- graphs-mortality-traces
 
 
+
+# Model 1 traces, if JAGS
+# windows()
+#par(mfrow=c(2,3))
+#for(i in 1:length(Years)){
+#    gd<-gelman.diag(chains1[,str_c("MpsW[",i,"]")])
+#    if(gd$psrf[2]>1.5){
+#      #print(c(i, gd$psrf))
+#      traceplot(chains1[,str_c("MpsW[",i,"]")], main=str_c("MpsW ",df.2$Year[i]))
+#    }
+#}
+
+
 par(mfrow=c(2,3))
 for(i in 1:length(Years)){
-  gd<-gelman.diag(chains[,str_c("MpsW[",i,"]")])
-  if(gd$psrf[2]>2){
-    #print(c(i, gd$psrf))
-    traceplot(chains[,str_c("MpsW[",i,"]")], main=str_c("MpsW ",df.2$Year[i]))
+  if(JAGSversion=="old"){
+    gd<-gelman.diag(chains[,str_c("survMpsW[",i,"]")])
+    if(gd$psrf[2]>1.5){
+      traceplot(chains[,str_c("survMpsW[",i,"]")], main=str_c("MpsW ",df.2$Year[i]))
+    }
+  }else{
+    gd<-gelman.diag(chains[,str_c("MpsW[",i,"]")])
+    if(gd$psrf[2]>1.5){
+      #print(c(i, gd$psrf))
+      traceplot(chains[,str_c("MpsW[",i,"]")], main=str_c("MpsW ",df.2$Year[i]))
+    }
   }
 }
 

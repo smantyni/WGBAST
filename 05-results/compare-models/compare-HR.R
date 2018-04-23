@@ -212,13 +212,16 @@ if(compare=="BJ"){
 }
 
 if(compare=="JJ"){
+  
+  nsample<-length(chains1[,1][[1]])
+  
   # from cohort+age to calendar years
-  hrW<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hrR<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hcW.au1<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hcR.au1<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hdcW<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hdcR<-array(NA, dim=c(2,length(Years)-2, 1000))
+  hrW<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hrR<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hcW.au1<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hcR.au1<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hdcW<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hdcR<-array(NA, dim=c(2,length(Years)-2, nsample))
   for(y in 3:(length(Years))){ 
     for(a in 2:3){ # Grilse & 2SW (=MSW)
       #hrW[grilse:MSW, ]
@@ -235,10 +238,10 @@ if(compare=="JJ"){
       
     }}
   
-  hdoW<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hdoR<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hlW<-array(NA, dim=c(2,length(Years)-2, 1000))
-  hlR<-array(NA, dim=c(2,length(Years)-2, 1000))
+  hdoW<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hdoR<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hlW<-array(NA, dim=c(2,length(Years)-2, nsample))
+  hlR<-array(NA, dim=c(2,length(Years)-2, nsample))
   for(y in 3:(length(Years))){ 
     for(a in 1:2){ # Grilse & 2SW (=MSW)
       
@@ -388,14 +391,19 @@ if(compare=="JJ"){
 #summary(chains[ ,regexpr("HdoW",varnames(chains))>0])
 #summary(chains[ ,regexpr("HlW",varnames(chains))>0])
 
+nsample<-length(chains[,1][[1]])
+
+
 # from cohort+age to calendar years
-hrW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hrR<-array(NA, dim=c(2,length(Years)-2, 1000))
-hcW.au1<-array(NA, dim=c(2,length(Years)-2, 1000))
-hcR.au1<-array(NA, dim=c(2,length(Years)-2, 1000))
-hdcW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hdcR<-array(NA, dim=c(2,length(Years)-2, 1000))
+hrW<-array(NA, dim=c(2,length(Years)-2, nsample))
+hrR<-array(NA, dim=c(2,length(Years)-2, nsample))
+hcW.au1<-array(NA, dim=c(2,length(Years)-2, nsample))
+hcR.au1<-array(NA, dim=c(2,length(Years)-2, nsample))
+hdcW<-array(NA, dim=c(2,length(Years)-2, nsample))
+hdcR<-array(NA, dim=c(2,length(Years)-2, nsample))
 for(y in 3:(length(Years))){ 
+  #y<-3
+  #a<-2
   for(a in 2:3){ # Grilse & 2SW (=MSW)
     #hrW[grilse:MSW, ]
     hrW[a-1,y-2,]<-chains[,str_c("HrW[",y-(a-1),",",a,"]")][[1]]
@@ -409,12 +417,13 @@ for(y in 3:(length(Years))){
     hdcW[a-1,y-2,]<-chains[,str_c("HdcW[",y-(a-1),",",a,"]")][[1]]
     hdcR[a-1,y-2,]<-chains[,str_c("HdcR[",y-(a-1),",",a,"]")][[1]]
     
-  }}
+  }
+  }
 
-hdoW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hdoR<-array(NA, dim=c(2,length(Years)-2, 1000))
-hlW<-array(NA, dim=c(2,length(Years)-2, 1000))
-hlR<-array(NA, dim=c(2,length(Years)-2, 1000))
+hdoW<-array(NA, dim=c(2,length(Years)-2, nsample))
+hdoR<-array(NA, dim=c(2,length(Years)-2, nsample))
+hlW<-array(NA, dim=c(2,length(Years)-2, nsample))
+hlR<-array(NA, dim=c(2,length(Years)-2, nsample))
 for(y in 3:(length(Years))){ 
   for(a in 1:2){ # Grilse & 2SW (=MSW)
     
@@ -553,132 +562,97 @@ df.2.Hl
 # ==========================
 
 ## ---- graphs-Hdo
-for(i in 1:2){
-  
-  ifelse(i==1, age<-"1SW", age<-"MSW")
-  
-  df1<-filter(df.1.Hdo, Type=="Wild", Age==age)
-  df2<-filter(df.2.Hdo, Type=="Wild", Age==age)
-  
-  plot<-ggplot(df1, aes(Year))+
-    theme_bw()+
-    geom_boxplot(
-      data=df1,
-      mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-      stat = "identity",
-      colour="grey", fill="grey95")+
-    geom_boxplot(
-      data=df2,
-      aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-      stat = "identity",fill=rgb(1,1,1,0.6))+
-    geom_line(data=df2,aes(Year,q50))+
-    labs(x="Year", y="Harvest rate", title=str_c("Offshore driftnet, wild ", age))+
-    geom_line(aes(Year,q50),col="grey")+
-    scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
-    scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
-  
-  if(i==1){plot1<-plot} 
-  if(i==2){plot2<-plot} 
-}
+df1<-filter(df.1.Hdo, Type=="Wild")
+df2<-filter(df.2.Hdo, Type=="Wild")
 
-
-grid.arrange(plot1, plot2, ncol=2)
-
-
-for(i in 1:2){
-  
-  ifelse(i==1, age<-"1SW", age<-"MSW")
-  
-  df1<-filter(df.1.Hdo, Type=="Reared", Age==age)
-  df2<-filter(df.2.Hdo, Type=="Reared", Age==age)
-  
-  plot<-ggplot(df1, aes(Year))+
-    theme_bw()+
-    geom_boxplot(
-      data=df1,
-      mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-      stat = "identity",
-      colour="grey", fill="grey95")+
-    geom_boxplot(
-      data=df2,
-      aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-      stat = "identity",fill=rgb(1,1,1,0.6))+
-    geom_line(data=df2,aes(Year,q50))+
-    labs(x="Year", y="Harvest rate", title=str_c("Offshore driftnet, reared ", age))+
-    geom_line(aes(Year,q50),col="grey")+
-    scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
-    scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
-  
-  if(i==1){plot1<-plot} 
-  if(i==2){plot2<-plot} 
-}
-
-
-grid.arrange(plot1, plot2, ncol=2)
-
-## ---- graphs-Hl
-
-for(i in 1:2){
-
-  ifelse(i==1, age<-"1SW", age<-"MSW")
-  
-  df1<-filter(df.1.Hl, Type=="Wild", Age==age)
-  df2<-filter(df.2.Hl, Type=="Wild", Age==age)
-  
-plot<-ggplot(df1, aes(Year))+
+ggplot(df2, aes(Year))+
   theme_bw()+
   geom_boxplot(
     data=df1,
     mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
     stat = "identity",
     colour="grey", fill="grey95")+
-    geom_boxplot(
-      data=df2,
-      aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-      stat = "identity",fill=rgb(1,1,1,0.6))+
-  geom_line(data=df2,aes(Year,q50))+
-  labs(x="Year", y="Harvest rate", title=str_c("Offshore longline, wild ", age))+
-  geom_line(aes(Year,q50),col="grey")+
+  geom_boxplot(
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  geom_line(data=df1,aes(Year,q50),colour="grey")+
+  geom_line(aes(Year,q50))+
+  labs(x="Year", y="Harvest rate", title=str_c("Offshore driftnet HR wild"))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
-
-  if(i==1){plot1<-plot} 
-if(i==2){plot2<-plot} 
-}
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5))+
+  coord_cartesian(ylim=c(0,1))+
+  facet_wrap(~Age, scales="free") 
 
 
-grid.arrange(plot1, plot2, ncol=2)
+df1<-filter(df.1.Hdo, Type=="Reared")
+df2<-filter(df.2.Hdo, Type=="Reared")
 
-for(i in 1:2){
-  
-  ifelse(i==1, age<-"1SW", age<-"MSW")
-  
-  df1<-filter(df.1.Hl, Type=="Reared", Age==age)
-  df2<-filter(df.2.Hl, Type=="Reared", Age==age)
-  
-  plot<-ggplot(df1, aes(Year))+
-    theme_bw()+
-    geom_boxplot(
-      data=df1,
-      mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-      stat = "identity",
-      colour="grey", fill="grey95")+
-    geom_boxplot(
-      data=df2,
-      aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
-      stat = "identity",fill=rgb(1,1,1,0.6))+
-    geom_line(data=df2,aes(Year,q50))+
-    labs(x="Year", y="Harvest rate", title=str_c("Offshore longline, reared ", age))+
-    geom_line(aes(Year,q50),col="grey")+
-    scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
-    scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
-  
-  if(i==1){plot1<-plot} 
-  if(i==2){plot2<-plot} 
-}
+ggplot(df2, aes(Year))+
+  theme_bw()+
+  geom_boxplot(
+    data=df1,
+    mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",
+    colour="grey", fill="grey95")+
+  geom_boxplot(
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  geom_line(data=df1,aes(Year,q50),colour="grey")+
+  geom_line(aes(Year,q50))+
+  labs(x="Year", y="Harvest rate", title=str_c("Offshore driftnet HR reared"))+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5))+
+  coord_cartesian(ylim=c(0,1))+
+  facet_wrap(~Age, scales="free") 
 
 
-grid.arrange(plot1, plot2, ncol=2)
+
+## ---- graphs-Hl
+
+df1<-filter(df.1.Hl, Type=="Wild")
+df2<-filter(df.2.Hl, Type=="Wild")
+
+ggplot(df2, aes(Year))+
+  theme_bw()+
+  geom_boxplot(
+    data=df1,
+    mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",
+    colour="grey", fill="grey95")+
+  geom_boxplot(
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  geom_line(data=df1,aes(Year,q50),colour="grey")+
+  geom_line(aes(Year,q50))+
+  labs(x="Year", y="Harvest rate", title=str_c("Offshore longline HR wild"))+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5))+
+  coord_cartesian(ylim=c(0,1))+
+  facet_wrap(~Age, scales="free") 
+
+
+df1<-filter(df.1.Hl, Type=="Reared")
+df2<-filter(df.2.Hl, Type=="Reared")
+
+ggplot(df2, aes(Year))+
+  theme_bw()+
+  geom_boxplot(
+    data=df1,
+    mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",
+    colour="grey", fill="grey95")+
+  geom_boxplot(
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  geom_line(data=df1,aes(Year,q50),colour="grey")+
+  geom_line(aes(Year,q50))+
+  labs(x="Year", y="Harvest rate", title=str_c("Offshore longline HR reared"))+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5))+
+  coord_cartesian(ylim=c(0,1))+
+  facet_wrap(~Age, scales="free") 
+
+
 
 
 ## ---- graphs-Hc
@@ -747,6 +721,7 @@ ggplot(df1, aes(Year))+
   labs(x="Year", y="Harvest rate", title="Coastal DN, wild")+
   geom_line(aes(Year,q50),col="grey")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  coord_cartesian(ylim=c(0,1))+
   facet_wrap(~Age)
 
 df1<-filter(df.1.Hdc, Type=="Reared")
@@ -766,6 +741,7 @@ ggplot(df1, aes(Year))+
   labs(x="Year", y="Harvest rate", title="Coastal DN, reared")+
   geom_line(aes(Year,q50),col="grey")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
+  coord_cartesian(ylim=c(0,1))+
   facet_wrap(~Age)
 
 ## ---- graphs-Hr

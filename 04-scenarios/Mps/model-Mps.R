@@ -2,7 +2,7 @@
 # AR(1) model for Mps
 
 # Load input
-#source("scenarios/Mps_cor.r")
+#source("04-scenarios/Mps_cor.r")
 
 M1<-"
 model{
@@ -45,7 +45,7 @@ model{
 
 }"
 Mname<-"model_Mps.txt"
-cat(M1,file=str_c("scenarios/", Mname))
+cat(M1,file=str_c("04-scenarios/", Mname))
 
 data<-list(
   m=31, # until 2017
@@ -59,7 +59,7 @@ var_names<-c(
   "sigma2","w"
 )
 
-run<-run.jags(str_c("scenarios/", Mname),monitor=var_names, data=data, n.chains=2,sample=10000, burnin=5000,
+run<-run.jags(str_c("04-scenarios/", Mname),monitor=var_names, data=data, n.chains=2,sample=10000, burnin=5000,
                method='parallel', modules = "mix", keep.jags.files = "test")
 
 plot(run)

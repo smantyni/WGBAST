@@ -54,7 +54,7 @@ model{
 }
 "
 Mname<-"model_M74.txt"
-cat(M1,file=str_c("scenarios/", Mname))
+cat(M1,file=str_c("04-scenarios/", Mname))
 
 data<-list(
   Nyears=Nyears,
@@ -70,15 +70,14 @@ var_names<-c(
   "sigma2","w"
 )
 
-run<-run.jags(str_c("scenarios/", Mname),monitor=var_names, data=data, 
+run<-run.jags(str_c("04-scenarios/", Mname),monitor=var_names, data=data, 
               n.chains=2,sample=10000, burnin=10000,
               method='parallel', modules = "mix", keep.jags.files = "test")
 
 plot(run)
 
 summary(run)
-summary(run)
-#Lower95     Median   Upper95       Mean         SD Mode        MCerr
+#                     Lower95     Median   Upper95       Mean         SD Mode        MCerr
 #pred_averageMean[1] -0.658166 -0.5600045 -0.462239 -0.5600586 0.05021585   NA 0.0006022855
 #pred_averageMean[2] -1.989330 -1.8928600 -1.793630 -1.8929764 0.05007603   NA 0.0012889136
 #mu                  -2.901210 -2.6194750 -2.344190 -2.6235646 0.14282675   NA 0.0053569838
@@ -90,13 +89,13 @@ summary(run)
 #mu                      3.8   711 0.3214422 1.004230
 #sigma2                  6.1   266 0.7660634 1.026549
 #w                       6.3   256 0.7753427 1.018834
-# In inputs-file:
+# In inputs-file: (means)
 ## Stable mean on logit scale
 #  muM74<- -3.594    
 
 ## Marginal variance  on logit scale
-#  sigma2M74<-0.490
+#  sigma2M74<-0.283
 
 ## AutoC coefficient  on logit scale
-#  wM74<- 0.878
+#  wM74<- 0.825
 

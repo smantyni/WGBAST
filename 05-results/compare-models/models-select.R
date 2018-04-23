@@ -37,8 +37,13 @@ length(Years2B)
 if(compare=="JJ"){
   # Model 1: JAGS model
   # =================
-  load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR_withoutTrolling.RData"); SRnew<-"yes"
-  chains1<-as.mcmc.list(run1)
+  
+  # Assessment model (short version)
+  load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
+  chains1<-chains
+  #load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR_withoutTrolling.RData"); SRnew<-"yes"
+  
+  #chains1<-as.mcmc.list(run4)
   
   YearsB<-c(1987:2017)
   length(YearsB)
@@ -49,25 +54,40 @@ if(compare=="JJ"){
 
 # Model 2:
 # =================
-Years<-c(1987:2017)
-length(Years)
-Years2<-c(1992:2017)
-length(Years2)
+
+JAGSversion<-"x"
+if(JAGSversion=="old"){
+  Years<-c(1987:2016)
+  length(Years)
+  Years2<-c(1992:2016)
+  length(Years2)
+}else{
+  Years<-c(1987:2017)
+  length(Years)
+  Years2<-c(1992:2017)
+  length(Years2)
+}
+
+
+# Long version of the assessment model
+load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); SRnew<-"yes"
+
 
 # With trolling comparison
 #load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR.RData"); SRnew<-"yes"
+#chains<-as.mcmc.list(run4)
+#chains<-window(chains,start=350000)
+
+# Without trolling comparison (comp with BUGS)
+#load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR_withoutTrolling.RData"); SRnew<-"yes"
 #chains<-as.mcmc.list(run3)
 
-# Assessment model
-load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
+
+# Assessment model (short version)
+#load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
 
 
-#load("all_stocks_Simo_2017-11-21.RData")   #2015 data
-#load("output/spawners_JAGS_2112.RData") 
-#dsub[,"NspWtot[6,1]"]
-
-
-# Read runjags results from file
+# Latest comparison at my comp? this is "old" JAGSversion
 #folder2<-"H:/Biom/FullLifeHistoryModel/2017/prg/output/JAGS/"; model<-"JAGS16"
 #load(str_c(folder2,"FLHM_mov_average_Mps_2018-01-22.RData"))
 

@@ -74,11 +74,4 @@ str_split(x1, "\\[")%>%.[[1]]
 
 length(x2)
 
-fruits <- c(
-  "apples and oranges and pears and bananas",
-  "pineapples and mangos and guavas"
-)
-
-str_split(fruits, " and ")
-
 

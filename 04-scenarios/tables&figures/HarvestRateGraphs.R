@@ -138,16 +138,15 @@ summary(as.mcmc(RCTN_HR[2,1,1,]))
 # Combined harvest rates
 
 #########################
-lastY<-24  # ADD ONE EACH YEAR!!!
+lastY<-26  # ADD ONE EACH YEAR!!!
 #########################
 			
         
 #for(S in 2:7){ # Number of scenarios
 S<-1
-File<-paste(sep="", 
-  "C:/FLR/WGBAST17/Sim/BS_Proj",Model,"_Mps",choice,"_EScen",S,".RData")
+File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen",S,".RData")
 load(File)
-#ls()
+
 
 
 # Combined offshore harvest rate (driftnet included in the history)
