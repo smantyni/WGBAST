@@ -10,7 +10,8 @@ library(forcats)
 pathData<-"C:/Users/412hpulkkin/Dropbox/WGBAST/JAGS/data_2018/"
 Rivername_long<-read.table(str_c(pathData, "rivernames.txt"))[,1]
 
-load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData");modelname<-"2018" 
+load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); modelname<-"final"
+#load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData");modelname<-"2018" 
 #chains<-as.mcmc.list(run1)
 
 #print stats to file
@@ -77,5 +78,5 @@ df<-as.tibble(df)%>%
 df<-df%>%select(Area,year,Year,mode,q50,mean,q5,q95,`90%PI`)%>%
   filter(Year==2017)
 
-write.xlsx(df,"05-results/stats_R0_AUsums.xlsx")
+write.xlsx(df,"05-results/stats_R0_AUsums_final.xlsx")
 

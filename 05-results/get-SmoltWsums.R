@@ -8,13 +8,20 @@ library(xlsx)
 
 
 # Load simulation results
-load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData");modelname<-"2018" 
+load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); modelname<-"final"
+#load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData");modelname<-"2018" 
 #chains<-as.mcmc.list(run1)
 
 # Read extra stuff (AU5-6 etc.)
 pathData<-"C:/Users/412hpulkkin/Dropbox/WGBAST/JAGS/data_2018/"
-extra<-as.tibble(read.xlsx(str_c(pathData, "SmoltWW_extra.xlsx"), sheetIndex=1))%>%
+extra<-as.tibble(read.xlsx(str_c(pathData, "SmoltWW_extra.xlsx")))%>%
   mutate(Year=c(1:32))
+
+
+# "no" or "yes" depending on what is desired.'Extra' are not added for HELCOM output, for example
+# Note that if 'Extra' is added, mean, sd & cv cannot be calculated
+inclExtra<-"yes" 
+
 
 #print stats to file
 d<-as.matrix(chains)
@@ -49,9 +56,6 @@ for(y in 1:nyears){
   }
 }
 
-# "no" or "yes" depending on what is desired.'Extra' are not added for HELCOM output, for example
-# Note that if 'Extra' is added, mean, sd & cv cannot be calculated
-inclExtra<-"no" 
 
 for(u in 1:nareas){
   for(y in 1:nyears){
@@ -124,9 +128,9 @@ if(inclExtra=="no"){
 df<-df%>%mutate(Area=fct_recode(Area, "AU1"="1","AU2"="2","AU3"="3","AU4"="4","AU1-2"="5","GB"="6","MB"="7", "Tot"="8"))%>%
   mutate(Year=year+1986)
 
-#df<-df%>%select(Area,year, q50,`90%PI`)
-df<-df%>%select(Area,Year, mean,mode, sd, cv,q5,q95, q50,`90%PI`)
+if(inclExtra=="yes"){df<-df%>%select(Area,year, q50,`90%PI`)}
+if(inclExtra=="no"){df<-df%>%select(Area,Year, mean,mode, sd, cv,q5,q95, q50,`90%PI`)}
 
-write.xlsx(df,"05-results/stats_smoltsWW_AUsums.xlsx")
+write.xlsx(df,"05-results/stats_smoltsWW_AUsums_final.xlsx")
 
 

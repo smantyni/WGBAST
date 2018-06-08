@@ -126,9 +126,8 @@ df.2
 
 ## ---- graphs-SR
 
-df1<-filter(df.1, par=="R0")
-df2<-filter(df.2, par=="R0")
-
+df1<-filter(df.1, par=="R0", stock!=1 & stock!=3)
+df2<-filter(df.2, par=="R0", stock!=1 & stock!=3)
 
 ggplot(df2, aes(stock))+
   theme_bw()+
@@ -141,8 +140,27 @@ ggplot(df2, aes(stock))+
     aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
     stat = "identity",fill=rgb(1,1,1,0.6))+
   labs(x="Stock", y="R0", title="Potential smolt production capacity")+
-#coord_cartesian(ylim=c(0,2500))+
+  coord_cartesian(ylim=c(0,450))+
   scale_x_continuous(breaks = c(1:16), labels=Rivername)
+
+
+df1<-filter(df.1, par=="R0", stock<4 & stock!=2)
+df2<-filter(df.2, par=="R0", stock<4 & stock!=2)
+
+ggplot(df2, aes(stock))+
+  theme_bw()+
+  geom_boxplot(
+    data=df1,
+    mapping= aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",
+    colour="grey", fill="grey95")+
+  geom_boxplot(
+    aes(ymin = q5, lower = q25, middle = q50, upper = q75, ymax = q95),
+    stat = "identity",fill=rgb(1,1,1,0.6))+
+  labs(x="Stock", y="R0", title="Potential smolt production capacity")+
+  #coord_cartesian(ylim=c(0,450))+
+  scale_x_continuous(breaks = c(1:3), labels=Rivername[1:3])
+  
 
 
 df1<-filter(df.1, par=="z")

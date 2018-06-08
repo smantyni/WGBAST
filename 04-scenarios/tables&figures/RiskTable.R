@@ -31,7 +31,7 @@ EffScen<-5
 PathScen<-"H:/FLR/WGBAST18/Scenarios/" # scenario results 
 PathOut<-"H:/Biom/Scenarios/2018/prg/" # output
 
-#for(EffScen in 4:6){
+for(EffScen in 1:6){
 
 #Load the file containing stats
 File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen",EffScen,".RData")

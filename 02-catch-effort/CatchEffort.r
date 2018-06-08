@@ -164,7 +164,7 @@ for(i in 1:13){ #2012
   E_CTN_AU2[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
           0.55*(SweE_CTN31x[i,2]+SweE_CTN31x[i,3])
 
-  E_CTN_AU3[i]<-FinE_CTN31x[i,2]+FinE_CTN30x[i,3]+
+  E_CTN_AU3[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
                 SweE_CTN30x[i,2]+SweE_CTN30x[i,3]
 
 }
@@ -177,7 +177,7 @@ for(i in 14:length(years)){
   E_CTN_AU2[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
           0.55*(SweE_CTN31x_real[i,2]+SweE_CTN31x_real[i,3])
 
-  E_CTN_AU3[i]<-FinE_CTN31x[i,2]+FinE_CTN30x[i,3]+
+  E_CTN_AU3[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
                 SweE_CTN30x_real[i,2]+SweE_CTN30x_real[i,3]
 
 }

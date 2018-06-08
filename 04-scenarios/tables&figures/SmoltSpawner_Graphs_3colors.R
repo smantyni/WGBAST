@@ -9,7 +9,7 @@
 rm(list=ls(all=TRUE))
 
 PathScen<-"H:/FLR/WGBAST18/Scenarios/" # scenario results 
-
+PathOut<-"H:/Biom/Scenarios/2018/prg/" # output
 
 ################################################################################
 #! #############################################################################
@@ -77,16 +77,16 @@ river<-c("Torne","Simo","Kalix","Råne","Pite","Åby","Byske","Rickleån",
 maxSmolt<-c(
 4000,100,1500,200,
 100,50,300,27,
-35,600,150,130,
+45,600,150,130,
 8,200,40,100)
 maxSpawner<-c(
 800,25,300,30,
 20,8,70,4,
-6,40,25,20,
+8,40,25,20,
 1.2,80,8,20)
 #}
 
-tiff("figures/F4328_fig3_of_4.tiff",  width=1600, height=2000, res=200) 
+tiff(paste0(PathOut,"F4328_fig3_of_4.tiff"),  width=1600, height=2000, res=200) 
 par(mfrow=c(4,2))
 par(mar=c(2.5,4,4,1))
 

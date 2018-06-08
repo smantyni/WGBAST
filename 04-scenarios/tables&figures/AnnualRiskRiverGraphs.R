@@ -16,15 +16,15 @@ library("xlsx")
 ################################################################################
 #! #############################################################################
 # Version of the estimation model
-Model<-"New_SR_long" # 50years forward 
-LastPredYear<-2067
-#Model<-"New_SR" # 15 years forward
-#LastPredYear<-2032
+#Model<-"New_SR_long" # 50years forward 
+#LastPredYear<-2067
+Model<-"New_SR" # 15 years forward
+LastPredYear<-2032
 
 #! Mps
 choice<-"MED"
 
-nrScen<-6
+nrScen<-5
 
 #! Set the last year for historic part and the last year for predictions:
 LastHistYear<-2017    
@@ -67,8 +67,9 @@ for(scen in 1:nrScen){ # number of scenarios
   if(scen==2){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen2.RData")}
   if(scen==3){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen3.RData")}
   if(scen==4){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen4.RData")}
-  if(scen==5){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen6.RData")} # Note! These two are
-  if(scen==6){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen5.RData")} # other way round
+  if(scen==5){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen5.RData")} # other way round
+  #if(scen==5){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen6.RData")} # Note! These two are
+  #if(scen==6){File<-paste0(PathScen,"ScenProj_",Model,"_Mps",choice,"_EScen5.RData")} # other way round
   
   File
   load(File)
@@ -129,9 +130,12 @@ write.xlsx(FirstYear70, file=paste0(PathOut,"FirstYear70.xlsx"))
 
 #######################
 
-ScenNames<-c("1","2","3","4","5","6")
-ScenLty=c(1:6)
-ScenPch = c(19,22,3,25,8,5)
+#ScenNames<-c("1","2","3","4","5","6")
+#ScenLty=c(1:6)
+#ScenPch = c(19,22,3,25,8,5)
+ScenNames<-c("1","2","3","4","5")
+ScenLty=c(1:5)
+ScenPch = c(19,22,3,25,8)
 
 v1<-2022
 v2<-2024
@@ -144,7 +148,7 @@ par(mar=c(2.5,4,3,3))
 
 for(r in 1:Nstocks){
   Risk<-cbind(RecRisk[r,1,],RecRisk[r,2,],RecRisk[r,3,],
-  RecRisk[r,4,],RecRisk[r,5,],RecRisk[r,6,])
+  RecRisk[r,4,],RecRisk[r,5,])#,RecRisk[r,6,])
   plot(Years, Risk[,1], type = "n", ylim=c(0,1), xlab = "Year", 
   ylab = "Probability of meeting 75% CC obj.", main = RiverNames[r])
   for(i in 1:nrScen){

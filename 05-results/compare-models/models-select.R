@@ -11,8 +11,8 @@ library(coda)
 # setwd("C:/R/WGBAST/")
 source("00-functions/tidy-functions_2chains.r")
 
-#compare<-"BJ" #BUGS-JAGS comparison
-compare<-"JJ" #JAGS-JAGS comparison
+compare<-"BJ" #BUGS-JAGS comparison
+#compare<-"JJ" #JAGS-JAGS comparison
 
 nstocks<-16
 
@@ -80,7 +80,7 @@ load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); SRnew<-"yes"
 
 # Without trolling comparison (comp with BUGS)
 #load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR_withoutTrolling.RData"); SRnew<-"yes"
-#chains<-as.mcmc.list(run3)
+#chains<-as.mcmc.list(run4)
 
 
 # Assessment model (short version)

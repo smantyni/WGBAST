@@ -55,7 +55,7 @@ if(compare=="BJ"){
     mutate(Type= fct_recode(factor(Type), "Wild"="1", "Reared"="2", "Ratio"="3"))
 }
 
-
+#traceplot(as.mcmc(M$Reared))
 
 
 if(compare=="JJ"){
@@ -229,4 +229,6 @@ for(i in 1:length(Years)){
 traceplot(chains[,"MW"], main="MW")
 traceplot(chains[,"MR"], main="MR")
 
-
+#par(mfrow=c(2,1))
+#traceplot(exp(-chains[,"MR"]))
+#traceplot(as.mcmc(M$Reared))

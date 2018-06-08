@@ -2,7 +2,8 @@
 library(coda)
 
 
-load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData");modelname<-"2018" 
+load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); modelname<-"final"
+#load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData");modelname<-"2018" 
 #load(file="H:/FLR/WGBAST18/WGBAST_JAGS_SRorig.RData");modelname<-"SRorig"
 #chains<-as.mcmc.list(run1)
 
@@ -12,7 +13,7 @@ dim(d)
 #[1]   200 16500 # dimensions: iterations x number of variables
 
 headtext<-c("Varname","mean","sd","cv","5%","50%","95%","90%PI")
-statsfile<-paste0("stats_",modelname,".csv")
+statsfile<-paste0("05-results/stats_",modelname,".csv")
 
 write.table(t(as.matrix(headtext)),file=statsfile,sep=',',row.names=F, col.names=F)
 

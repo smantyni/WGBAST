@@ -67,21 +67,6 @@ knitr::read_chunk("05-results/compare-models/compare-SR.r")
 
 ```
 
-# SR curves
-```{r cache=F, include=F}
-knitr::read_chunk("figures/F4233_SR.r")
-
-```
-
-```{r load-SRcurves, include=F}
-
-```
-
-```{r graphs-SRcurves, echo=F}
-
-```
-
-
 
 # catches
 
