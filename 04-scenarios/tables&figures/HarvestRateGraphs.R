@@ -1,4 +1,5 @@
 library(coda)
+library(xlsx)
 #! #############################################################################
 
 # Version of the estimation model
@@ -14,12 +15,14 @@ LastPredYear<-2032
 choice<-"MED"   # corresponds to Mps during 2008-2011 period
 
 PathScen<-"H:/FLR/WGBAST18/Scenarios/" # scenario results 
+PathOut<-"H:/Biom/Scenarios/2018/prg/" # output
+
 
 # ?????????????????????????????????????????????????????????????????
 year<-c(1992:LastPredYear)
 length(year)
 endyear<-length(year)
-cbind(1:24,1992:LastHistYear)
+cbind(1:26,1992:LastHistYear)
 
 
 # Longlining, wild salmon
@@ -171,8 +174,8 @@ plot(year[1:length(med)]+1,med, pch=19, main="Combined offshore HR, MSW wild",
 ylim=c(0,0.6), ylab ="Harvest rate" )
 segments(year[1:length(med)]+1, low, year[1:length(med)]+1, high)
 
-tab<-cbind(med, low, high)
-write.table(tab, "H:/Biom/Scenarios/2017/prg/output/CombinedOffsHR_wildMSW.csv", sep=",")
+tab<-cbind(year[1:lastY]+1,med, low, high)
+write.xlsx(tab, paste0(PathOut,"CombinedOffsHR_wildMSW.xlsx"))
 
 
 # Reared salmon
@@ -210,8 +213,9 @@ plot(year[1:length(med)],med, pch=19, main="Combined coastal HR, MSW wild, AU1",
 ylim=c(0,1), ylab ="Harvest rate" )
 segments(year[1:length(med)], low, year[1:length(med)], high)
 
-tab<-cbind(med, low, high)
-write.table(tab, "H:/Biom/Scenarios/2017/prg/output/CombinedCoastHR_wildMSW.csv", sep=",")
+tab<-cbind(year[1:lastY],med, low, high)
+write.xlsx(tab, paste0(PathOut,"CombinedCoastHR_wildMSW_AU1.xlsx"))
+
 
 # Reared salmon
 dat<-CoastR_HR[2,1:lastY,1,]# MSW salmon, AU 1
