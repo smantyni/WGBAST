@@ -26,13 +26,14 @@
 
 # Latvia
 # ============
-latvia<-subset(salmon, COUNTRY=="LV" & FISHERY=="S")
+latvia<-filter(salmon, COUNTRY=="LV", FISHERY=="S")
 summary(latvia)
 # Driftnetting
-LatDN<-subset(latvia, GEAR=="GND" | GEAR=="GNS")
+LatDN<-filter(latvia, GEAR=="GND" | GEAR=="GNS")
 LatDN%>%count(TP_TYPE) # monthly Data
 
 LatE_ODN<-Effort_MON(LatDN)
+
 LatE1_ODN<-LatE_ODN[,2]; LatE2_ODN<-LatE_ODN[,3]
 LatC_ODN<-Catch_MON(LatDN)
 LatC1_ODN<-LatC_ODN[,2]; LatC2_ODN<-LatC_ODN[,3]

@@ -11,7 +11,7 @@ library(lubridate)
 library(stringr)
 library(gridExtra)
 
-source("catch-effort/WGBAST_DB_functions.r")
+source("02-catch-effort/WGBAST_DB_functions.r")
 
 
 min_year<-2000
@@ -31,8 +31,6 @@ df<-df%>%
   select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())
  
 df%>%count(TP_TYPE) 
-#tmp<-df%>%
-#  mutate(TP_TYPE=factor(TP_TYPE, levels=))
 
 tmp<-df%>%group_by(FISHERY)%>%
   count(GEAR)
@@ -45,17 +43,29 @@ tmp<-df%>%group_by(FISHERY)%>%
 # GNS: gillnet (stationary) (previously GN)
 # AN: angling
 
-salmon<-filter(df, SPECIES=="SAL", SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL")
+salmon<-df%>%filter(SPECIES=="SAL", SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL")
+#3640
+
+MON<-salmon%>%filter(TP_TYPE=="MON")%>%mutate(HYR=ifelse(TIME_PERIOD<7,1,2))
+QTR<-salmon%>%filter(TP_TYPE=="QTR")%>%mutate(HYR=ifelse(TIME_PERIOD<3,1,2))
+HYR<-salmon%>%filter(TP_TYPE=="HYR")%>%mutate(HYR=ifelse(TIME_PERIOD<2,1,2))
+YR<-salmon%>%filter(TP_TYPE=="YR")%>%mutate(HYR="NA")%>%mutate(HYR=parse_double(HYR))
+
+salmon<-full_join(MON, QTR)%>%
+  full_join(HYR)%>%
+  full_join(YR)
 
 
-source("catch-effort/WGBAST_DB_Germany.r")
-source("catch-effort/WGBAST_DB_Latvia.r")
-source("catch-effort/WGBAST_DB_Denmark.r")
-source("catch-effort/WGBAST_DB_Finland.r")
-source("catch-effort/WGBAST_DB_Finland_CoastalCPUE.r")
-source("catch-effort/WGBAST_DB_Sweden.r")
-source("catch-effort/WGBAST_DB_Poland_CPUEothers.r")
-source("catch-effort/WGBAST_DB_Poland_new.r")
+
+
+source("02-catch-effort/WGBAST_DB_Germany.r")
+source("02-catch-effort/WGBAST_DB_Latvia.r")
+source("02-catch-effort/WGBAST_DB_Denmark.r")
+source("02-catch-effort/WGBAST_DB_Finland.r")
+source("02-catch-effort/WGBAST_DB_Finland_CoastalCPUE.r")
+source("02-catch-effort/WGBAST_DB_Sweden.r")
+source("02-catch-effort/WGBAST_DB_Poland_CPUEothers.r")
+source("02-catch-effort/WGBAST_DB_Poland_new.r")
 
 # ==============================================================================
 

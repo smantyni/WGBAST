@@ -29,6 +29,46 @@ return(temp2)
 
 ################################################################################
 
+Effort_MON<-function(dat){
+dat<-datDN
+
+y<-min_year
+
+View(LatDN)
+
+for(i in 1:dim(dat)[1]){
+
+  }  
+
+
+    
+  Effort1<-vector()
+  Effort2<-vector()
+  
+  for(y in min_year:max_year){
+    temp1<-0
+    temp2<-0
+    
+    for(i in 1:dim(dat)[1]){
+      
+      if (dat$YEAR[i]==y && dat$TIME_PERIOD[i]<7){
+        if(is.na(dat$EFFORT[i])==F){temp1<-dat$EFFORT[i]+temp1}
+      }
+      if (dat$YEAR[i]==y && dat$TIME_PERIOD[i]>6){
+        if(is.na(dat$EFFORT[i])==F){temp2<-dat$EFFORT[i]+temp2}
+      }
+    }
+    Effort1[(y-min_year+1)]<-temp1
+    Effort2[(y-min_year+1)]<-temp2
+  }
+  Effort1<-round(Effort1,0); Effort2<-round(Effort2,0)
+  eff<-cbind(years,Effort1,Effort2)
+  return(eff)
+}
+
+
+
+
 Catch_QUART<-function(dat){
   Catch1<-vector()
   Catch2<-vector()
