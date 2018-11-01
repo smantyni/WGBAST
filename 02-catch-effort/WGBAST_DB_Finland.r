@@ -30,8 +30,8 @@ finland%>%
 Fin_ODN<-finland%>%
   filter(FISHERY=="S", GEAR=="GND")%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinC_ODN=round(sum(NUMB, na.rm=T)),
-            FinE_ODN=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))
 
 #                    
 # fin_offs<-filter(finland, FISHERY=="S")
@@ -71,8 +71,8 @@ Fin_ODN<-finland%>%
 Fin_OLL<-finland%>%
   filter(FISHERY=="S", GEAR=="LLD")%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinC_OLL=round(sum(NUMB, na.rm=T)),
-            FinE_OLL=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))
 #View(Fin_OLL)
 # 
 # FinOLL<-subset(fin_offs, GEAR=="LLD")
@@ -110,8 +110,8 @@ Fin_OLL<-finland%>%
 Fin_OOT<-finland%>%
   filter(FISHERY=="S", GEAR=="MIS")%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinC_OOT=round(sum(NUMB, na.rm=T)),
-            FinE_OOT=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch_OOT=round(sum(NUMB, na.rm=T)),
+            Effort_OOT=round(sum(EFFORT, na.rm=T)))
 #View(Fin_OOT)
 # 
 # FinOffsOT<-subset(fin_offs, GEAR=="MIS")
@@ -166,8 +166,8 @@ finland%>%
 Fin_CDN<-finland%>%
   filter(FISHERY=="C", GEAR=="GND")%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinC_CDN=round(sum(NUMB, na.rm=T)),
-            FinE_CDN=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))
 
 # 
 # 
@@ -207,8 +207,8 @@ Fin_CDN<-finland%>%
 Fin_CTN<-finland%>%
   filter(FISHERY=="C", GEAR=="FYK")%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinC_CTN=round(sum(NUMB, na.rm=T)),
-            FinE_CTN=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))
 #View(Fin_CTN)
 
 # 
@@ -253,8 +253,8 @@ finland%>%
 Fin_COT<-finland%>%
   filter(FISHERY=="C", GEAR=="MIS"| GEAR=="LLD", TP_TYPE=="HYR")%>% # take HYR here and include YR later 
   group_by(YEAR, HYR)%>%
-  summarise(FinC_COT=round(sum(NUMB, na.rm=T)),
-            FinE_COT=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch_COT=round(sum(NUMB, na.rm=T)),
+            Effort_COT=round(sum(EFFORT, na.rm=T)))
 #View(Fin_COT)
 
 
@@ -290,12 +290,12 @@ Fin_COT<-finland%>%
 ###########################################
 Fin_OTtot<-full_join(Fin_OOT, Fin_COT)%>%
   group_by(YEAR, HYR)%>%
-  mutate(FinC_COT_tot=sum(FinC_OOT,FinC_COT, na.rm=T),
-         FinE_COT_tot=sum(FinE_OOT,FinE_COT, na.rm=T))%>%
-  mutate(FinC_COT=FinC_COT_tot,
-         FinE_COT=FinE_COT_tot)%>%
-  select(YEAR, HYR, FinC_COT, FinE_COT)
-View(Fin_OTtot)
+  mutate(Catch_COT_tot=sum(Catch_OOT,Catch_COT, na.rm=T),
+         Effort_COT_tot=sum(Effort_OOT,Effort_COT, na.rm=T))%>%
+  mutate(Catch_COT=Catch_COT_tot,
+         Effort_COT=Effort_COT_tot)%>%
+  select(YEAR, HYR, Catch_COT, Effort_COT)
+#View(Fin_OTtot)
 
 # FinE1_OTtot<-FinE1_CoastOT+FinE1_OffsOT
 # FinE2_OTtot<-FinE2_CoastOT+FinE2_OffsOT
@@ -322,7 +322,7 @@ finland%>%
 Fin_COT_YR<-finland%>%
   filter(FISHERY=="C", GEAR=="MIS"| GEAR=="LLD", TP_TYPE=="YR")%>% 
   group_by(YEAR, HYR)%>%
-  summarise(FinC_COT=round(sum(NUMB, na.rm=T))) # only catch data
+  summarise(Catch_YR=round(sum(NUMB, na.rm=T))) # only catch data
 
 
 # 
@@ -355,21 +355,21 @@ Fin_COT_YR<-finland%>%
 # Combine OT catches and NA catches
 
 tmp1<-Fin_OTtot%>%
-  select(-FinE_COT)%>%
+  select(-Effort_COT)%>%
   ungroup()%>%
   group_by(YEAR, add=T)%>%
-  mutate(sumC=sum(FinC_COT))%>%
-  mutate(p=FinC_COT/sumC)
+  mutate(sumC=sum(Catch_COT))%>%
+  mutate(p=Catch_COT/sumC)
 
 tmp2<-Fin_COT_YR%>%
-  mutate(FinC_COT_YR=FinC_COT)%>%
-  select(YEAR, FinC_COT_YR)
+  mutate(Catch_COT_YR=Catch_YR)%>%
+  select(YEAR, Catch_COT_YR)
   
 FinC_OTtot<-full_join(tmp1, tmp2, by="YEAR")%>%
-  mutate(FinC_COT_YR2=FinC_COT_YR*p)%>%
-  mutate(FinC_COT_HYR=FinC_COT)%>%
-  mutate(FinC_COT=round(FinC_COT_HYR+FinC_COT_YR2))%>%
-  select(YEAR, HYR, FinC_COT)
+  mutate(Catch_COT_YR2=Catch_COT_YR*p)%>%
+  mutate(Catch_COT_HYR=Catch_COT)%>%
+  mutate(Catch_COT=round(Catch_COT_HYR+Catch_COT_YR2))%>%
+  select(YEAR, HYR, Catch_COT)
 #View(FinC_OTtot)
   
 # FinC1_OTtot
@@ -391,217 +391,82 @@ FinC_OTtot<-full_join(tmp1, tmp2, by="YEAR")%>%
 
 
 ################################################################################
+# CPUE's
+################################################################################
 # Calculate Finnish gillnet and trapnet efforts for area 30 and area 31.
 # Note that in this case area 30 needs to contain all the other subdivisions than 31,
 # so that all catches and effort will be dealt (those are minor outside 30/31, but
 # yet need to be included).
 
+# include only those lines of data where both catch and effort data are known (Tapani)
+
+
+finland%>%
+  filter(FISHERY=="C")%>%
+  group_by(GEAR)%>%
+  count(SUB_DIV)
+
+Fin_coast_cpue<-finland%>%
+  filter(FISHERY=="C", is.na(NUMB)==F, is.na(EFFORT)==F)
+  
+Fin_coast_cpue%>%
+  group_by(GEAR)%>%
+  count(SUB_DIV)
+
+
+#TN
 ########################
 # SD 30 & 31
 
-FinE_CTN30<-finland%>%
-  filter(FISHERY=="C", GEAR=="FYK", SUB_DIV!=31)%>%
+Fin_CTN<-Fin_coast_cpue%>%
+  filter(GEAR=="FYK")%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinE_CTN30=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))%>%
+  mutate(CPUE=Catch/Effort)
 
-FinE_CTN31<-finland%>%
-  filter(FISHERY=="C", GEAR=="FYK", SUB_DIV==31)%>%
+Fin_CTN30<-Fin_coast_cpue%>%
+  filter(GEAR=="FYK", SUB_DIV!=31)%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinE_CTN31=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))%>%
+  mutate(CPUE=Catch/Effort)
 
-#View(FinE_CTN30)
-
-
-# 
-# 
-# fin_coast<-subset(finland, FISHERY=="C")
-# 
-# FinCTN30<-subset(fin_coast, GEAR=="FYK" & SUB_DIV!=31 )
-# 
-# dim(FinCTN30)[1]
-# 
-# ##############
-# # Effort
-# ##############
-# Effort1<-vector()
-# Effort2<-vector()
-# 
-# for(y in min_year:max_year){
-# 	temp1<-0
-# 	temp2<-0
-# 
-# 	for(i in 1:dim(FinCTN30)[1]){
-#     if(FinCTN30$TP_TYPE[i]=="HYR"){
-#       if (FinCTN30$YEAR[i]==y && FinCTN30$TIME_PERIOD[i]==1){
-# 			   if(is.na(FinCTN30$EFFORT[i])==F){temp1<-FinCTN30$EFFORT[i]+temp1}
-# 		  }
-# 		  if (FinCTN30$YEAR[i]==y && FinCTN30$TIME_PERIOD[i]==2){
-# 			   if(is.na(FinCTN30$EFFORT[i])==F){temp2<-FinCTN30$EFFORT[i]+temp2}
-# 		  }  
-#     }  
-#   }
-#   Effort1[(y-min_year+1)]<-temp1
-# 	Effort2[(y-min_year+1)]<-temp2
-# }
-# FinE1_CTN30<-Effort1; FinE2_CTN30<-Effort2
-# Effort1<-round(Effort1,0); Effort2<-round(Effort2,0)
-# cbind(years,Effort1,Effort2)
-# 
-# FinE_CTN30<-round(GatherHalfYears(FinE1_CTN30,FinE2_CTN30,NumYears),0)
-# FinE_CTN30
-# 
-# FinE_CTN30x<-round(cbind(years,FinE1_CTN30,FinE2_CTN30),0)
-# 
-#                         
-# ########################
-# # Area 31
-# FinCTN31<-subset(fin_coast, GEAR=="FYK" & SUB_DIV==31 )
-# 
-# dim(FinCTN31)[1]
-# 
-# ##############
-# # Effort
-# ##############
-# Effort1<-vector()
-# Effort2<-vector()
-# 
-# for(y in min_year:max_year){
-# 	temp1<-0
-# 	temp2<-0
-# 
-# 	for(i in 1:dim(FinCTN31)[1]){
-#     if(FinCTN31$TP_TYPE[i]=="HYR"){
-#       if (FinCTN31$YEAR[i]==y && FinCTN31$TIME_PERIOD[i]==1){
-# 			   if(is.na(FinCTN31$EFFORT[i])==F){temp1<-FinCTN31$EFFORT[i]+temp1}
-# 		  }
-# 		  if (FinCTN31$YEAR[i]==y && FinCTN31$TIME_PERIOD[i]==2){
-# 			   if(is.na(FinCTN31$EFFORT[i])==F){temp2<-FinCTN31$EFFORT[i]+temp2}
-# 		  }  
-#     }  
-#   }
-#   Effort1[(y-min_year+1)]<-temp1
-# 	Effort2[(y-min_year+1)]<-temp2
-# }
-# FinE1_CTN31<-Effort1; FinE2_CTN31<-Effort2
-# Effort1<-round(Effort1,0); Effort2<-round(Effort2,0)
-# cbind(years,Effort1,Effort2)
-# 
-# FinE_CTN31<-round(GatherHalfYears(FinE1_CTN31,FinE2_CTN31,NumYears),0)
-# FinE_CTN31
-# 
-# FinE_CTN31x<-round(cbind(years,FinE1_CTN31,FinE2_CTN31),0)
-#                                                                             
-# # these are now the same!
-# cbind(FinE_CTN30+FinE_CTN31, FinE_CTN)
+Fin_CTN31<-Fin_coast_cpue%>%
+  filter(GEAR=="FYK", SUB_DIV==31)%>%
+  group_by(YEAR, HYR)%>%
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))%>%
+  mutate(CPUE=Catch/Effort)
 
 
 
-
-################################################################################
-# Other coastal gear
-
+# GN
 ########################
 # SD 30 & 31
 
-FinE_COT30<-finland%>%
+Fin_COT<-Fin_coast_cpue%>%
+  filter(GEAR=="MIS")%>%
+  group_by(YEAR, HYR)%>%
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))%>%
+  mutate(CPUE=Catch/Effort)
+
+Fin_COT30<-Fin_coast_cpue%>%
   filter(GEAR=="MIS", SUB_DIV!=31)%>%
   filter(is.na(EFFORT)==F)%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinE_COT30=round(sum(EFFORT, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))%>%
+  mutate(CPUE=Catch/Effort)
 
-FinE_COT31<-finland%>%
+Fin_COT31<-Fin_coast_cpue%>%
   filter(GEAR=="MIS", SUB_DIV==31)%>%
   filter(is.na(EFFORT)==F)%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinE_COT31=round(sum(EFFORT, na.rm=T)))
-# 
-# View(FinE_COT31)
-# 
-# 
-# subset(finland, GEAR=="MIS")
-# Fin_OT<-subset(finland, GEAR=="MIS")
-# 
-# ########################
-# # Area 30
-# 
-# FinOT30<-subset(Fin_OT, SUB_DIV!=31)
-# dim(FinOT30)[1]
-# 
-# ##############
-# # Effort
-# ##############
-# Effort1<-vector()
-# Effort2<-vector()
-# 
-# for(y in min_year:max_year){
-# 	temp1<-0
-# 	temp2<-0
-# 
-# 	for(i in 1:dim(FinOT30)[1]){
-#     if(FinOT30$TP_TYPE[i]=="HYR"){
-#       if (FinOT30$YEAR[i]==y && FinOT30$TIME_PERIOD[i]==1){
-# 			   if(is.na(FinOT30$EFFORT[i])==F){temp1<-FinOT30$EFFORT[i]+temp1}
-# 		  }
-# 		  if (FinOT30$YEAR[i]==y && FinOT30$TIME_PERIOD[i]==2){
-# 			   if(is.na(FinOT30$EFFORT[i])==F){temp2<-FinOT30$EFFORT[i]+temp2}
-# 		  }  
-#     }  
-#   }
-#   Effort1[(y-min_year+1)]<-temp1
-# 	Effort2[(y-min_year+1)]<-temp2
-# }
-# FinE1_OT30<-Effort1; FinE2_OT30<-Effort2
-# Effort1<-round(Effort1,0); Effort2<-round(Effort2,0)
-# cbind(years,Effort1,Effort2)
-# 
-# FinE_OT30<-round(GatherHalfYears(FinE1_OT30,FinE2_OT30,NumYears),0)
-# FinE_OT30
-# 
-# FinE_COT30x<-round(cbind(years,FinE1_OT30,FinE2_OT30),0)
-# 
-# ########################
-# # Area 31
-# 
-# FinOT31<-subset(Fin_OT, SUB_DIV==31)
-# dim(FinOT31)[1]
-# 
-# ##############
-# # Effort
-# ##############
-# Effort1<-vector()
-# Effort2<-vector()
-# 
-# for(y in min_year:max_year){
-# 	temp1<-0
-# 	temp2<-0
-# 
-# 	for(i in 1:dim(FinOT31)[1]){
-#     if(FinOT31$TP_TYPE[i]=="HYR"){
-#       if (FinOT31$YEAR[i]==y && FinOT31$TIME_PERIOD[i]==1){
-# 			   if(is.na(FinOT31$EFFORT[i])==F){temp1<-FinOT31$EFFORT[i]+temp1}
-# 		  }
-# 		  if (FinOT31$YEAR[i]==y && FinOT31$TIME_PERIOD[i]==2){
-# 			   if(is.na(FinOT31$EFFORT[i])==F){temp2<-FinOT31$EFFORT[i]+temp2}
-# 		  }  
-#     }  
-#   }
-#   Effort1[(y-min_year+1)]<-temp1
-# 	Effort2[(y-min_year+1)]<-temp2
-# }
-# FinE1_OT31<-Effort1; FinE2_OT31<-Effort2
-# Effort1<-round(Effort1,0); Effort2<-round(Effort2,0)
-# cbind(years,Effort1,Effort2)
-# 
-# FinE_OT31<-round(GatherHalfYears(FinE1_OT31,FinE2_OT31,NumYears),0)
-# FinE_OT31
-# 
-# FinE_COT31x<-round(cbind(years,FinE1_OT31,FinE2_OT31),0)
-# 
-# # these are now the same!
-# cbind(FinE_OT31+FinE_OT30, FinE_OTtot)
-# FinE_OTtot-(FinE_OT31+FinE_OT30) # difference is coastal LLD but it doesn't matter since
-# # effort is taken only at subdiv level (right???)
-
+  summarise(Catch=round(sum(NUMB, na.rm=T)),
+            Effort=round(sum(EFFORT, na.rm=T)))%>%
+  mutate(CPUE=Catch/Effort)
 
 # # ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~
 ################################################################################
@@ -610,12 +475,12 @@ FinE_COT31<-finland%>%
 # ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~
 
 
-FinC_R<-finland%>%
+Fin_R<-finland%>%
   filter(FISHERY=="R")%>%
   group_by(YEAR, HYR)%>%
-  summarise(FinC_R=round(sum(NUMB, na.rm=T)))%>%
+  summarise(Catch=round(sum(NUMB, na.rm=T)))%>%
   select(-HYR)
-FinC_R        
+Fin_R        
 
 # fin_river<-subset(finland, FISHERY=="R")
 # summary(fin_river)

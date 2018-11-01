@@ -23,9 +23,9 @@ filter(germany, GEAR=="GND")
 ################################################################################
 # All german fishery goes to LLD (no effort)
 
-GerC<-germany%>%
+Ger_OLL<-germany%>%
   group_by(YEAR, HYR)%>%
-  summarise(GerC_OLL=sum(NUMB, na.rm=T))
+  summarise(Catch=sum(NUMB, na.rm=T))
 
 
 # 

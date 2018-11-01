@@ -21,8 +21,8 @@ latvia%>%
 
 Lat_ODN<-latvia%>%
   group_by(YEAR, HYR)%>%
-  summarise(LatC_ODN=sum(NUMB, na.rm=T),
-            LatE_ODN=sum(EFFORT, na.rm=T))
+  summarise(Catch=sum(NUMB, na.rm=T),
+            Effort=sum(EFFORT, na.rm=T))
 
 # View(LatE)
 # View(LatC)

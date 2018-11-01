@@ -30,8 +30,8 @@ filter(denmark, TP_TYPE=="YR")
 Den_ODN<-denmark%>%
   filter(GEAR=="GND")%>%
   group_by(YEAR, HYR)%>%
-  summarise(DenC_ODN=sum(NUMB, na.rm=T),
-            DenE_ODN=sum(EFFORT, na.rm=T))
+  summarise(Catch=sum(NUMB, na.rm=T),
+            Effort=sum(EFFORT, na.rm=T))
 
 # 
 # DenODN<-subset(denmark, GEAR=="GND")
@@ -67,34 +67,36 @@ Den_ODN<-denmark%>%
 DenE_OLL<-denmark%>%
   filter(GEAR=="LLD")%>%
   group_by(YEAR, HYR)%>%
-    summarise(DenE_OLL=round(sum(EFFORT, na.rm=T)))
+    summarise(Effort=round(sum(EFFORT, na.rm=T)))
 # View(DenE_OLL)
 
 denmark%>%
-  filter(GEAR=="LLD")%>%count(TP_TYPE) # no YR data in effort!
+  filter(GEAR=="LLD")%>%count(TP_TYPE) # no YR data!
 
 # Catch
 DenC_OLL<-denmark%>%
   filter(GEAR!="GND")%>% # GEARs other than GDN
   group_by(YEAR, HYR)%>%
-  summarise(DenC_OLL=round(sum(NUMB, na.rm=T)))
+  summarise(Catch=round(sum(NUMB, na.rm=T)))
 
 tmp1<-DenC_OLL%>%filter(is.na(HYR)==F)%>% # Not AN
-  mutate(sumC=sum(DenC_OLL))%>%
+  mutate(sumC=sum(Catch))%>%
   group_by(YEAR, add=T)%>%
-  mutate(p=DenC_OLL/sumC)
+  mutate(p=Catch/sumC)
 
 tmp2<-DenC_OLL%>%filter(is.na(HYR)==T)%>% #AN
-  mutate(AN=DenC_OLL)%>%
+  mutate(AN=Catch)%>%
   select(YEAR, AN)
 
 DenC_OLL<-full_join(tmp1, tmp2, by="YEAR")%>%
-  mutate(DenC_AN=AN*p)%>%
-  mutate(DenC_OLL2=DenC_OLL)%>%
-  mutate(DenC_OLL=round(DenC_AN+DenC_OLL2))%>%
-  select(YEAR, HYR, DenC_OLL)
+  mutate(Catch_AN=AN*p)%>%
+  mutate(Catch2=Catch)%>%
+  mutate(Catch=round(Catch_AN+Catch2))%>%
+  select(YEAR, HYR, Catch)
 
-# View(DenC_OLL)
+Den_OLL<-full_join(DenC_OLL, DenE_OLL)
+
+# View(Den_OLL)
 
 
 

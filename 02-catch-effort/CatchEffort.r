@@ -43,18 +43,20 @@ tmp<-df%>%group_by(FISHERY)%>%
 # GNS: gillnet (stationary) (previously GN)
 # AN: angling
 
-salmon<-df%>%filter(SPECIES=="SAL", SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL")
+df2<-df%>%filter((SPECIES=="SAL" | SPECIES=="TRS"), SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL")
 #3640
 
-MON<-salmon%>%filter(TP_TYPE=="MON")%>%mutate(HYR=ifelse(TIME_PERIOD<7,1,2))
-QTR<-salmon%>%filter(TP_TYPE=="QTR")%>%mutate(HYR=ifelse(TIME_PERIOD<3,1,2))
-HYR<-salmon%>%filter(TP_TYPE=="HYR")%>%mutate(HYR=ifelse(TIME_PERIOD<2,1,2))
-YR<-salmon%>%filter(TP_TYPE=="YR")%>%mutate(HYR="NA")%>%mutate(HYR=parse_double(HYR))
+MON<-df2%>%filter(TP_TYPE=="MON")%>%mutate(HYR=ifelse(TIME_PERIOD<7,1,2))
+QTR<-df2%>%filter(TP_TYPE=="QTR")%>%mutate(HYR=ifelse(TIME_PERIOD<3,1,2))
+HYR<-df2%>%filter(TP_TYPE=="HYR")%>%mutate(HYR=ifelse(TIME_PERIOD<2,1,2))
+YR<-df2%>%filter(TP_TYPE=="YR")%>%mutate(HYR="NA")%>%mutate(HYR=parse_double(HYR))
 
-salmon<-full_join(MON, QTR)%>%
+df2<-full_join(MON, QTR)%>%
   full_join(HYR)%>%
-  full_join(YR)
+  full_join(YR)%>%
+  select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, HYR, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())
 
+salmon<-df2%>%filter(SPECIES=="SAL")
 
 
 
@@ -62,64 +64,69 @@ source("02-catch-effort/WGBAST_DB_Germany.r")
 source("02-catch-effort/WGBAST_DB_Latvia.r")
 source("02-catch-effort/WGBAST_DB_Denmark.r")
 source("02-catch-effort/WGBAST_DB_Finland.r")
-source("02-catch-effort/WGBAST_DB_Finland_CoastalCPUE.r")
+#source("02-catch-effort/WGBAST_DB_Finland_CoastalCPUE.r")
 source("02-catch-effort/WGBAST_DB_Sweden.r")
-source("02-catch-effort/WGBAST_DB_Poland_CPUEothers.r")
-source("02-catch-effort/WGBAST_DB_Poland_new.r")
+source("02-catch-effort/WGBAST_DB_CPUEoffshore.r")
+
+source("02-catch-effort/WGBAST_DB_Poland.r")
+#source("02-catch-effort/WGBAST_DB_Poland_CPUEothers.r")
+#source("02-catch-effort/WGBAST_DB_Poland_new.r")
 
 # ==============================================================================
 
-                         #############
-                         ## Catches ##
-                         #############
+#############
+## Catch ##
+#############
 
 ##################
 # OLL catch
 ##################
-# OLL series stats from 2003, add NA's for years 2000-2002
-PolC_OLLxx<-rbind(array(c(2000:2002, rep(NA,6)),dim=c(3,3)),PolC_OLLx)
-for(i in 1:length(PolC_OLLxx)){
-  if(is.na(PolC_OLLxx[i])==T){PolC_OLLxx[i]<-0}
-}
 
-# 20.2.2017: Polish data not yet available for 2016, assume the same catch as in 2015
-#PolC_OLLxx
-#PolC_OLLxx[17,2:3]<-PolC_OLLxx[16,2:3]
+OLL<-full_join(Ger_OLL, Den_OLL)%>%
+  full_join(Fin_OLL)%>%
+  full_join(Swe_OLL)%>%
+  full_join(PolC_OLL)
+#View(OLL)
 
+# Check that there's no missing catches:
+OLL%>%filter(is.na(Catch==T))
 
-C_OLL_tot<-c()
-for(i in 1:(length(years)-1)){
-  C_OLL_tot[i]<-FinC_OLLx[i,3]+FinC_OLLx[i+1,2]+SweC_OLLx[i,3]+SweC_OLLx[i+1,2]+GerCx[i,3]+GerCx[i+1,2]+
-              DenC_OLLx[i,3]+DenC_OLLx[i+1,2]+PolC_OLLxx[i,3]+PolC_OLLxx[i+1,2]
-}
-round(cbind(years[1:(length(years)-1)], C_OLL_tot),0)
-
+OLL%>%select(-Effort)%>%
+  mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year!
+  ungroup()%>%
+  group_by(Myear)%>%
+  summarise(Catch=sum(Catch)) # if there were NA's you'd see it here
 
 ##################
 # CTN catch
 ##################
 
-C_CTN_tot<-c()
-for(i in 1:length(years)){
-  C_CTN_tot[i]<-FinC_CTNx[i,2]+FinC_CTNx[i,3]+SweC_CTNx[i,2]+SweC_CTNx[i,3]
-}
-round(cbind(years, C_CTN_tot),0)
+full_join(Swe_CTN,
+  select(Fin_CTN, -CPUE))%>%
+  select(-Effort)%>%
+  ungroup()%>%
+  group_by(YEAR)%>%
+  summarise(Catch=sum(Catch))
+
 
 ##################
 # COT catch
 ##################
 
-C_COT_tot<-c()
-for(i in 1:length(years)){
-  C_COT_tot[i]<-FinC_CNAandOTx[i,2]+FinC_CNAandOTx[i,3]+SweC_COTx[i,2]+SweC_COTx[i,3]
-}
-round(cbind(years, C_COT_tot),0)
+full_join(Swe_COT,
+          select(Fin_COT, -CPUE))%>%
+  select(-Effort)%>%
+  ungroup()%>%
+  group_by(YEAR)%>%
+  summarise(Catch=sum(Catch))
 
 ##################
 # River catch
 ##################
 
-cbind(years, FinC_riverx[,2]+SweC_riverx[,2])
+full_join(Swe_R,Fin_R)%>%
+  summarise(Catch=sum(Catch))
+
 
 
 ################################################################################
@@ -127,41 +134,45 @@ cbind(years, FinC_riverx[,2]+SweC_riverx[,2])
                          ## Efforts ##
                          #############
 
+
 ##################
 # OLL effort
 ##################
-# OLL series stats from 2003, add NA's for years 2000-2002
-PolE_OLLxx<-rbind(array(c(2000:2002, rep(NA,6)),dim=c(3,3)),PolE_OLLx)
-for(i in 1:length(PolE_OLLxx)){
-  if(is.na(PolE_OLLxx[i])==T){PolE_OLLxx[i]<-0}
-}
 
-# 22.2.2017: Polish effort not available for 2016, use 2015 cpue and 2016 catch
-#PolE_OLLxx
-#CPUE_PL_1<-mean(PolC_OLLxx[12:16,2]/PolE_OLLxx[12:16,2])
-#CPUE_PL_2<-mean(PolC_OLLxx[12:16,3]/PolE_OLLxx[12:16,3])
+# Ignore that Ger and Swe (2012->) effort data are missing. Catches are quite low.
 
-#PolE_OLLxx[17,2]<-PolC_OLLxx[17,2]/CPUE_PL_1
-#PolE_OLLxx[17,3]<-PolC_OLLxx[17,3]/CPUE_PL_2
-PolE_OLLxx
+OLL<-full_join(Ger_OLL, Den_OLL)%>%
+  full_join(Fin_OLL)%>%
+  full_join(Swe_OLL)%>%
+  full_join(PolE_OLL)
+#View(Swe_OLL)
 
-E_OLL_tot<-c()
-E_OLL_tot_DK<-c()
-E_OLL_tot_PL<-c()
-for(i in 1:(length(years)-1)){
-  E_OLL_tot[i]<-FinE_OLLx[i,3]+FinE_OLLx[i+1,2]+SweE_OLLx[i,3]+SweE_OLLx[i+1,2]+
-              DenE_OLLx[i,3]+DenE_OLLx[i+1,2]+PolE_OLLxx[i,3]+PolE_OLLxx[i+1,2]
-  E_OLL_tot_DK[i]<-DenE_OLLx[i,3]+DenE_OLLx[i+1,2]
-  E_OLL_tot_PL[i]<-PolE_OLLxx[i,3]+PolE_OLLxx[i+1,2]
-}
-cbind(years[1:(length(years)-1)], E_OLL_tot)
-cbind(years[1:(length(years)-1)], E_OLL_tot_DK/100000) # scenarios
-cbind(years[1:(length(years)-1)], E_OLL_tot_PL/100000)
+OLL%>%select(-Catch)%>%
+  mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year!
+  ungroup()%>%
+  group_by(Myear)%>%
+  summarise(Effort=round(sum(Effort, na.rm=T))) 
 
 
 ##################
 # CTN effort
 ##################
+
+FinE30<-select(Fin_CTN30, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))
+FinE31<-select(Fin_CTN31, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))
+SweE30<-select(Swe_CTN30, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))
+SweE31<-select(Swe_CTN31, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))
+
+CTN_AU1<-FinE30+FinE31+0.45*SweE31
+CTN_AU2<-FinE30+0.55*SweE31
+CTN_AU3<-FinE30+SweE30
+
+
+
 
 E_CTN_AU1<-c()
 E_CTN_AU2<-c()
