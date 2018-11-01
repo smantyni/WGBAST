@@ -11,8 +11,8 @@ library(coda)
 # setwd("C:/R/WGBAST/")
 source("00-functions/tidy-functions_2chains.r")
 
-compare<-"BJ" #BUGS-JAGS comparison
-#compare<-"JJ" #JAGS-JAGS comparison
+#compare<-"BJ" #BUGS-JAGS comparison
+compare<-"JJ" #JAGS-JAGS comparison
 
 nstocks<-16
 

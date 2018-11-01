@@ -59,14 +59,23 @@ if(compare=="BJ"){
 
 
 if(compare=="JJ"){
-  survMpsW<-array(NA, dim=c(length(chains1[,"MpsW[1]"][[1]]),length(Years)))
-  survMpsR<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]]),length(Years)))
-  ratio<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]]),length(Years)))
+  survMpsW<-array(NA, dim=c(length(chains1[,"MpsW[1]"][[1]])*2,length(Years)))
+  survMpsR<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]])*2,length(Years)))
+  ratio<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]])*2,length(Years)))
   for(y in 1:(length(Years))){
-    survMpsW[,y]<-exp(-chains1[,str_c("MpsW[",y,"]")][[2]])
-    survMpsR[,y]<-exp(-chains1[,str_c("MpsR[",y,"]")][[2]])
+    survMpsW[,y]<-exp(-as.matrix(chains1[,str_c("MpsW[",y,"]")]))
+    survMpsR[,y]<-exp(-as.matrix(chains1[,str_c("MpsR[",y,"]")]))
     ratio[,y]<-survMpsR[,y]/survMpsW[,y]
   }
+  
+  #survMpsW<-array(NA, dim=c(length(chains1[,"MpsW[1]"][[1]]),length(Years)))
+  #survMpsR<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]]),length(Years)))
+  #ratio<-array(NA, dim=c(length(chains1[,"MpsR[1]"][[1]]),length(Years)))
+  #for(y in 1:(length(Years))){
+  #  survMpsW[,y]<-exp(-chains1[,str_c("MpsW[",y,"]")][[2]])
+  #  survMpsR[,y]<-exp(-chains1[,str_c("MpsR[",y,"]")][[2]])
+  #  ratio[,y]<-survMpsR[,y]/survMpsW[,y]
+  #}
   
   dfW<-boxplot.bugs.df(survMpsW, 1:(length(Years)))%>%
     mutate(Type="Wild")
@@ -83,8 +92,12 @@ if(compare=="JJ"){
   df.1
   
   # adult M
-  M<-cbind(chains1[,"MW"][[1]],chains1[,"MR"][[1]])
+  dW<-as.matrix(chains1[,"MW"])
+  dR<-as.matrix(chains1[,"MR"])
+  M<-cbind(dW,dR)
+  #M<-cbind(chains1[,"MW"][[1]],chains1[,"MR"][[1]])
   M<-exp(-M)
+  summary(as.mcmc(M))
   M<-as.tibble(M)%>%
     setNames(c("Wild", "Reared"))%>%
     mutate(Ratio=Reared/Wild)
@@ -104,22 +117,22 @@ if(compare=="JJ"){
 #summary(exp(-chains[,"MpsW[1]"][[1]]))
 
 if(JAGSversion=="old"){
-  survMpsW<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]]),length(Years)))
-  survMpsR<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]]),length(Years)))
-  ratio<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]]),length(Years)))
+  survMpsW<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]])*2,length(Years)))
+  survMpsR<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]])*2,length(Years)))
+  ratio<-array(NA, dim=c(length(chains[,"survMpsW[1]"][[1]])*2,length(Years)))
   for(y in 1:(length(Years))){
-    survMpsW[,y]<-chains[,str_c("survMpsW[",y,"]")][[1]]
-    survMpsR[,y]<-chains[,str_c("survMpsR[",y,"]")][[1]]
+    survMpsW[,y]<-as.matrix(chains[,str_c("survMpsW[",y,"]")])
+    survMpsR[,y]<-as.matrix(chains[,str_c("survMpsR[",y,"]")])
     ratio[,y]<-survMpsR[,y]/survMpsW[,y]
   }
 }else{
 
-  survMpsW<-array(NA, dim=c(length(chains[,"MpsW[1]"][[1]]),length(Years)))
-  survMpsR<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
-  ratio<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]]),length(Years)))
+  survMpsW<-array(NA, dim=c(length(chains[,"MpsW[1]"][[1]])*2,length(Years)))
+  survMpsR<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]])*2,length(Years)))
+  ratio<-array(NA, dim=c(length(chains[,"MpsR[1]"][[1]])*2,length(Years)))
   for(y in 1:(length(Years))){
-    survMpsW[,y]<-exp(-chains[,str_c("MpsW[",y,"]")][[2]])
-    survMpsR[,y]<-exp(-chains[,str_c("MpsR[",y,"]")][[2]])
+    survMpsW[,y]<-exp(-as.matrix(chains[,str_c("MpsW[",y,"]")]))
+    survMpsR[,y]<-exp(-as.matrix(chains[,str_c("MpsR[",y,"]")]))
     ratio[,y]<-survMpsR[,y]/survMpsW[,y]
   }
 }
@@ -141,8 +154,24 @@ mutate(Year=Year+1986)
 df.2
 
 # adult M
-M2<-cbind(chains[,"MW"][[1]],chains[,"MR"][[1]])
+dW<-as.matrix(chains[,"MW"])
+dR<-as.matrix(chains[,"MR"])
+M2<-cbind(dW,dR)
 M2<-exp(-M2)
+summary(as.mcmc(M2))
+#1. Empirical mean and standard deviation for each variable,
+#plus standard error of the mean:
+  
+#  Mean      SD  Naive SE Time-series SE
+#var1 0.9159 0.01598 0.0003573       0.003978
+#var1 0.7513 0.03554 0.0007948       0.001674
+
+#2. Quantiles for each variable:
+  
+#  2.5%    25%    50%    75%  97.5%
+#var1 0.8848 0.9041 0.9151 0.9270 0.9484
+#var1 0.7070 0.7236 0.7434 0.7717 0.8380
+
 M2<-as.tibble(M2)%>%
   setNames(c("Wild", "Reared"))%>%
   mutate(Ratio=Reared/Wild)
