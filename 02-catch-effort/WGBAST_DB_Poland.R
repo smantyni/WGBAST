@@ -53,7 +53,7 @@ poland_E_trs%>%
 
 
 ################################################################################
-#  Catches based on reported:                                                                 
+#  Catches based on reported SAL+TRS:                                                                 
 ################################################################################
 
 # Put coastal catch to LL, same with offshore GEAR!=GND
@@ -79,45 +79,13 @@ HYR2<-full_join(tmp2, p_ODN)%>%
 
 tmp1<-filter(tmp1, is.na(HYR)==F)
 
-PolC_ODN<-full_join(HYR1,HYR2)%>%
+PolC_ODN_rep<-full_join(HYR1,HYR2)%>%
   full_join(tmp1)%>%
   group_by(YEAR, HYR)%>%
   mutate(Catch_tot= sum(CatchNA, Catch, na.rm=T))%>%
   mutate(Catch=round(Catch_tot))%>%
   select(YEAR, HYR, Catch)
 
-  
-# #OLL
-# tmp1<-poland_C%>%
-#   filter((FISHERY=="S" & GEAR!="GND")|(FISHERY=="C"))%>%
-#   group_by(YEAR, HYR)%>%
-#   summarise(Catch=round(sum(NUMB, na.rm=T)))
-# 
-# tmp2<-filter(tmp1, is.na(HYR)==T)%>%
-#   select(-HYR)
-# 
-# p_OLL<-select(pHYR1_OLL, YEAR, pC)
-# 
-# HYR1<-full_join(tmp2, p_OLL)%>%
-#   mutate(CatchNA=pC*Catch, HYR=1)%>%
-#   select(YEAR, HYR, CatchNA)%>%
-#   filter(is.na(CatchNA)==F)
-# 
-# HYR2<-full_join(tmp2, p_OLL)%>%
-#   mutate(CatchNA=(1-pC)*Catch, HYR=2)%>%
-#   select(YEAR, HYR, CatchNA)%>%
-#   filter(is.na(CatchNA)==F)
-# 
-# tmp1<-filter(tmp1, is.na(HYR)==F)
-# 
-# PolC_OLL<-full_join(HYR1,HYR2)%>%
-#   full_join(tmp1)%>%
-#   group_by(YEAR, HYR)%>%
-#   mutate(Catch_tot= sum(CatchNA, Catch, na.rm=T))%>%
-#   mutate(Catch=round(Catch_tot))%>%
-#   select(YEAR, HYR, Catch)
-# 
-# #View(PolC_OLL)
 
 #OLL
 tmp1<-poland_C%>%
@@ -142,12 +110,12 @@ HYR2<-full_join(tmp2, p_OLL)%>%
 
 tmp1<-filter(tmp1, is.na(HYR)==F)
 
-PolC_OLL<-full_join(HYR1,HYR2)%>%
+PolC_OLL_rep<-full_join(HYR1,HYR2)%>%
   full_join(tmp1)%>%
   group_by(YEAR, HYR)%>%
   mutate(Catch_tot= sum(CatchNA, Catch, na.rm=T))%>%
   mutate(Catch=round(Catch_tot))%>%
-  mutate(Catch=ifelse(YEAR>2008, Catch*SalCoef, Catch))%>% # Use 0.97 coef!
+  mutate(Catch=round(ifelse(YEAR>2008, Catch*SalCoef, Catch)))%>% # Use 0.97 coef!
   select(YEAR, HYR, Catch)
 
 
@@ -288,7 +256,6 @@ PolE_OLL<-full_join(PolE_OLL_1, PolE_OLL_2)
 ################################################################################
 # To calculate Polish catches with Polish effort and CPUE from other countries:
 
-Feff<-1 # 0.75 # Assumed fishing efficiency in comparison to other countries
 
 PolC_ODN_est<-full_join(PolE_ODN, select(ODN_CPUE, YEAR, HYR, CPUE_tot))%>%
   mutate(Catch=round(CPUE_tot*Effort*Feff))
@@ -331,8 +298,7 @@ PolC_OLL_est<-full_join(PolE_OLL, select(OLL_CPUE, YEAR, HYR, CPUE_tot))%>%
 # 
 
 
-# Take reported catch in offshore and coast by gears other than ODN & OLL and add 
-# together with the estimated ODN & OLL catch to achieve PL total catch
+# Reported catch in coast and offshore other than ODN/OLL
 
 O_OT<-df2%>%filter((FISHERY=="S" & (SPECIES=="SAL" | SPECIES=="TRS")) , 
                     GEAR!="LLD", GEAR!="GND", COUNTRY=="PL" , F_TYPE!="DISC", F_TYPE!="SEAL")
@@ -358,56 +324,52 @@ HYR2<-full_join(tmp2, p_OLL)%>%
 
 tmp1<-filter(tmp1, is.na(HYR)==F)
 
-PolC_OT<-full_join(HYR1,HYR2)%>%
+# Note that SalCoef takes off also 3% of reported salmon catch at coast. However this is
+# such a small error that let's leave it as such.
+PolC_OT_rep<-full_join(HYR1,HYR2)%>%
   full_join(tmp1)%>%
   group_by(YEAR, HYR)%>%
   mutate(Catch_tot= sum(CatchNA, Catch, na.rm=T))%>%
   mutate(Catch=round(Catch_tot))%>%
+  mutate(Catch=round(ifelse(YEAR>2008, Catch*SalCoef, Catch)))%>% # Use 0.97 coef!
   select(YEAR, HYR, Catch)
 
+#View(PolC_OT_rep)
   
-PolC_est<-full_join(PolC_OLL_est, PolC_ODN_est)%>%
-  full_join(PolC_OT)%>%
-  filter(is.na(Catch)==F)%>%
-  group_by(YEAR, HYR)%>%
-  summarise(Catch_tot_est=sum(Catch))
 
-#View(PolC_est)  
-
-PolC_est_year<-PolC_est%>%
-  summarise(Catch_est=sum(Catch_tot_est))
-
-# PL reported salmon catch
+# PL reported salmon catch (salmon only!)
 ######################################
 poland_C_rep<-filter(poland_C, SPECIES=="SAL")  
 
-poland_C_rep%>%
-  group_by(FISHERY)%>%
-  count(GEAR)
-
-# handle all reported as one (no separation between gears)
-
-PolC_rep_year<-poland_C_rep%>%
+PolC_repSAL_year<-poland_C_rep%>%
   group_by(YEAR)%>%
   summarise(Catch_rep=round(sum(NUMB, na.rm=T)))
 
-
-# PL reported salmon + trout catch *0.97
+# PL reported salmon + trout catch * SalCoef : WGBAST method
 ######################################
 
-PolC_est2<-full_join(PolC_ODN, PolC_OLL)%>%
+PolC_rep<-full_join(PolC_ODN_rep, PolC_OLL_rep)%>%
   full_join(PolC_coast)%>%
   summarise(Catch=sum(Catch))
 
-PolC_est2_year<-PolC_est2%>%
+PolC_rep_year<-PolC_rep%>%
   summarise(Catch_est2=round(sum(Catch)))
 
-#View(PolC_est2_year)
-
-# All together
+# PL estimated catch based on PL effort & Feff*CPUE[other countries]: FULL MISREP method
 ######################################
-PolC<-full_join(PolC_est_year, PolC_rep_year)%>%
-  full_join(PolC_est2_year)%>%
+PolC_est_year<-full_join(PolC_OLL_est,PolC_OT_rep)%>%
+  full_join(PolC_ODN_est)%>%
+  filter(is.na(Catch)==F)%>%
+  group_by(YEAR, HYR)%>%
+  summarise(Catch_tot_est=sum(Catch))%>%
+  summarise(Catch_est=sum(Catch_tot_est))
+
+
+# Compare catches with different estimation methods
+######################################
+
+PolC<-full_join(PolC_est_year, PolC_repSAL_year)%>%
+  full_join(PolC_rep_year)%>%
   mutate(misrep=Catch_est-Catch_rep,
          prop=round(misrep/Catch_rep,1),
          misrep2=Catch_est2-Catch_rep,

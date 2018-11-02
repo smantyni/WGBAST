@@ -231,7 +231,7 @@ SweC_CTN<-
   mutate(Catch_TOT=round(sum(Catch_COMM,Catch_RECR, na.rm=T)))%>%
   select(YEAR, HYR, Catch_TOT, Catch_RECR, Catch_COMM)
 
-# GN
+# OT
 tmp1<-Swe_coast%>%
   filter(GEAR!="FYK",TP_TYPE=="HYR")%>%
   group_by(YEAR, HYR)%>%
@@ -258,6 +258,27 @@ SweC_COT<-
 # Effort
 ####################
 
+# 2013-> account for real swedish data
+SweE_CTN_rep<-filter(Swe_coast, YEAR>2012)
+
+filter(SweE_CTN_rep, is.na(EFFORT)==T)%>%
+  group_by(YEAR)%>%
+  count(GEAR)
+
+filter(SweE_CTN_rep, is.na(EFFORT)==F)%>%
+  group_by(YEAR)%>%
+  count(GEAR)
+
+# Small amount (=small catch) of RECR FYK EFFORT missing in 2015 -> ignore
+filter(SweE_CTN_rep, YEAR==2015, GEAR=="FYK")
+
+SweE_CTN_rep<-SweE_CTN_rep%>%
+  filter(GEAR=="FYK", is.na(EFFORT)==F)%>%
+    group_by(YEAR, SUB_DIV)%>%
+    summarise(Effort_rep=round(sum(EFFORT)))
+
+SweE_CTN_rep30<-filter(SweE_CTN_rep, SUB_DIV==30)%>%select(-SUB_DIV)
+SweE_CTN_rep31<-filter(SweE_CTN_rep, SUB_DIV==31)%>%select(-SUB_DIV)
 
 # 
 # View(SweC_CGN)
@@ -408,7 +429,6 @@ Swe_COT<-full_join(Fin_COT_CPUE,SweC_COT)%>%
   mutate(Effort=Catch/CPUE)
 
 
-
 # 
 # 
 # SweE1_CTN_COMM<-SweC1_CTN_COMM/(FinCTN1_CPUE*0.8)
@@ -509,6 +529,8 @@ SweC_COT30<-
   mutate(Catch=round(sum(Catch_HYR,Catch_YR2, na.rm=T)))%>%
   select(YEAR, HYR, Catch)
 
+#View(SweC_COT31)
+
 # GN 31
 tmp1<-Swe_coast%>%
   filter(GEAR!="FYK",TP_TYPE=="HYR", SUB_DIV==31)%>%
@@ -572,12 +594,14 @@ Swe_CTN31<-full_join(SweC_CTN31, SweE_CTN31)%>%
 
 # GN 30
 Fin_COT30_CPUE<-Fin_COT30%>%select(YEAR, HYR, CPUE)
-Swe_COT30<-full_join(Fin_COT30_CPUE,SweC_COT30)%>%mutate(Effort=round(Catch/CPUE))
-
+Swe_COT30<-full_join(Fin_COT30_CPUE,SweC_COT30)%>%
+  mutate(Effort=ifelse(is.na(Catch)==T, 0, round(Catch/CPUE)))
+#View(Swe_COT30)
 
 # GN 31
 Fin_COT31_CPUE<-Fin_COT31%>%select(YEAR, HYR, CPUE)
-Swe_COT31<-full_join(Fin_COT31_CPUE,SweC_COT31)%>%mutate(Effort=round(Catch/CPUE))
+Swe_COT31<-full_join(Fin_COT31_CPUE,SweC_COT31)%>%
+  mutate(Effort=ifelse(is.na(Catch)==T, 0, round(Catch/CPUE)))
 
 
 

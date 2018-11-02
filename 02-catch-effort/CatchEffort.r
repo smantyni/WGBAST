@@ -1,7 +1,7 @@
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 # Project: 		 Baltic salmon stock assessment (WGBAST)
 
-# Contents:   Combine information from different countries together in R
+# Contents:   Combine information from different countries
 
 ## ~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
 library(tidyverse)
@@ -59,18 +59,26 @@ df2<-full_join(MON, QTR)%>%
 salmon<-df2%>%filter(SPECIES=="SAL")
 
 
-
 source("02-catch-effort/WGBAST_DB_Germany.r")
 source("02-catch-effort/WGBAST_DB_Latvia.r")
 source("02-catch-effort/WGBAST_DB_Denmark.r")
 source("02-catch-effort/WGBAST_DB_Finland.r")
-#source("02-catch-effort/WGBAST_DB_Finland_CoastalCPUE.r")
 source("02-catch-effort/WGBAST_DB_Sweden.r")
 source("02-catch-effort/WGBAST_DB_CPUEoffshore.r")
 
+# Choose method to calculate PL catch!
+# ===================
+
+# WGBAST version; 2000-2008 estimated catch based on PL effort and 0.75*CPUE[other countries] 
+# 2009-> reported SAL+TRS catch *0.97 
+# ===================
+# pl<-1;Feff<-0.75 
+
+# Full misreporting version; estimated catch based on PL effort and 1*CPUE[other countries]
+# ===================
+pl<-2;Feff<-1 
+
 source("02-catch-effort/WGBAST_DB_Poland.r")
-#source("02-catch-effort/WGBAST_DB_Poland_CPUEothers.r")
-#source("02-catch-effort/WGBAST_DB_Poland_new.r")
 
 # ==============================================================================
 
@@ -78,14 +86,59 @@ source("02-catch-effort/WGBAST_DB_Poland.r")
 ## Catch ##
 #############
 
+# choose above method for estimating PL catch
+
+##################
+# ODN catch
+##################
+
+
+ifelse(pl==1,
+       PolC_ODNx<-full_join(
+         filter(PolC_ODN_rep, YEAR>2008),
+         filter(PolC_ODN_est, YEAR<2009)%>%
+           select(YEAR, HYR, Catch)),
+       
+       PolC_ODNx<-PolC_ODN_est%>%
+         select(YEAR, HYR, Catch)
+)
+
+ODN<-full_join(Lat_ODN, Den_ODN)%>%
+  full_join(Fin_ODN)%>%
+  full_join(Swe_ODN)%>%
+  full_join(PolC_ODNx)
+
+ODN%>%select(-Effort)%>%
+  mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year!
+  ungroup()%>%
+  group_by(Myear)%>%
+  summarise(Catch=sum(Catch)) # if there were NA's you'd see it here
+
+# ignore minor 2014 catch
+# This produces a bit strange results, especially a huge catch for 2001 in both methods. Check,
+# but in the mean time just leave ODN as it is in the Catch&Effort file.
+
 ##################
 # OLL catch
 ##################
 
+
+ifelse(pl==1,
+       PolC_OLLx<-full_join(
+         filter(PolC_OLL_rep, YEAR>2008),
+         full_join(PolC_OLL_est,PolC_OT_rep)%>%
+           filter(YEAR<2009)%>%
+           select(YEAR, HYR, Catch)),
+       
+        PolC_OLLx<-full_join(PolC_OLL_est,PolC_OT_rep)%>%
+         group_by(YEAR, HYR)%>%
+         summarise(Catch=sum(Catch))
+       )
+
 OLL<-full_join(Ger_OLL, Den_OLL)%>%
   full_join(Fin_OLL)%>%
   full_join(Swe_OLL)%>%
-  full_join(PolC_OLL)
+  full_join(PolC_OLLx)
 #View(OLL)
 
 # Check that there's no missing catches:
@@ -160,147 +213,55 @@ OLL%>%select(-Catch)%>%
 
 FinE30<-select(Fin_CTN30, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))
+
 FinE31<-select(Fin_CTN31, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))
+
+# 2013-> use reported Swe FYK effort
 SweE30<-select(Swe_CTN30, YEAR, HYR, Effort)%>%
-  summarise(Effort=sum(Effort))
+  ungroup()%>%group_by(YEAR)%>%
+  summarise(Effort=sum(Effort))%>%
+  full_join(SweE_CTN_rep30)%>%
+  mutate(Effort2=ifelse(YEAR>2012,Effort_rep,Effort))%>%
+  mutate(Effort=Effort2)%>%
+  select(YEAR,Effort)
+
 SweE31<-select(Swe_CTN31, YEAR, HYR, Effort)%>%
-  summarise(Effort=sum(Effort))
+  ungroup()%>%group_by(YEAR)%>%
+  summarise(Effort=sum(Effort))%>%
+  full_join(SweE_CTN_rep31)%>%
+  mutate(Effort2=ifelse(YEAR>2012,Effort_rep,Effort))%>%
+  mutate(Effort=Effort2)%>%
+  select(YEAR,Effort)
 
-CTN_AU1<-FinE30+FinE31+0.45*SweE31
-CTN_AU2<-FinE30+0.55*SweE31
-CTN_AU3<-FinE30+SweE30
+CTN_AU1<-round(FinE30[,2]+FinE31[,2]+0.45*SweE31[,2])
+CTN_AU2<-round(FinE30[,2]+0.55*SweE31[,2])
+CTN_AU3<-round(FinE30[,2]+SweE30[,2])
 
-
-
-
-E_CTN_AU1<-c()
-E_CTN_AU2<-c()
-E_CTN_AU3<-c()
-for(i in 1:13){ #2012
-  E_CTN_AU1[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
-                FinE_CTN31x[i,2]+FinE_CTN31x[i,3]+
-          0.45*(SweE_CTN31x[i,2]+SweE_CTN31x[i,3])
-
-  E_CTN_AU2[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
-          0.55*(SweE_CTN31x[i,2]+SweE_CTN31x[i,3])
-
-  E_CTN_AU3[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
-                SweE_CTN30x[i,2]+SweE_CTN30x[i,3]
-
-}
-# 2013-> account for real swedish data
-for(i in 14:length(years)){
-  E_CTN_AU1[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
-                FinE_CTN31x[i,2]+FinE_CTN31x[i,3]+
-          0.45*(SweE_CTN31x_real[i,2]+SweE_CTN31x_real[i,3])
-
-  E_CTN_AU2[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
-          0.55*(SweE_CTN31x_real[i,2]+SweE_CTN31x_real[i,3])
-
-  E_CTN_AU3[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]+
-                SweE_CTN30x_real[i,2]+SweE_CTN30x_real[i,3]
-
-}
-round(cbind(years, E_CTN_AU1),0)
-round(cbind(years, E_CTN_AU2),0)
-round(cbind(years, E_CTN_AU3),0)
-
-# Country specific
-E_CTN_FI30<-c()
-E_CTN_FI31<-c()
-E_CTN_SE30<-c()
-E_CTN_SE31<-c()
-for(i in 1:length(years)){ #2012
-  E_CTN_FI30[i]<-FinE_CTN30x[i,2]+FinE_CTN30x[i,3]
-  E_CTN_FI31[i]<-FinE_CTN31x[i,2]+FinE_CTN31x[i,3]
-}  
-for(i in 1:13){ #2012
-  E_CTN_SE30[i]<-SweE_CTN30x[i,2]+SweE_CTN30x[i,3]
-  E_CTN_SE31[i]<-SweE_CTN31x[i,2]+SweE_CTN31x[i,3]
-}
-for(i in 14:length(years)){
-  E_CTN_SE30[i]<-SweE_CTN30x_real[i,2]+SweE_CTN30x_real[i,3]
-  E_CTN_SE31[i]<-SweE_CTN31x_real[i,2]+SweE_CTN31x_real[i,3]
-}
-cbind(E_CTN_FI30/1000,E_CTN_SE30/1000,E_CTN_FI31/1000,E_CTN_SE31/1000)
+cbind(CTN_AU1, CTN_AU2, CTN_AU3)
 
 
 ##################
 # COT effort
 ##################
 
-E_COT_AU1<-c()
-for(i in 1:length(years)){
-  E_COT_AU1[i]<-FinE_COT30x[i,2]+FinE_COT30x[i,3]+
-                FinE_COT31x[i,2]+FinE_COT31x[i,3]+
-          0.45*(SweE_COT31x[i,2]+SweE_COT31x[i,3])
+FinE30<-select(Fin_COT30, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))
 
-}
-round(cbind(years, E_COT_AU1),0)
+FinE31<-select(Fin_COT31, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))
 
-E_COT_AU2<-c()
-for(i in 1:length(years)){
-  E_COT_AU2[i]<-FinE_COT30x[i,2]+FinE_COT30x[i,3]+
-          0.55*(SweE_COT31x[i,2]+SweE_COT31x[i,3])
+SweE30<-select(Swe_COT30, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))%>%
+  filter(YEAR>2002)
 
-}
-round(cbind(years, E_COT_AU2),0)
+SweE31<-select(Swe_COT31, YEAR, HYR, Effort)%>%
+  summarise(Effort=sum(Effort))%>%
+  filter(YEAR>2002)
 
-E_COT_AU3<-c()
-for(i in 1:length(years)){
-  E_COT_AU3[i]<-FinE_COT30x[i,2]+FinE_COT30x[i,3]+
-                SweE_COT30x[i,2]+SweE_COT30x[i,3]
+COT_AU1<-round(FinE30[,2]+FinE31[,2]+0.45*SweE31[,2])
+COT_AU2<-round(FinE30[,2]+0.55*SweE31[,2])
+COT_AU3<-round(FinE30[,2]+SweE30[,2])
 
-}
-round(cbind(years, E_COT_AU3),0)
+cbind(COT_AU1, COT_AU2, COT_AU3)
 
-# Country specific
-E_COT_FI30<-c()
-E_COT_FI31<-c()
-E_COT_SE30<-c()
-E_COT_SE31<-c()
-for(i in 1:length(years)){ 
-  E_COT_FI30[i]<-FinE_COT30x[i,2]+FinE_COT30x[i,3]
-  E_COT_FI31[i]<-FinE_COT31x[i,2]+FinE_COT31x[i,3]
-  E_COT_SE30[i]<-SweE_COT30x[i,2]+SweE_COT30x[i,3]
-  E_COT_SE31[i]<-SweE_COT31x[i,2]+SweE_COT31x[i,3]
-}  
-cbind(E_COT_FI30/100000,E_COT_SE30/100000,E_COT_FI31/100000,E_COT_SE31/100000)
-
-
-
-# Offshore driftnetting, in case needed
-
-##################
-# ODN effort
-##################
-for(i in 1:length(PolE_ODNx)){
-  if(is.na(PolE_ODNx[i])==T){PolE_ODNx[i]<-0}
-}
-PolE_ODNx
-
-E_ODN_tot<-c()
-for(i in 1:(length(years)-1)){
-  E_ODN_tot[i]<-FinE_ODNx[i,3]+FinE_ODNx[i+1,2]+SweE_ODNx[i,3]+SweE_ODNx[i+1,2]+
-              DenE_ODNx[i,3]+DenE_ODNx[i+1,2]+LatE_ODNx[i,3]+LatE_ODNx[i+1,2]+
-              PolE_ODNx[i,3]+PolE_ODNx[i+1,2]
-}
-cbind(years[1:(length(years)-1)], E_ODN_tot)
-
-##################
-# ODN catch
-##################
-for(i in 1:length(PolC_ODNx)){
-  if(is.na(PolC_ODNx[i])==T){PolC_ODNx[i]<-0}
-}
-PolC_ODNx
-
-C_ODN_tot<-c()
-
-for(i in 1:(length(years)-1)){
-  C_ODN_tot[i]<-FinC_ODNx[i,3]+FinC_ODNx[i+1,2]+SweC_ODNx[i,3]+SweC_ODNx[i+1,2]+
-              DenC_ODNx[i,3]+DenC_ODNx[i+1,2]+LatC_ODNx[i,3]+LatC_ODNx[i+1,2]+
-              PolC_ODNx[i,3]+PolC_ODNx[i+1,2]
-}
-cbind(years[1:(length(years)-1)], C_ODN_tot)
