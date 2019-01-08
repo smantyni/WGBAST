@@ -8,72 +8,83 @@
 
 
 #Run first CatchEffort.r
-source("catch-effort/CatchEffort.r")
+source("02-catch-effort/CatchEffort.r")
 
+yearX<-2017 # Assessment year -1
 
 # =======================================================================
 # Longlining:
 # =====================
-dim(DenE_OLLx)
-Ny<-dim(DenE_OLLx)[1]
 
-# Model years: 2002 autumn + 2003 spring =2002
-E_DK<-c()
-E_PL<-c()
-for(y in 1:(Ny-3)){
-  E_DK[y]<-DenE_OLLx[y+2,3]+DenE_OLLx[y+3,2] 
-  E_PL[y]<-PolE_OLLxx[y+2,3]+PolE_OLLxx[y+3,2] 
-}
-# For assessment year-1 take same year autumn and spring effort
-E_DK[Ny-2]<-DenE_OLLx[Ny,3]+DenE_OLLx[Ny,2]
-E_PL[Ny-2]<-PolE_OLLxx[Ny,3]+PolE_OLLxx[Ny,2]
+# Copy last observed effort at HYR==1 for assessment year for scenarios
 
-# This goes to EffortOLL_ICES.txt
-############################
-cbind(2002:(2002+Ny-3),E_DK/100000,E_PL/100000)
-############################
+# Denmark
+DenE_OLL<-Den_OLL%>%select(-Catch)
+tmp<-filter(DenE_OLL, YEAR==yearX, HYR==1)%>% # Change!
+  ungroup()%>%
+  mutate(YEAR=YEAR+1) # Assessement year
 
+full_join(tmp,DenE_OLL)%>%
+  mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year
+  ungroup()%>%
+  group_by(Myear)%>%
+  summarise(Effort=sum(Effort)) # if there were NA's you'd see it here
+
+# Poland
+tmp<-filter(PolE_OLL, YEAR==yearX, HYR==1)%>% # Change!
+  ungroup()%>%
+  mutate(YEAR=YEAR+1) # Assessement year
+
+full_join(tmp,PolE_OLL)%>%
+  mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year
+  ungroup()%>%
+  group_by(Myear)%>%
+  summarise(Effort=sum(Effort)) # if there were NA's you'd see it here
+
+# Trolling
+(OLL_CPUE<-full_join(OLL_E,OLL_C)%>%
+  mutate(CPUE=Catch/Effort)%>%
+  filter(Myear<yearX))
+
+OLL_CPUE%>%
+  filter(Myear<yearX& Myear>(yearX-5))%>% 
+  summarise(CPUE=sum(Catch)/sum(Effort))%>%# Average over 2013-2016
+  mutate(YEAR=yearX)
+
+# Plug the above value into Catch&Effort.xlsx F75
+
+  
 # =======================================================================
 # Trapnetting & Gillnetting:
 # =====================
-FinE_COT30x
-dim(FinE_COT30x)
-Ny<-dim(FinE_COT30x)[1]
-# Model years: 2002 spring +2002 autumn =2002
-ETN30_FI<-c();ETN31_FI<-c()
-ETN30_SE<-c();ETN31_SE<-c()
-EGN30_FI<-c();EGN31_FI<-c()
-EGN30_SE<-c();EGN31_SE<-c()
-for(y in 1:(Ny-2)){
-  ETN30_FI[y]<-FinE_CTN30x[y+2,2]+FinE_CTN30x[y+2,3] 
-  ETN30_SE[y]<-SweE_CTN30x[y+2,2]+SweE_CTN30x[y+2,3] 
-  ETN31_FI[y]<-FinE_CTN31x[y+2,2]+FinE_CTN31x[y+2,3] 
-  ETN31_SE[y]<-SweE_CTN31x[y+2,2]+SweE_CTN31x[y+2,3] 
 
-  EGN30_FI[y]<-FinE_COT30x[y+2,2]+FinE_COT30x[y+2,3] 
-  EGN30_SE[y]<-SweE_COT30x[y+2,2]+SweE_COT30x[y+2,3] 
-  EGN31_FI[y]<-FinE_COT31x[y+2,2]+FinE_COT31x[y+2,3] 
-  EGN31_SE[y]<-SweE_COT31x[y+2,2]+SweE_COT31x[y+2,3] 
-
-}
 # This goes to EffortCTN_ICES.txt
 ############################
-cbind(2002:(2002+Ny-3),ETN30_FI/1e+3,ETN30_SE/1e+3,ETN31_FI/1e+3,ETN31_SE/1e+3)
-############################
+cbind(
+FinE30_CTN%>%mutate(Fin30=Effort/1000)%>%select(-Effort),
+SweE30_CTN%>%mutate(Swe30=Effort/1000)%>%select(-YEAR, -Effort),
+FinE31_CTN%>%mutate(Fin31=Effort/1000)%>%select(-YEAR, -Effort),
+SweE31_CTN%>%mutate(Swe31=Effort/1000)%>%select(-YEAR, -Effort))
+
+
 # This goes to EffortCGN_ICES.txt
 ############################
-cbind(2002:(2002+Ny-3),EGN30_FI/1e+5,EGN30_SE/1e+5,EGN31_FI/1e+5,EGN31_SE/1e+5)
-############################
+cbind(
+  FinE30_COT%>%mutate(Fin30=Effort/100000)%>%select(-Effort),
+  SweE30_COT%>%mutate(Swe30=Effort/100000)%>%select(-YEAR, -Effort),
+  FinE31_COT%>%mutate(Fin31=Effort/100000)%>%select(-YEAR, -Effort),
+  SweE31_COT%>%mutate(Swe31=Effort/100000)%>%select(-YEAR, -Effort))
+
 
 # =======================================================================
-# Note! Kate (or someone else) will ask OLL efforts from all countries
+# Note! Kate (or Adam or someone else) will ask OLL efforts from all countries
 # for a certain graph in the report. Print the following (half year
-# specific numbers) for her. 2014 Finnish longline effort is to be ignored
+# specific numbers) for them. 2014 Finnish longline effort is to be ignored
 # (Tapsa will give details on this if needed). 
-PolE_OLLxx
-FinE_OLLx
-DenE_OLLx
-SweE_OLLx
+PolE_OLL
+Fin_OLL%>%select(-Catch)
+DenE_OLL
+SweE_OLL
 # =======================================================================
 
 

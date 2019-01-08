@@ -144,11 +144,11 @@ OLL<-full_join(Ger_OLL, Den_OLL)%>%
 # Check that there's no missing catches:
 OLL%>%filter(is.na(Catch==T))
 
-OLL%>%select(-Effort)%>%
+(OLL_C<-OLL%>%select(-Effort)%>%
   mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year!
   ungroup()%>%
   group_by(Myear)%>%
-  summarise(Catch=sum(Catch)) # if there were NA's you'd see it here
+  summarise(Catch=sum(Catch))) # if there were NA's you'd see it here
 
 ##################
 # CTN catch
@@ -200,25 +200,25 @@ OLL<-full_join(Ger_OLL, Den_OLL)%>%
   full_join(PolE_OLL)
 #View(Swe_OLL)
 
-OLL%>%select(-Catch)%>%
+(OLL_E<-OLL%>%select(-Catch)%>%
   mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year!
   ungroup()%>%
   group_by(Myear)%>%
-  summarise(Effort=round(sum(Effort, na.rm=T))) 
+  summarise(Effort=round(sum(Effort, na.rm=T))) )
 
 
 ##################
 # CTN effort
 ##################
 
-FinE30<-select(Fin_CTN30, YEAR, HYR, Effort)%>%
+FinE30_CTN<-select(Fin_CTN30, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))
 
-FinE31<-select(Fin_CTN31, YEAR, HYR, Effort)%>%
+FinE31_CTN<-select(Fin_CTN31, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))
 
 # 2013-> use reported Swe FYK effort
-SweE30<-select(Swe_CTN30, YEAR, HYR, Effort)%>%
+SweE30_CTN<-select(Swe_CTN30, YEAR, HYR, Effort)%>%
   ungroup()%>%group_by(YEAR)%>%
   summarise(Effort=sum(Effort))%>%
   full_join(SweE_CTN_rep30)%>%
@@ -226,7 +226,7 @@ SweE30<-select(Swe_CTN30, YEAR, HYR, Effort)%>%
   mutate(Effort=Effort2)%>%
   select(YEAR,Effort)
 
-SweE31<-select(Swe_CTN31, YEAR, HYR, Effort)%>%
+SweE31_CTN<-select(Swe_CTN31, YEAR, HYR, Effort)%>%
   ungroup()%>%group_by(YEAR)%>%
   summarise(Effort=sum(Effort))%>%
   full_join(SweE_CTN_rep31)%>%
@@ -234,9 +234,9 @@ SweE31<-select(Swe_CTN31, YEAR, HYR, Effort)%>%
   mutate(Effort=Effort2)%>%
   select(YEAR,Effort)
 
-CTN_AU1<-round(FinE30[,2]+FinE31[,2]+0.45*SweE31[,2])
-CTN_AU2<-round(FinE30[,2]+0.55*SweE31[,2])
-CTN_AU3<-round(FinE30[,2]+SweE30[,2])
+CTN_AU1<-round(FinE30_CTN[,2]+FinE31_CTN[,2]+0.45*SweE31_CTN[,2])
+CTN_AU2<-round(FinE30_CTN[,2]+0.55*SweE31_CTN[,2])
+CTN_AU3<-round(FinE30_CTN[,2]+SweE30_CTN[,2])
 
 cbind(CTN_AU1, CTN_AU2, CTN_AU3)
 
@@ -245,23 +245,23 @@ cbind(CTN_AU1, CTN_AU2, CTN_AU3)
 # COT effort
 ##################
 
-FinE30<-select(Fin_COT30, YEAR, HYR, Effort)%>%
+FinE30_COT<-select(Fin_COT30, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))
 
-FinE31<-select(Fin_COT31, YEAR, HYR, Effort)%>%
+FinE31_COT<-select(Fin_COT31, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))
 
-SweE30<-select(Swe_COT30, YEAR, HYR, Effort)%>%
+SweE30_COT<-select(Swe_COT30, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))%>%
   filter(YEAR>2002)
 
-SweE31<-select(Swe_COT31, YEAR, HYR, Effort)%>%
+SweE31_COT<-select(Swe_COT31, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))%>%
   filter(YEAR>2002)
 
-COT_AU1<-round(FinE30[,2]+FinE31[,2]+0.45*SweE31[,2])
-COT_AU2<-round(FinE30[,2]+0.55*SweE31[,2])
-COT_AU3<-round(FinE30[,2]+SweE30[,2])
+COT_AU1<-round(FinE30_COT[,2]+FinE31_COT[,2]+0.45*SweE31_COT[,2])
+COT_AU2<-round(FinE30_COT[,2]+0.55*SweE31_COT[,2])
+COT_AU3<-round(FinE30_COT[,2]+SweE30_COT[,2])
 
 cbind(COT_AU1, COT_AU2, COT_AU3)
 
