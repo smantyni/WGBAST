@@ -36,6 +36,32 @@ obs_t<-obs%>%group_by(Year)%>%
 
 obs<-full_join(obs, obs_t, by=NULL)
 
+FullPLmisrep<-1
+if(FullPLmisrep==1){
+tmp<-read_tsv(str_c(pathData, "Catch_withTrolling_FullPLmisrep.txt"))
+colnames(tmp)<-c("river", "coast", "offs")
+
+fix<-0 # or 1
+
+obs_r<-tmp[,1]%>%
+  mutate(Type="River", Year=Years[1:(length(Years)-fix)], obs_catch=river)%>%select(-river)
+obs_c<-tmp[,2]%>%
+  mutate(Type="Coast", Year=Years[1:(length(Years)-fix)], obs_catch=coast)%>%select(-coast)
+obs_o<-tmp[,3]%>%
+  mutate(Type="Offshore", Year=Years[1:(length(Years)-fix)], obs_catch=offs)%>%select(-offs)
+
+obs2<-full_join(obs_r,obs_c, by=NULL)
+obs2<-full_join(obs2,obs_o, by=NULL)
+
+obs_t<-obs2%>%group_by(Year)%>%
+  summarise(obs_catch=sum(obs_catch))%>%
+  mutate(Type="Total")
+
+obs2<-full_join(obs2, obs_t, by=NULL)
+}else{
+  obs2<-obs
+}
+
 #View(obs)
 
 # Model 1: BUGS
@@ -137,7 +163,7 @@ df.2<-as.tibble(setNames(df,c("Year","q5","q25","q50","q75","q95","Type")))%>%
   mutate(Year=Year+1986)
 df.2
 
-df.2<-full_join(df.2,obs,by=NULL)
+df.2<-full_join(df.2,obs2,by=NULL)
 
 
 
@@ -173,7 +199,8 @@ plot<-ggplot(df2, aes(Year))+
   labs(x="Year", y="Catch (in thousands)", title="")+
   geom_line(aes(Year,q50))+
   geom_line(data=df1,aes(Year,q50),col="grey")+
-  geom_point(aes(Year,obs_catch), col="red")+
+  geom_point(data=df1,aes(Year,obs_catch), col="red")+
+  geom_point(data=df2,aes(Year,obs_catch), col="blue")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+
   facet_grid(Type~.)
 
@@ -185,5 +212,6 @@ if(i==4){plot4<-plot}
 
 }
 
+#windows()
 #par(mfrow=c(3,1))
 grid.arrange(plot1, plot2, plot3, plot4, nrow=2, ncol=2)

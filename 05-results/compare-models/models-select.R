@@ -38,8 +38,12 @@ if(compare=="JJ"){
   # Model 1: JAGS model
   # =================
   
-  # Assessment model (short version)
-  load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
+#  # Assessment model (short version)
+#  load(file="H:/FLR/WGBAST18/new_SR_HRR2018-03-22.RData"); SRnew<-"yes"
+
+  # Long version of the assessment model
+  load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); SRnew<-"yes"
+  
   chains1<-chains
   #load(file="H:/FLR/WGBAST18/WGBAST_JAGS_new_SR_withoutTrolling.RData"); SRnew<-"yes"
   
@@ -54,6 +58,8 @@ if(compare=="JJ"){
 
 # Model 2:
 # =================
+load(file="H:/FLR/WGBAST18/FullPLmisrep_2018-12-14.RData"); SRnew<-"yes"
+chains<-as.mcmc.list(run1)
 
 JAGSversion<-"x"
 if(JAGSversion=="old"){
@@ -69,8 +75,8 @@ if(JAGSversion=="old"){
 }
 
 
-# Long version of the assessment model
-load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); SRnew<-"yes"
+## Long version of the assessment model
+#load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData"); SRnew<-"yes"
 
 
 # With trolling comparison

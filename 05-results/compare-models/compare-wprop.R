@@ -86,8 +86,8 @@ df.2
 ## ---- graphs-wprop
 
 
-df1<-df.1
-df2<-df.2
+df1<-filter(df.1, is.na(Year)==F)
+df2<-filter(df.2, is.na(Year)==F)
 
 ggplot(df2, aes(Year))+
   theme_bw()+
