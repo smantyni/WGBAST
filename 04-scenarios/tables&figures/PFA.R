@@ -6,7 +6,9 @@ library(xlsx)
 #! #############################################################################
 # Version of the estimation model
 #Model<-"Orig"
-Model<-"New_SR"
+#Model<-"New_SR"
+Model<-"_FullPLmisrep"
+
 
 # Time
 LastHistYear<-2017
@@ -23,7 +25,7 @@ choice<-"MED"   # corresponds to Mps during 2008-2011 period
 
 # Maturation is the same in all scenarios
 #! Effort 
-EffScen<-1
+EffScen<-5
 
 PathScen<-"H:/FLR/WGBAST18/Scenarios/" # scenario results 
 PathOut<-"H:/Biom/Scenarios/2018/prg/" # output
@@ -87,13 +89,13 @@ for(y in 1:length(year)){
 }
 #cbind(year, med)
 plot(year+1, med, pch=16, ylim=c(0,3000),
-     main="1SW wild, scen 1",
-     #main=paste(sep="","1SW wild, scen ",EffScen),
+     #main="1SW wild, scen 1",
+     main=paste0("1SW wild, scen ",EffScen),
 xlab="Year", ylab="Abundance (in 1000's)")
 segments(year+1,low, year+1,high)
 
 tx<-cbind(year+1,med, low, high)
-write.xlsx(tx, paste0(PathOut,"PFA_1SWwild_scen",EffScen,".xlsx"))
+write.xlsx(tx, paste0(PathOut,Model,"_PFA_1SWwild_scen",EffScen,".xlsx"))
 
 
 
@@ -105,13 +107,13 @@ for(y in 1:length(year)){
   high[y]<-summary(as.mcmc(PFA[1,y,]), quantiles=quants)$quantiles[5]
 }
 plot(year+1, med, pch=16, ylim=c(0,3000), 
-     main="1SW wild & reared, scen 1",
-     #main=paste0(PathOut,"1SW wild & reared, scen ",EffScen), 
+     #main="1SW wild & reared, scen 1",
+     main=paste0("1SW wild & reared, scen ",EffScen), 
 xlab="Year", ylab="Abundance (in 1000's)")
 segments(year+1,low, year+1,high)
 
 tx<-cbind(year+1,med, low, high)
-write.xlsx(tx, paste0(PathOut,"PFA_1SWall_scen",EffScen,".xlsx"))
+write.xlsx(tx, paste0(PathOut,Model,"_PFA_1SWall_scen",EffScen,".xlsx"))
 
 
 med<-c();low<-c();high<-c()
@@ -121,13 +123,13 @@ for(y in 1:length(year)){
   high[y]<-summary(as.mcmc(PFAW2_MSW[y,]), quantiles=quants)$quantiles[5]
 }
 plot(year+1, med, pch=16, ylim=c(0,3000), 
-main="MSW wild, scen 1",
-#main=paste(sep="","MSW wild, scen ",EffScen), 
+#main="MSW wild, scen 1",
+main=paste0("MSW wild, scen ",EffScen), 
 xlab="Year", ylab="Abundance (in 1000's)")
 segments(year+1,low, year+1,high)
 
 tx<-cbind(year+1,med, low, high)
-write.xlsx(tx, paste0(PathOut,"PFA_MSWwild_scen",EffScen,".xlsx"))
+write.xlsx(tx, paste0(PathOut,Model,"_PFA_MSWwild_scen",EffScen,".xlsx"))
 
 
 med<-c();low<-c();high<-c()
@@ -137,13 +139,13 @@ for(y in 1:length(year)){
   high[y]<-summary(as.mcmc(PFA_MSW[y,]), quantiles=quants)$quantiles[5]
 }
 plot(year+1, med, pch=16, ylim=c(0,3000), 
-     main="MSW wild & reared, scen 1", 
-     #main=paste(sep="","MSW wild & reared, scen ",EffScen), 
+     #main="MSW wild & reared, scen 1", 
+     main=paste0("MSW wild & reared, scen ",EffScen), 
 xlab="Year", ylab="Abundance (in 1000's)")
 segments(year+1,low, year+1,high)
 
 tx<-cbind(year+1,med, low, high)
-write.xlsx(tx, paste0(PathOut,"PFA_MSWall_scen",EffScen,".xlsx"))
+write.xlsx(tx, paste0(PathOut,Model,"_PFA_MSWall_scen",EffScen,".xlsx"))
 
 
 
@@ -158,7 +160,7 @@ for(y in 1:length(year)){
 }
  
 tx<-cbind(year+1,med, low, high)
-write.xlsx(tx, paste0(PathOut,"PFA_Total_scen",EffScen,".xlsx"))
+write.xlsx(tx, paste0(PathOut,Model,"_PFA_Total_scen",EffScen,".xlsx"))
 
  
 # Wild PFA: 
@@ -170,7 +172,7 @@ for(y in 1:length(year)){
 }
  
 tx<-cbind(year+1,med, low, high)
-write.xlsx(tx, paste0(PathOut,"PFA_Totalwild_scen",EffScen,".xlsx"))
+write.xlsx(tx, paste0(PathOut,Model,"_PFA_Totalwild_scen",EffScen,".xlsx"))
 
  
 # PFA:s per origin and age
