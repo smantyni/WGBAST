@@ -52,13 +52,16 @@ EffScen<-6
 set.seed(6789)
 
 # workflow for effort scenarios:
-# 1. Run scenario 5 and ScenarioTable.R for that scenario -> Get PFA for S4 in T4321_workflow.xlsx
-# 2. Run scenario 6 by setting up targetTr that corresponds to recr removal (V21 in T4321_workflow.xlsx). 
-#    find such CoefTrollingF that results with targetTr catch
-# 3. Run scenario 1, set up target as in W21 (Total removal at sea for scen 1) in T4321_workflow.xlsx.
-#   find such Coef1 that results with target catch and update on line 65
+# 1. Run scenario 5 and ScenarioTable.R for that scenario -> input total PFA to cell S4 in T4321_workflow.xlsx
+# 2. Run scenario 6: Set up targetTr that corresponds to recr removal (V21 in T4321_workflow.xlsx). 
+#    Then find such CoefTrollingF that produces targetTr catch.
+# 3. Run scenario 1: Set up target as in W21 (Total removal at sea for scen 1) in T4321_workflow.xlsx.
+#   Then find such Coef1 that produces target catch, update that on line 65 below
 # 4. Run scens 2/3/4 similarly as scen 1 but adjust only Coef2 in corresponding line 
-#   (Coef1 remains the same). Update Coef2 on line 72/73/76
+#   (Coef1 remains the same).
+
+# For all scenarios, remember to update CoefF OR Coef1 OR Coef2 after the desired level of effort
+# has been found with the while-loop!
 
 
 Coef1<-0.729 
