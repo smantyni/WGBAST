@@ -8,11 +8,11 @@ library(stringr)
 library(gridExtra)
 library(coda)
 
-pathM74<-"H:/Biom/SubE_M74/2018/"
-
+pathM74<-"H:/Biom/SubE_M74/2019/"
 
 # FI data
-df<-read_xlsx(str_c(pathM74,"data/orig/Finnish_M74_data-2017_paivitetty.xlsx"), 
+
+df<-read_xlsx(path=str_c(pathM74,"dat/orig/Finnish_M74_data-2018_paivitetty.xlsx"), 
               col_names = T, guess_max = 10000, sheet=1, na="")%>%   
   mutate(river=fct_recode(RIVER,
                                     "1"="Simo",
@@ -36,7 +36,7 @@ df<-read_xlsx(str_c(pathM74,"data/orig/Finnish_M74_data-2017_paivitetty.xlsx"),
             
 
 dfFI<-df%>% 
-  mutate(M74=parse_double(M74_mort))%>%
+  mutate(M74=as.numeric(M74_mort))%>%
   select(YEAR, year, RIVER, river, eggs, surv_eggs, M74, mortality100, YSFM)
 #%>%filter(river!=4) # to remove iijoki, avoiding confusion with Luleälven.
   
