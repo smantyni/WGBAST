@@ -12,8 +12,8 @@ d<-as.matrix(chains)
 dim(d)
 #[1]   200 16500 # dimensions: iterations x number of variables
 
-headtext<-c("Varname","mean","sd","cv","5%","50%","95%","90%PI")
-statsfile<-paste0("05-results/stats_",modelname,".csv")
+headtext<-c("Varname","mean","sd","cv","5%","50%","95%","90%PI","grdPE", "grdUCI")
+statsfile<-paste0("C:/R/WGBAST/05-results/stats_",modelname,".csv")
 
 write.table(t(as.matrix(headtext)),file=statsfile,sep=',',row.names=F, col.names=F)
 
@@ -25,8 +25,10 @@ for(i in 1:dim(d)[2]){ # loop over all monitored variables
   q50<-quantile(d[,i],0.50)
   q95<-quantile(d[,i],0.95)
   PI90<-paste0("'",round(q5,0),"-",round(q95,0))  # change 0 in round() if decimals needed
+  grdPE<-gelman.diag(chains[,i])$psrf[1]
+  grdUCI<-gelman.diag(chains[,i])$psrf[2]
   
-  printtxt<-c(colnames(d)[i],m,s,cv,q5,q50,q95,PI90)
+  printtxt<-c(colnames(d)[i],m,s,cv,q5,q50,q95,PI90,grdPE, grdUCI)
   write.table(t(as.matrix(printtxt)),statsfile,sep=",",row.names=F, col.names=F,append=T)
 }
 
