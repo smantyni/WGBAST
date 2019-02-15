@@ -10,9 +10,11 @@
 
 SalCoef<-0.97 # Assumed proportion of salmon in offshore sal+trs catch. Use 2009->
 
+df2%>%count(F_TYPE)
 
-poland_offs<-df2%>%filter((FISHERY=="S" & (SPECIES=="SAL" | SPECIES=="TRS")) , COUNTRY=="PL" , F_TYPE!="DISC", F_TYPE!="SEAL")
-poland_coast<-df2%>%filter(( (FISHERY=="C" & SPECIES=="SAL")), COUNTRY=="PL" , F_TYPE!="DISC", F_TYPE!="SEAL")
+# df2 contains both SAL and TRS
+poland_offs<-df2%>%filter(FISHERY=="O" , COUNTRY=="PL")
+poland_coast<-df2%>%filter(( (FISHERY=="C" & SPECIES=="SAL")), COUNTRY=="PL")
 
 poland_coast%>%
   count(GEAR)
@@ -39,9 +41,9 @@ gns<-poland_C%>%
 #View(gns)
 
 
-poland_E_sal<-df2%>%filter(SPECIES=="SAL", COUNTRY=="PL" & FISHERY=="S", F_TYPE!="DISC", F_TYPE!="SEAL")
-poland_E_trs<-df2%>%filter(SPECIES=="TRS", COUNTRY=="PL" & FISHERY=="S", F_TYPE!="DISC", F_TYPE!="SEAL")
-
+poland_E_sal<-df2%>%filter(SPECIES=="SAL", COUNTRY=="PL" & FISHERY=="O")
+poland_E_trs<-df2%>%filter(SPECIES=="TRS", COUNTRY=="PL" & FISHERY=="O")
+                           
 poland_E_sal%>%
   filter(YEAR==2017)%>%
   count(GEAR)
@@ -60,7 +62,7 @@ poland_E_trs%>%
 
 #ODN
 tmp1<-poland_C%>%
-  filter((FISHERY=="S" & GEAR=="GND"))%>%
+  filter((FISHERY=="O" & GEAR=="GND"))%>%
   group_by(YEAR, HYR)%>%
   summarise(Catch=round(sum(NUMB, na.rm=T)))
 
@@ -88,8 +90,11 @@ PolC_ODN_rep<-full_join(HYR1,HYR2)%>%
 
 
 #OLL
+poland_C%>%filter(FISHERY=="O")%>%
+  count(GEAR)
+
 tmp1<-poland_C%>%
-  filter(FISHERY=="S" & GEAR!="GND")%>%
+  filter(FISHERY=="O" & GEAR!="GND" & GEAR!="AN")%>%
   group_by(YEAR, HYR)%>%
   summarise(Catch=round(sum(NUMB, na.rm=T)))
 
@@ -158,13 +163,13 @@ PolC_coast<-full_join(HYR1,HYR2)%>%
 #ODN
 
 Etrs<-poland_E_trs%>%
-  filter((FISHERY=="S" & GEAR=="GND"))%>%
+  filter((FISHERY=="O" & GEAR=="GND"))%>%
   group_by(YEAR, HYR)%>%
   summarise(Effort_trs=round(sum(EFFORT, na.rm=T)))%>%
   filter(HYR==1 | is.na(HYR)==T) # remove HYR 2, this doesn't matter since trsE is small in 01-02 -> salE will be used insted
 
 Esal<-poland_E_sal%>%
-  filter((FISHERY=="S" & GEAR=="GND"))%>%
+  filter((FISHERY=="O" & GEAR=="GND"))%>%
   group_by(YEAR, HYR)%>%
   summarise(Effort_sal=round(sum(EFFORT, na.rm=T)))
 
@@ -201,16 +206,16 @@ poland_E_trs%>%
   group_by(TP_TYPE)%>%
   count(YEAR)
 
-# Before 2010: YR data. Choose max(E_trs,E_sal) and divide between HYRs
+# Before 2009: YR data. Choose max(E_trs,E_sal) and divide between HYRs
 
 Etrs<-poland_E_trs%>%
-  filter(FISHERY=="S", GEAR=="LLD", YEAR<2010, YEAR>2003)%>%
+  filter(FISHERY=="O", GEAR=="LLD", YEAR<2009, YEAR>2003)%>%
   group_by(YEAR, HYR)%>%
   summarise(Effort_trs=round(sum(EFFORT, na.rm=T)))%>%
   select(-HYR)
 
 Esal<-poland_E_sal%>%
-  filter(FISHERY=="S", GEAR=="LLD", YEAR<2010)%>%
+  filter(FISHERY=="O", GEAR=="LLD", YEAR<2009)%>%
   group_by(YEAR, HYR)%>%
   summarise(Effort_sal=round(sum(EFFORT, na.rm=T)))%>%
   select(-HYR)
@@ -220,7 +225,7 @@ tmp<-full_join(Etrs, Esal)%>%
   select(YEAR, Effort)
 
 p_OLL<-select(pHYR1_OLL, YEAR, pE)%>%
-  filter(YEAR<2010)
+  filter(YEAR<2009)
 
 HYR1<-full_join(tmp,p_OLL)%>%
   mutate(Effort=round(pE*Effort), HYR=1)%>%
@@ -232,22 +237,22 @@ HYR2<-full_join(tmp,p_OLL)%>%
   
 PolE_OLL_1<-full_join(HYR1,HYR2)
 
-# 2010-> MON data. Choose max(E_trs,E_sal) and divide between HYRs
+# 2009-> MON data. Choose max(E_trs,E_sal) and divide between HYRs
 
 
 Etrs<-poland_E_trs%>%
-  filter(FISHERY=="S", GEAR=="LLD", YEAR>2009)%>%
+  filter(FISHERY=="O", GEAR=="LLD", YEAR>2008)%>%
   group_by(YEAR, HYR)%>%
   summarise(Effort_trs=round(sum(EFFORT, na.rm=T)))
 
 Esal<-poland_E_sal%>%
-  filter(FISHERY=="S", GEAR=="LLD", YEAR>2009)%>%
+  filter(FISHERY=="O", GEAR=="LLD", YEAR>2008)%>%
   group_by(YEAR, HYR)%>%
   summarise(Effort_sal=round(sum(EFFORT, na.rm=T)))
 
 PolE_OLL_2<-full_join(Etrs, Esal)%>%
   group_by(YEAR,HYR)%>%
-  mutate(Effort=max(Effort_trs,Effort_sal))%>%
+  mutate(Effort=max(Effort_trs,Effort_sal, na.rm=T))%>%
   select(YEAR, HYR, Effort)
 
 PolE_OLL<-full_join(PolE_OLL_1, PolE_OLL_2)
@@ -263,7 +268,7 @@ PolC_ODN_est<-full_join(PolE_ODN, select(ODN_CPUE, YEAR, HYR, CPUE_tot))%>%
 PolC_OLL_est<-full_join(PolE_OLL, select(OLL_CPUE, YEAR, HYR, CPUE_tot))%>%
   mutate(Catch=round(CPUE_tot*Effort*Feff))
 
-#View(PolC_OLL_est)
+ #View(PolC_OLL_est)
 
 
 # We can also calculate GNS_est with GND CPUE, but it seems this will result with
@@ -300,8 +305,7 @@ PolC_OLL_est<-full_join(PolE_OLL, select(OLL_CPUE, YEAR, HYR, CPUE_tot))%>%
 
 # Reported catch in coast and offshore other than ODN/OLL
 
-O_OT<-df2%>%filter((FISHERY=="S" & (SPECIES=="SAL" | SPECIES=="TRS")) , 
-                    GEAR!="LLD", GEAR!="GND", COUNTRY=="PL" , F_TYPE!="DISC", F_TYPE!="SEAL")
+O_OT<-df2%>%filter(FISHERY=="O", GEAR!="LLD", GEAR!="GND", COUNTRY=="PL")
 
 tmp1<-full_join(O_OT, poland_coast)%>%
   group_by(YEAR, HYR)%>%

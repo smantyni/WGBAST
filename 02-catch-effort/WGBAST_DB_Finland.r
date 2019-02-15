@@ -28,7 +28,7 @@ finland%>%
 ################################################################################
 
 Fin_ODN<-finland%>%
-  filter(FISHERY=="S", GEAR=="GND")%>%
+  filter(FISHERY=="O", GEAR=="GND")%>%
   group_by(YEAR, HYR)%>%
   summarise(Catch=round(sum(NUMB, na.rm=T)),
             Effort=round(sum(EFFORT, na.rm=T)))
@@ -40,7 +40,7 @@ Fin_ODN<-finland%>%
 
 
 Fin_OLL<-finland%>%
-  filter(FISHERY=="S", GEAR=="LLD")%>%
+  filter(FISHERY=="O", GEAR=="LLD")%>%
   group_by(YEAR, HYR)%>%
   summarise(Catch=round(sum(NUMB, na.rm=T)),
             Effort=round(sum(EFFORT, na.rm=T)))
@@ -52,7 +52,7 @@ Fin_OLL<-finland%>%
 # These will be added to commercial coastal other gear
 
 Fin_OOT<-finland%>%
-  filter(FISHERY=="S", GEAR=="MIS")%>%
+  filter(FISHERY=="O", GEAR=="MIS")%>%
   group_by(YEAR, HYR)%>%
   summarise(Catch_OOT=round(sum(NUMB, na.rm=T)),
             Effort_OOT=round(sum(EFFORT, na.rm=T)))
@@ -112,11 +112,11 @@ finland%>%
   filter(FISHERY=="C", GEAR=="MIS"| GEAR=="LLD")%>%
   group_by(GEAR)%>%
   count(TP_TYPE)
-# MIS : HYR & YR
+# MIS : HYR, MON & YR
 
 
 Fin_COT<-finland%>%
-  filter(FISHERY=="C", GEAR=="MIS"| GEAR=="LLD", TP_TYPE=="HYR")%>% # take HYR here and include YR later 
+  filter(FISHERY=="C", GEAR=="MIS"| GEAR=="LLD", TP_TYPE!="YR")%>% # take HYR/MON here and include YR later 
   group_by(YEAR, HYR)%>%
   summarise(Catch_COT=round(sum(NUMB, na.rm=T)),
             Effort_COT=round(sum(EFFORT, na.rm=T)))

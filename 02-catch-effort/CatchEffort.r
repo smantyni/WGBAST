@@ -11,25 +11,29 @@ library(lubridate)
 library(stringr)
 library(gridExtra)
 
-source("02-catch-effort/WGBAST_DB_functions.r")
-
 
 min_year<-2000
-max_year<-2017
+max_year<-2018
 years<-min_year:max_year
 NumYears<-length(years)
 
-pathIn<-"H:/Biom/FullLifeHistoryModel/2018/"
+pathIn<-"H:/Biom/FullLifeHistoryModel/2019/"
 
-df<-read_xlsx(str_c(pathIn, "dat/orig/catch&effort/WGBAST_Catch_2018_Turku_20022018.xlsx"),
-                   range="A1:R9113", # NOTE!!!! UPDATE!!!!
-              sheet="Catch data", col_names = T, guess_max = 8000, na=c("",".", "NaN"))
-
-df<-df%>%
-  filter(YEAR>2000)%>%
+df<-read_xlsx(str_c(pathIn, "dat/orig/catch&effort/WGBAST_Catch_2019_St_Petersburg_15022018.xlsx"),
+              range="A1:Q12996", # Update!
+              sheet="Catch data", col_names = T, guess_max = 8000, na=c("",".", "NaN"))%>%
+  filter(YEAR>2008)%>% # Include results only 2009 onwards, catch DB has only updates from those years 
   mutate(NUMB=parse_double(NUMB))%>%
-  select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())
- 
+  select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())%>%
+  mutate(TP_TYPE=ifelse(TP_TYPE=="QRT", "QTR", TP_TYPE))
+
+(tmpx<-df%>%filter(SPECIES=="SAL",F_TYPE=="RECR", FISHERY=="R", COUNTRY=="LV", YEAR==2018))
+tmpx%>%distinct()
+
+View(tmpx)
+
+df<-df%>%distinct() #Remove duplicate rows
+
 df%>%count(TP_TYPE) 
 
 tmp<-df%>%group_by(FISHERY)%>%
@@ -43,8 +47,13 @@ tmp<-df%>%group_by(FISHERY)%>%
 # GNS: gillnet (stationary) (previously GN)
 # AN: angling
 
-df2<-df%>%filter((SPECIES=="SAL" | SPECIES=="TRS"), SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL")
-#3640
+df%>%filter(is.na(SUB_DIV)==T) 
+# There's RECR AN without SUBDIV specified! Will be removed in next unless NA's replaced.
+df<-df%>%mutate(SUB_DIV=ifelse(is.na(SUB_DIV)==T, 1, SUB_DIV))
+# 8326
+
+df2<-df%>%filter(SUB_DIV!=32, F_TYPE!="DISC", F_TYPE!="SEAL",F_TYPE!="ALV",F_TYPE!="BMS",F_TYPE!="BROODSTOCK")
+# 8326
 
 MON<-df2%>%filter(TP_TYPE=="MON")%>%mutate(HYR=ifelse(TIME_PERIOD<7,1,2))
 QTR<-df2%>%filter(TP_TYPE=="QTR")%>%mutate(HYR=ifelse(TIME_PERIOD<3,1,2))
@@ -55,9 +64,10 @@ df2<-full_join(MON, QTR)%>%
   full_join(HYR)%>%
   full_join(YR)%>%
   select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, HYR, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())
+# 8326
 
 salmon<-df2%>%filter(SPECIES=="SAL")
-
+#3546
 
 source("02-catch-effort/WGBAST_DB_Germany.r")
 source("02-catch-effort/WGBAST_DB_Latvia.r")
@@ -69,14 +79,15 @@ source("02-catch-effort/WGBAST_DB_CPUEoffshore.r")
 # Choose method to calculate PL catch!
 # ===================
 
-# WGBAST version; 2000-2008 estimated catch based on PL effort and 0.75*CPUE[other countries] 
+# Current WGBAST version: 
+# 2000-2008 estimated catch based on PL effort and 0.75*CPUE[other countries] 
 # 2009-> reported SAL+TRS catch *0.97 
 # ===================
-# pl<-1;Feff<-0.75 
+ pl<-1;Feff<-0.75 
 
 # Full misreporting version; estimated catch based on PL effort and 1*CPUE[other countries]
 # ===================
-pl<-2;Feff<-1 
+#pl<-2;Feff<-1 
 
 source("02-catch-effort/WGBAST_DB_Poland.r")
 
@@ -165,13 +176,13 @@ full_join(Swe_CTN,
 ##################
 # COT catch
 ##################
-
-full_join(Swe_COT,
-          select(Fin_COT, -CPUE))%>%
-  select(-Effort)%>%
+FinC_OTtot%>%
+  mutate(Catch=Catch_COT)%>%
+  full_join(Swe_COT)%>%
+  select(-Effort, -CPUE, -Catch_COT)%>%
   ungroup()%>%
   group_by(YEAR)%>%
-  summarise(Catch=sum(Catch))
+  summarise(Catch=sum(Catch, na.rm=T))
 
 ##################
 # River catch
@@ -198,7 +209,7 @@ OLL<-full_join(Ger_OLL, Den_OLL)%>%
   full_join(Fin_OLL)%>%
   full_join(Swe_OLL)%>%
   full_join(PolE_OLL)
-#View(Swe_OLL)
+#View(OLL)
 
 (OLL_E<-OLL%>%select(-Catch)%>%
   mutate(Myear=ifelse(HYR==2, YEAR, YEAR-1))%>% # Model year!
@@ -238,7 +249,8 @@ CTN_AU1<-round(FinE30_CTN[,2]+FinE31_CTN[,2]+0.45*SweE31_CTN[,2])
 CTN_AU2<-round(FinE30_CTN[,2]+0.55*SweE31_CTN[,2])
 CTN_AU3<-round(FinE30_CTN[,2]+SweE30_CTN[,2])
 
-cbind(CTN_AU1, CTN_AU2, CTN_AU3)
+yearx<-SweE31_CTN$YEAR
+cbind(yearx,CTN_AU1, CTN_AU2, CTN_AU3)
 
 
 ##################
@@ -259,9 +271,22 @@ SweE31_COT<-select(Swe_COT31, YEAR, HYR, Effort)%>%
   summarise(Effort=sum(Effort))%>%
   filter(YEAR>2002)
 
+yearx<-SweE31_COT$YEAR
+
 COT_AU1<-round(FinE30_COT[,2]+FinE31_COT[,2]+0.45*SweE31_COT[,2])
 COT_AU2<-round(FinE30_COT[,2]+0.55*SweE31_COT[,2])
 COT_AU3<-round(FinE30_COT[,2]+SweE30_COT[,2])
 
-cbind(COT_AU1, COT_AU2, COT_AU3)
+cbind(yearx,COT_AU1, COT_AU2, COT_AU3)
 
+#
+# RECR Trolling catch
+#########################
+
+salmon%>%
+  filter(YEAR==2018, F_TYPE=="RECR", FISHERY=="O", GEAR=="AN")%>%
+  summarise(Catch=sum(NUMB))
+  
+salmon%>%
+  filter(YEAR==2018,F_TYPE=="RECR", FISHERY=="C")%>%
+  summarise(Catch=sum(NUMB))
