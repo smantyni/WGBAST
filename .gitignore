@@ -4,9 +4,6 @@ make_JAGS_data*
 WGBAST_JAGS*
 
 \figures
-Inputs*
-ProjEffort*
-InitArrays*
 
 *.html
 *.txt

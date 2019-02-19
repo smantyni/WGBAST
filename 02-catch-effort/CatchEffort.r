@@ -19,18 +19,17 @@ NumYears<-length(years)
 
 pathIn<-"H:/Biom/FullLifeHistoryModel/2019/"
 
-df<-read_xlsx(str_c(pathIn, "dat/orig/catch&effort/WGBAST_Catch_2019_St_Petersburg_15022018.xlsx"),
+df<-read_xlsx(str_c(pathIn, "dat/orig/catch&effort/WGBAST_Catch_2019_St_Petersburg_18022018.xlsx"),
               range="A1:Q12996", # Update!
               sheet="Catch data", col_names = T, guess_max = 8000, na=c("",".", "NaN"))%>%
-  filter(YEAR>2008)%>% # Include results only 2009 onwards, catch DB has only updates from those years 
+  filter(YEAR>2005)%>% # Include results only 2009 onwards, catch DB has only updates from those years 
   mutate(NUMB=parse_double(NUMB))%>%
   select(SPECIES, COUNTRY, YEAR, TIME_PERIOD, TP_TYPE, sub_div2, FISHERY, F_TYPE, GEAR, NUMB, EFFORT, everything())%>%
   mutate(TP_TYPE=ifelse(TP_TYPE=="QRT", "QTR", TP_TYPE))
 
 (tmpx<-df%>%filter(SPECIES=="SAL",F_TYPE=="RECR", FISHERY=="R", COUNTRY=="LV", YEAR==2018))
 tmpx%>%distinct()
-
-View(tmpx)
+#View(tmpx)
 
 df<-df%>%distinct() #Remove duplicate rows
 
@@ -288,5 +287,5 @@ salmon%>%
   summarise(Catch=sum(NUMB))
   
 salmon%>%
-  filter(YEAR==2018,F_TYPE=="RECR", FISHERY=="C")%>%
+  filter(YEAR==2018,F_TYPE=="RECR", FISHERY=="C", GEAR=="AN")%>%
   summarise(Catch=sum(NUMB))

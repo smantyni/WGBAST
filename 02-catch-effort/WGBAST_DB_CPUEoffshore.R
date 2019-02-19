@@ -94,7 +94,7 @@ OLL_CPUE<-full_join(OLL_CPUE,tmp)%>%
   mutate(CPUE_tot=ifelse(Catch_tot<2000, CPUE_tot2, CPUE_tot))%>%
   select(-CPUE_tot2)
 
-View(OLL_CPUE)
+#View(OLL_CPUE)
 
 # Proportions per HYR
 
