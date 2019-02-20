@@ -7,7 +7,7 @@ WGBAST_JAGS*
 
 *.html
 *.txt
-*.xlsx
+#*.xlsx
 *.csv
 
 .Rproj.user
