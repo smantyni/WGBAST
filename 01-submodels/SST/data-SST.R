@@ -20,12 +20,12 @@ library(lubridate)
 library(stringr)
 
 # Path for input data
-pathIn<-"H:/Biom/FullLifeHistoryModel/2018/dat/orig/SST/"
+pathIn<-"c:/models/wgbast_dp/files_hp/FullLifeHistoryModel/2019/dat/orig/SST/"
 
 #############
 # Data from 8 stations
 
-(dat1<-read_xlsx(str_c(pathIn,"SMHI tempdata 8 stations jan1980-feb2018.xlsx"),
+(dat1<-read_xlsx(str_c(pathIn,"SMHI tempdata 8 stations jan1980-jan2019.xlsx"),
                 sheet="Data", na=c("","NaN")))%>%
   select(Station, Year, Month,Day,Depth,Temperature)
 
@@ -54,7 +54,7 @@ dat1
 #############
 # Knolls Grund -data (station nr. 9)
 
-dat2<-read_xlsx(str_c(pathIn,"Knolls_grund_tom_21_march_2018.xlsx"),
+dat2<-read_xlsx(str_c(pathIn,"Knolls grund -2019-02-14.xlsx"),
                sheet=1, skip=6,col_names = T, range="A8:E51422")%>%
   setNames(c("Date", "Time", "Temperature", "Quality", "Depth"))
 #setNames(c("Date", "Temperature", "Quality", "Depth"))
@@ -69,6 +69,12 @@ dat2<-dat2%>%
   mutate(year=Year-1991)%>%
   mutate(station=9)%>%
   select(Temperature, Year, Month, Day, year, station)
+
+dat2 <- dat2 %>%  
+  mutate(Temperature = as.numeric(Temperature))
+
+dat1 <- dat1 %>%  
+  mutate(Temperature = as.numeric(Temperature))
 
 
 ###################
@@ -95,7 +101,7 @@ extra.year
 df.bugs<-full_join(df.bugs,extra.year, by=NULL)
 #View(df.bugs)
 
-write_csv(df.bugs, path="submodels/SST/data.bugs.csv")
+write_csv(df.bugs, path="01-submodels/SST/data.bugs.csv")
 # copy paste data (year, month & sst) from excel to OpenBUGS using paste special -> unicode text
 # change column names as year[]	month[]	SST[]
 # Add text END at the bottom of the data file and press ENTER (empty line is needed at the end of the file)
