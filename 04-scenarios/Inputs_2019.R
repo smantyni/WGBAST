@@ -26,14 +26,14 @@ library(runjags)
 
 # Henni:
 # ===============
-  PathSim<-"H:/FLR/WGBAST18/" # results from the simulation model and output from scenarios
-  PathData<-"C:/Users/412hpulkkin/Dropbox/WGBAST/JAGS/data_2018/" # extra input files 
-  PathScen<-"H:/FLR/WGBAST18/Scenarios/" # scenario results 
-  # ===============
-  
+PathSim<-"H:/FLR/WGBAST18/" # results from the simulation model and output from scenarios
+PathData<-"C:/Users/412hpulkkin/Dropbox/WGBAST/JAGS/data_2018/" # extra input files 
+PathScen<-"H:/FLR/WGBAST18/Scenarios/" # scenario results 
+# ===============
+
 Model<-"2019"
 select_case<-2 #new SR parameterisation 
-  
+
 # Fetch JAGS model
 load(file="H:/FLR/WGBAST18/newSR_final2018-04-22.RData")
 
@@ -105,23 +105,15 @@ Etot_tmp<-array(0,dim=c(years[3],Nstocks,100))
 # Seal predation is assumed to be fixed for all simulations 
 seals<-as.matrix(read.table(paste0(PathData, "scenarios_Fseal.txt")))
 F_seal<-array(1,dim=c(years[3],6,4))
-  
-  for(i in 1:years[3]){
-       for(u in 1:3){
-        F_seal[i,2:6,u]<-rep(seals[i],times=5)
+
+for(i in 1:years[3]){
+  for(u in 1:3){
+    F_seal[i,2:6,u]<-rep(seals[i],times=5)
   }
-  }
+}
 
 #set up sex ratios   
 Ume_prop_fem<-as.matrix(read.table(paste0(PathData,"MSW_prop_fem_Ume_Vindel.txt"),row.names=1))
-#2018 assessment only - change later!!
-#multiply female proportions in 2014-2017 by expert opinion (mode) on spawner survival after counting
-#expert opinions from email Norrfors 12.02.2018
-
-Ume_prop_fem[28]<-Ume_prop_fem[28]*0.80 #2014
-Ume_prop_fem[29]<-Ume_prop_fem[29]*0.98 #2015
-Ume_prop_fem[30]<-Ume_prop_fem[30]*0.80 #2016
-Ume_prop_fem[31]<-Ume_prop_fem[31]*0.90 #2017
 
 Ume_prop_fem<-Ume_prop_fem[6:(yBreak+6),1]
 
@@ -154,56 +146,56 @@ for(y in 1:nYears){
 # multiplicity of arrays used   
 
 for(loop in 1:10){
-#loop<-1
-# We will write the simulation results to the sim folder using 10 Rdata-files 
-# under these names 
+  #loop<-1
+  # We will write the simulation results to the sim folder using 10 Rdata-files 
+  # under these names 
   if(choice=="MED"){  
     BH_dataFile<-
       paste0(PathScen, "ScenHist_JAGSmodel", Model,"_",loop,".RData") # name to separate historical part from future projections?
   }
-
+  
   #Sims stores the numbers for the simulation in the MCMC chain
   sims<-c(1+100*(loop-1),100*loop)   #1st and last indices of sims
   sims<-c(sims[],sims[2]-sims[1]+1)   #add number of sims as 3rd member of sims
-
+  
   ##############################################################
   # CREATE R OBJECTS TO BE PASSED ON TO THE OPERATING MODEL (OM)
   # tau_SR is the process uncertainty in stock-recruit relationship 
-
+  
   precisionBH<-d[sims[1]:sims[2],grep("tau_SR",colnames(d))]
   
   # Set up matrices to later input the stock-recruit parameters
-
+  
   BH_alpha<-array(NA,dim=c(sims[3],Nstocks))
   BH_alpha[,stock_indices]<-d[sims[1]:sims[2],grep("alphaSR",colnames(d))]
-   
+  
   BH_beta<-array(NA,dim=c(sims[3],Nstocks))
   BH_beta[,stock_indices]<-d[sims[1]:sims[2],grep("betaSR",colnames(d))]
   
   if(select_case == 1){
     R_zero<-array(NA,dim=c(sims[3],Nstocks))
     BH_z<-array(NA,dim=c(sims[3],Nstocks))
-      
+    
     R_zero[,stock_indices]<-d[sims[1]:sims[2],grep("R0",colnames(d))]
     BH_z[,stock_indices]<-d[sims[1]:sims[2],grep("z",colnames(d))]
   } else if(select_case ==2){
-      R_zero<-array(NA,dim=c(sims[3],years[3],Nstocks))
-      BH_z<-array(NA,dim=c(sims[3],years[3],Nstocks))
-      
-      for(s in 1:length(stock_indices)){
-        for(y in 1:yBreak){ 
-          tempr<-paste0("R0[",y+years[1]-1987,",",s,"]")
-          tempz<-paste0("z[",y+years[1]-1987,",",s,"]")
-          R_zero[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempr,colnames(d),fixed=TRUE)]
-          BH_z[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempz,colnames(d),fixed=TRUE)]
-        }
-        for (y in (yBreak+1):years[3]){ 
-          tempr<-paste0("R0[",ymax,",",s,"]")
-          tempz<-paste0("z[",ymax,",",s,"]")
-          R_zero[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempr,colnames(d),fixed=TRUE)]
-          BH_z[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempz,colnames(d),fixed=TRUE)]
-        }
+    R_zero<-array(NA,dim=c(sims[3],years[3],Nstocks))
+    BH_z<-array(NA,dim=c(sims[3],years[3],Nstocks))
+    
+    for(s in 1:length(stock_indices)){
+      for(y in 1:yBreak){ 
+        tempr<-paste0("R0[",y+years[1]-1987,",",s,"]")
+        tempz<-paste0("z[",y+years[1]-1987,",",s,"]")
+        R_zero[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempr,colnames(d),fixed=TRUE)]
+        BH_z[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempz,colnames(d),fixed=TRUE)]
       }
+      for (y in (yBreak+1):years[3]){ 
+        tempr<-paste0("R0[",ymax,",",s,"]")
+        tempz<-paste0("z[",ymax,",",s,"]")
+        R_zero[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempr,colnames(d),fixed=TRUE)]
+        BH_z[,y,stock_indices[s]]<-d[sims[1]:sims[2],grep(tempz,colnames(d),fixed=TRUE)]
+      }
+    }
   }
   
   # Initialize the basic quants to hold information about wild and reared stocks
@@ -211,7 +203,7 @@ for(loop in 1:10){
   # in the case of reared fish and rivers in the case of wild, season allows
   # to differentiate between the salmon at sea and the salmon that are migrating
   # back to the river for spawning,
-
+  
   #################
   # Quants: ages, years, rivers (AU's in case of reared),
   # spawning/ feeding migration, not used, simulations
@@ -231,26 +223,27 @@ for(loop in 1:10){
   
   PFAtmpW<-iniAgeQuantW
   PFAtmpR<-iniAgeQuantR
-    
+  
   WOLL_HRtmp<-iniAgeQuantW;  WODN_HRtmp<-iniAgeQuantW
   WCDN_HRtmp<-iniAgeQuantW;  WCGN_HRtmp<-iniAgeQuantW
   WCTN_HRtmp<-iniAgeQuantW;  WRF_HRtmp<-iniAgeQuantW
-
+  
   ROLL_HRtmp<-iniAgeQuantR;  RODN_HRtmp<-iniAgeQuantR
   RCDN_HRtmp<-iniAgeQuantR;  RCGN_HRtmp<-iniAgeQuantR
   RCTN_HRtmp<-iniAgeQuantR;  RRF_HRtmp<-iniAgeQuantR
-
+  
   WOLL_Ctmp<-iniAgeQuantW;  WODN_Ctmp<-iniAgeQuantW
   WCDN_Ctmp<-iniAgeQuantW;  WCGN_Ctmp<-iniAgeQuantW
   WCTN_Ctmp<-iniAgeQuantW;  WRF_Ctmp<-iniAgeQuantW
-
+  
   ROLL_Ctmp<-iniAgeQuantR;  RODN_Ctmp<-iniAgeQuantR
   RCDN_Ctmp<-iniAgeQuantR;  RCGN_Ctmp<-iniAgeQuantR
   RCTN_Ctmp<-iniAgeQuantR;  RRF_Ctmp<-iniAgeQuantR
   
   p.ladder<-array(NA, dim=c(years[3],Nstocks,sims[3]))
-
-   # 1st index: age (G/MSW) 2nd index: AU
+  surv_migr<-array(NA, dim=c(years[3],Nstocks,sims[3]))
+  
+  # 1st index: age (G/MSW) 2nd index: AU
   qctnW<-array(NA, dim=c(2,4,sims[3]))
   qctnR<-array(NA, dim=c(2,4,sims[3]))
   qcgnW<-array(NA, dim=c(2,4,sims[3]))
@@ -266,14 +259,17 @@ for(loop in 1:10){
     for(s in 1:length(stock_indices)){   
       # Add five years because the MCMC files start from 1992 but 
       # the WGBAST model starts from 1987
-      x<-paste0("p.ladder[",y+years[1]-1987,",",s,"]")   
+      x<-paste0("p.ladder[",y+years[1]-1987,",",s,"]")
+      x1<-paste0("surv_migr[",y+years[1]-1987,",",s,"]")      
       p.ladder[y,stock_indices[s],]<-d[sims[1]:sims[2],grep(x,colnames(d),fixed=TRUE)]
-
+      surv_migr[y,stock_indices[s],]<-d[sims[1]:sims[2],grep(x1,colnames(d),fixed=TRUE)]
+      
     } 
   }
   for(y in (yBreak+1):(nYears)){ 
     for(s in 1:length(stock_indices)){   
       p.ladder[y,stock_indices[s],]<- apply(p.ladder[(yBreak-2):yBreak,stock_indices[s],],2,mean)
+      surv_migr[y,stock_indices[s],]<- apply(surv_migr[(yBreak-2):yBreak,stock_indices[s],],2,mean)
     } 
   }
   
@@ -285,7 +281,7 @@ for(loop in 1:10){
       #e.g. the SmoltWW[6,] files corresponds to 1992
       x<-paste0("SmoltWW[",y+years[1]-1987,",",s,"]")   #years[1]=1992  so this is y+5
       WsalmStock[1,y,stock_indices[s],1,]<-d[sims[1]:sims[2],grep(x,colnames(d),fixed=TRUE)]
-
+      
     } 
   }
   
@@ -303,7 +299,7 @@ for(loop in 1:10){
   RsalmStock[1,(yBreak+1):years[3],2,1,]<-RsalmStock[1,(yBreak),2,1,]
   RsalmStock[1,(yBreak+1):years[3],3,1,]<-RsalmStock[1,(yBreak),3,1,]
   RsalmStock[1,(yBreak+1):years[3],4,1,]<-RsalmStock[1,(yBreak),4,1,] 
-
+  
   #Estimated numbers-at-age starting in May 1992 
   # Loop over the different age groups. 
   # Grilse or 1SW salmon from the 2nd age group (a=2), 
@@ -316,8 +312,8 @@ for(loop in 1:10){
       for(s in 1:length(stock_indices)){   
         xa<-paste0("NccW[",(y+6-a),",",a,",",s,"]")         #check 2nd index NccW here
         #checked 10/01, OK: e.g. y=1, a=2 NccW[5,2] 2 yr olds in 1992
-                                #y=1, a=3 NccW[4,3] 3 yr olds in 1992
-                                #y=2, a=3 NccW[5,3] 3 yr olds in 1993 etc.
+        #y=1, a=3 NccW[4,3] 3 yr olds in 1992
+        #y=2, a=3 NccW[5,3] 3 yr olds in 1993 etc.
         WsalmStock[a,y,stock_indices[s],1,]<-d[sims[1]:sims[2],grep(xa,colnames(d),fixed=TRUE)]
       }
       for(v in 1:4){
@@ -327,7 +323,7 @@ for(loop in 1:10){
       }  
     }
   }
-    
+  
   #Instantaneous post-smolt nat mort for age=1
   for(y in 1:yBreak){  
     xR<-paste0("MpsR[",y+years[1]-1987,"]")
@@ -342,17 +338,17 @@ for(loop in 1:10){
       WsalmNatMort[1,y,r,2,]<-d[sims[1]:sims[2],grep(xW,colnames(d))]   
     }
   }
-    for(y in 1:years[3]){  #MR MW
-      for(u in 1:4){
-        RsalmNatMort[2:6,y,u,1,]<-d[sims[1]:sims[2],grep("MR",colnames(d),fixed=TRUE)]
-        RsalmNatMort[2:6,y,u,2,]<-d[sims[1]:sims[2],grep("MR",colnames(d),fixed=TRUE)]
+  for(y in 1:years[3]){  #MR MW
+    for(u in 1:4){
+      RsalmNatMort[2:6,y,u,1,]<-d[sims[1]:sims[2],grep("MR",colnames(d),fixed=TRUE)]
+      RsalmNatMort[2:6,y,u,2,]<-d[sims[1]:sims[2],grep("MR",colnames(d),fixed=TRUE)]
     }
     for(r in 1:Nstocks){
       WsalmNatMort[2:6,y,r,1,]<-d[sims[1]:sims[2],grep("MW",colnames(d),fixed=TRUE)]
       WsalmNatMort[2:6,y,r,2,]<-d[sims[1]:sims[2],grep("MW",colnames(d),fixed=TRUE)]
     }
   }
-
+  
   # Homing rates or maturation rates
   # The maturation rates are stored at the 1 slot (season=1)
   # Homing rate or maturation rate for smolts (age=1)
@@ -378,13 +374,13 @@ for(loop in 1:10){
   }
   LReff[4,]<-LReff[3,]
   delta[4,]<-delta[3,]
-    
+  
   # History  
   for(a in 2:5){     
     for(y in 1:yBreak){ 
       lR<-paste0("LR[",y+years[1]-1987,",",(a-1),"]")
       lW<-paste0("LW[",y+years[1]-1987,",",(a-1),"]")
-    
+      
       for(r in 1:Nstocks){
         WsalmMatRate[a,y,r,1,]<-d[sims[1]:sims[2],grep(lW,colnames(d),fixed=TRUE)]
       }
@@ -393,14 +389,14 @@ for(loop in 1:10){
       }   
     }
   }
- 
+  
   # Future
   for(y in (yBreak+1):years[3]){ 
     for(s in 1:sims[3]){
       cL<-rnorm(1,mean=mucL[s],sd=sqrt(1/taucL[s]))
       lw<-c()
       lr<-c()
-
+      
       # Temperature estimates updated 22/3/2018
       if(y==(yBreak+1)){ # 2018
         Temp<-rnorm(1,mean=5.22,sd=0.391)
@@ -408,12 +404,12 @@ for(loop in 1:10){
       if(y>(yBreak+1)){ #2019->
         Temp<-rnorm(1,mean=4.185,sd=1.214)
       }
-
+      
       for(a in 2:5){
         lw[a]<-rnorm(1,mean=cL+bL[a-1,s]+delta[a-1,s]*Temp,
-                    sd=sqrt(1/tauL[a-1,s]))
+                     sd=sqrt(1/tauL[a-1,s]))
         lr[a]<-rnorm(1,mean=cL+bL[a-1,s]+LReff[a-1,s]+delta[a-1,s]*Temp,
-                    sd=sqrt(1/tauL[a-1,s]))
+                     sd=sqrt(1/tauL[a-1,s]))
         
         WsalmMatRate[a,y,,1,s]<-exp(lw[a])/(1+exp(lw[a]))
         RsalmMatRate[a,y,,1,s]<-exp(lr[a])/(1+exp(lr[a])) 
@@ -424,7 +420,7 @@ for(loop in 1:10){
   # Homing rate or maturation rate for older than 5SW salmon 
   WsalmMatRate[6,,,1,]<-1
   RsalmMatRate[6,,,1,]<-1
-
+  
   # Fecundity expressed in terms of the number of eggs produced by each female
   # Fecundity is stored at the 2 slot (season=2)
   # Fecundity of smolts (age=1)
@@ -438,7 +434,7 @@ for(loop in 1:10){
       }
     }
   }
-
+  
   ################################################################
   #FUTURE M74 AND POST-SMOLT MORTALITY
   ################################################################
@@ -458,14 +454,14 @@ for(loop in 1:10){
   ####
   ## AutoC coefficient  on logit scale
   wM74<- 0.824
-
-    ## Stable mean on logit scale
+  
+  ## Stable mean on logit scale
   muM74<- -1.89     # 85% survival
   
   ## Marginal variance  on logit scale
   sigma2M74<-0.305
   ####
-    
+  
   M74<-as.matrix(sims[1]:sims[2])
   
   #Use (yBreak -1) if want to discard the last years's estimate (year yBreak has no M74 data)
@@ -476,26 +472,26 @@ for(loop in 1:10){
   }
   
   M74<-M74[,2:(yBreak)] # correct accordingly to previous for-loop! +1 if going until yBreak
-
+  
   #=============
   # M74
   #=============
-#  for(y in (yBreak+1):years[3]){
+  #  for(y in (yBreak+1):years[3]){
   for(y in yBreak:years[3]){
     #y<-yBreak+2
     #y<-years[3]
     #dim(M74)
     autocorM74<-as.vector(M74[,y-1])
     autocorM74<-log(autocorM74/(1-autocorM74))
-
+    
     for(i in 1:sims[3]){
       autocorM74[i]<-wM74*autocorM74[i]+
-                    rnorm(1,muM74*(1-wM74), sqrt(sigma2M74*(1-wM74*wM74))) 
-                    # Auto Regr process with lag 1
-
+        rnorm(1,muM74*(1-wM74), sqrt(sigma2M74*(1-wM74*wM74))) 
+      # Auto Regr process with lag 1
+      
       autocorM74[i]<-exp(autocorM74[i])/(1+exp(autocorM74[i]))
       # Transforming to M74 mortality (proportion)
-
+      
       autocorM74[i]<-min(0.8,autocorM74[i])
       j<-sims[1]-1+i
       M74_All[y,j]<-autocorM74[i]
@@ -503,11 +499,11 @@ for(loop in 1:10){
     M74<-cbind(M74,autocorM74)
     
   }#END SCENARIOS FOR M74
-
+  
   #=============
-# Mps scenarios for the future
+  # Mps scenarios for the future
   #=============
-
+  
   # These are the parameters of a beta distribution which adjust 
   # MpsR depending on MpsW
   #! Update these annually using script Ra_Rb.r
@@ -516,30 +512,30 @@ for(loop in 1:10){
   Reta<-0.259
   
   for(y in yBreak:years[3]){
-   for(i in 1:sims[3]){
-
-     #Generate scenarios for MpsW using autocorrelation analysis
-     x<-as.numeric(log(exp(-WsalmNatMort[1,y-1,1,1,i])/
-           (1-exp(-WsalmNatMort[1,y-1,1,1,i]))))
-     x<-w*x+rnorm(1,mu*(1-w),sqrt(sigma2*(1-w*w)))
-
-     WsalmNatMort[1,y,1,1,i] <- -log((exp(x)/(1+exp(x))))
-     WsalmNatMort[1,y,,,i] <- min(5.3,WsalmNatMort[1,y,1,1,i])
-
-     #Adjust MpsR based on above
-     Ra<-Rmu/Reta
-     Rb<-(1-Rmu)/Reta
-     RMps<-rbeta(1,Ra,Rb)
-     ReffectMps<-RMps*1.5+1
-
-     RsalmNatMort[1,y,,,i] <- ReffectMps*WsalmNatMort[1,y,1,1,i]
-
-     j<-sims[1]-1+i
-     Mps_All[y,j]<-WsalmNatMort[1,y,1,1,i]
-     Mps_AllR[y,j]<-RsalmNatMort[1,y,1,1,i]
-   }
-
- }#END SCENARIOS FOR  MPS
+    for(i in 1:sims[3]){
+      
+      #Generate scenarios for MpsW using autocorrelation analysis
+      x<-as.numeric(log(exp(-WsalmNatMort[1,y-1,1,1,i])/
+                          (1-exp(-WsalmNatMort[1,y-1,1,1,i]))))
+      x<-w*x+rnorm(1,mu*(1-w),sqrt(sigma2*(1-w*w)))
+      
+      WsalmNatMort[1,y,1,1,i] <- -log((exp(x)/(1+exp(x))))
+      WsalmNatMort[1,y,,,i] <- min(5.3,WsalmNatMort[1,y,1,1,i])
+      
+      #Adjust MpsR based on above
+      Ra<-Rmu/Reta
+      Rb<-(1-Rmu)/Reta
+      RMps<-rbeta(1,Ra,Rb)
+      ReffectMps<-RMps*1.5+1
+      
+      RsalmNatMort[1,y,,,i] <- ReffectMps*WsalmNatMort[1,y,1,1,i]
+      
+      j<-sims[1]-1+i
+      Mps_All[y,j]<-WsalmNatMort[1,y,1,1,i]
+      Mps_AllR[y,j]<-RsalmNatMort[1,y,1,1,i]
+    }
+    
+  }#END SCENARIOS FOR  MPS
   
   
   ################################################################
@@ -557,20 +553,20 @@ for(loop in 1:10){
   # nations are all combined in Other. The dominant fishing nation in the 
   # Other category is Poland. The effort is assumed to be known without error 
   # and therefore no MCMC chains are thus far available.
-
+  
   EffortICES <- array(NA, dim= c(1, years[3],3,5,5,sims[3]))
-
+  
   dimnames(EffortICES) <- list(age="All", year=years[1]:years[2],
-					unit=c("ICES 22-29","ICES 30","ICES 31"),
-					season=c("OLL","ODN","CDN","CTN","CGN"), 
-					area = c("Finland","Sweden","Denmark","Poland","Trolling"), # "Other" changed to "Poland", "Trolling" added
-					iter=1:sims[3]) 
-                
+                               unit=c("ICES 22-29","ICES 30","ICES 31"),
+                               season=c("OLL","ODN","CDN","CTN","CGN"), 
+                               area = c("Finland","Sweden","Denmark","Poland","Trolling"), # "Other" changed to "Poland", "Trolling" added
+                               iter=1:sims[3]) 
+  
   # Input effort data according to ICES unit and country
   # Because some countries do not participate to certain fisheries, all 
   # effort slots are first filled with zeros
   EffortICES[]<-0
-
+  
   # Input effort data for the offshore driftnet fishery for the different 
   # countries from 1992 till 2007
   temp <-read.table(paste0(PathData,"/EffortODN_ICES.txt"))
@@ -579,7 +575,7 @@ for(loop in 1:10){
   EffortICES[,1:yBreak,1,"ODN","Sweden",]<-temp[6:dimtemp,2]
   EffortICES[,1:yBreak,1,"ODN","Denmark",]<-temp[6:dimtemp,3]
   EffortICES[,1:yBreak,1,"ODN","Poland",]<-temp[6:dimtemp,4]+temp[6:dimtemp,5] # PL + LV
-   
+  
   # Input effort data for the offshore longline fishery for the different 
   # countries from 1992 till 2007
   temp <-read.table(paste0(PathData,"/EffortOLL_ICES.txt"))
@@ -613,7 +609,7 @@ for(loop in 1:10){
   EffortICES[,1:yBreak,"ICES 31","CGN","Sweden",]<-temp[6:dimtemp,4]
   #Input effort data for the fisheries affecting wild salmon are the same as 
   # for those affected reared salmon
-
+  
   #EffortICES[,,1,"OLL",,1] #to check that these are fine
   #EffortICES[,,2:3,"CTN",,1]
   
@@ -621,14 +617,14 @@ for(loop in 1:10){
   EffortAssesUnit <- array(NA, dim = c(1,years[3],4,5,sims[3]))
   
   dimnames(EffortAssesUnit) <- list(age="All", year=years[1]:years[2], 
-    unit=units[1]:units[2], season=c("OLL","ODN","CDN","CTN","CGN"),
-    iter=1:sims[3])
-
+                                    unit=units[1]:units[2], season=c("OLL","ODN","CDN","CTN","CGN"),
+                                    iter=1:sims[3])
+  
   # Input effort data according to assessment unit. The effort according to 
   # assessment unit are calculated from the effort by country and ICES units
   # All effort slots are first filled with zeros.
   EffortAssesUnit[]<-0
-
+  
   #Loop over the 4 assessment units
   for(u in 1:4){
     # The offshore longline effort consists of the effort from all 
@@ -639,7 +635,7 @@ for(loop in 1:10){
       EffortICES[,1:yBreak,1,"OLL","Denmark",]+
       EffortICES[,1:yBreak,1,"OLL","Poland",]+
       EffortICES[,1:yBreak,1,"OLL","Trolling",]
-      
+    
     # The offshore driftnet effort consists of the effort from all 
     # countries in ICES units 22-29
     EffortAssesUnit[,1:yBreak,u,"ODN",]<-
@@ -658,7 +654,7 @@ for(loop in 1:10){
   # Salmon from assessment unit 4 (u=4) are not affected by the 
   # coastal driftnet fishery
   EffortAssesUnit[,,4,"CDN",]<-0
-
+  
   # Salmon from unit 1 are affected by the Finnish coastal trapnet fishery 
   # in ICES units 30 and 31
   EffortAssesUnit[,1:yBreak,1,"CTN",]<-
@@ -699,7 +695,7 @@ for(loop in 1:10){
   EffortAssesUnit[,1:yBreak,3,"CGN",]<-
     EffortICES[,1:yBreak,"ICES 30","CGN","Finland",]+
     EffortICES[,1:yBreak,"ICES 30","CGN","Sweden",]
-
+  
   #Read catchability coefficients for grilse/MSW for offshore fisheries 
   for(a in 1:2){ # grilse/MSW
     qdw<-paste0("qdW[",(a+1),"]")
@@ -712,9 +708,9 @@ for(loop in 1:10){
     qlW[a,]<-d[sims[1]:sims[2],grep(qlw,colnames(d),fixed=TRUE)]
     qlR[a,]<-d[sims[1]:sims[2],grep(qlr,colnames(d),fixed=TRUE)]
   }
-
- # Read catchability coefficients for grilse/MSW from stocks 
- # of different assessment units in different coastal fisheries
+  
+  # Read catchability coefficients for grilse/MSW from stocks 
+  # of different assessment units in different coastal fisheries
   for(u in 1:3){
     for(a in 1:2){ # grilse/MSW
       qctnw<-paste0("qctnW[",(a+1),",",u,"]")
@@ -728,16 +724,16 @@ for(loop in 1:10){
       qcgnR[a,u,]<-d[sims[1]:sims[2],grep(qcgnr,colnames(d),fixed=TRUE)]
     }
   }
- 
+  
   qctnW[,4,]<-0
   qctnR[,4,]<-0
   qcgnW[,4,]<-0
   qcgnR[,4,]<-0
-
+  
   #Input harvest rate for river fishery by year and age 
   for(y in 1:yBreak){    
     for(a in 1:6){
-    # y+5 because historical model begins from 1987 but scenarios from 1992
+      # y+5 because historical model begins from 1987 but scenarios from 1992
       x<-paste0("HrW[",(y+5),",",a,"]")
       xR<-paste0("HrR[",(y+5),",",a,"]")
       for(r in 1:Nstocks){
@@ -749,18 +745,18 @@ for(loop in 1:10){
     }
   }
   
-   #!POPULATION MODEL STARTS HERE  
+  #!POPULATION MODEL STARTS HERE  
   #!##########################################################################
-
+  
   #Historic time loop                  
   for(y in 1:yBreak){
-#y<-1
+    #y<-1
     tempW<- WsalmStock
     tempR<- RsalmStock
-
+    
     tempW[,y,,1,]<- WsalmStock[,y,,1,]
     tempR[,y,,1,]<- RsalmStock[,y,,1,]
-
+    
     # Smolts/ Post-smolts
     WOLL_HRtmp[1,y,1:Nstocks,1,]<-0
     ROLL_HRtmp[1,y,1:4,1,]<-0
@@ -788,7 +784,7 @@ for(loop in 1:10){
       RODN_HRtmp[2,y,u,1,]<-   1-exp(-qdR[1,]* EffortAssesUnit[,y,1,"ODN",])
       RODN_HRtmp[3:6,y,u,1,]<- 1-exp(-qdR[2,]* EffortAssesUnit[,y,1,"ODN",])
     }
-         
+    
     # in coastal fisheries, effort differs per unit
     # Effort is 0 in AU4
     for(u in 1:4){
@@ -810,14 +806,14 @@ for(loop in 1:10){
       WCGN_HRtmp[2,y,r,2,]<-   1-exp(-qcgnW[1,AU[r],]*EffortAssesUnit[,y,AU[r],"CGN",])
       WCGN_HRtmp[3:6,y,r,2,]<- 1-exp(-qcgnW[2,AU[r],]*EffortAssesUnit[,y,AU[r],"CGN",])
     }
-
-
+    
+    
     # On May 1st, split the number of salmon at sea into the number of salmon at 
     # sea that have matured and will spawn this year and the number of salmon at 
     # sea that have not yet matured and will spend at least another year at sea. 
     # Because smolts spend 1 year at sea before migrating, the values for 
     # WsalmNatMortat and RsalmNatMortat with age=1 is equal to 0.
-
+    
     # On May 1st, the number of mature salmon that will migrate and spawn this 
     # year is determined by
     WsalmStock[,y,,2,]<-WsalmStock[,y,,1,]*WsalmMatRate[,y,,1,]
@@ -834,90 +830,97 @@ for(loop in 1:10){
     # Catches for unit four are zero, because catchability for unit 4 is zero
     WCDN_Ctmp[,y,,2,]<-WsalmStock[,y,,2,]*exp(-(WsalmNatMort[,y,,2,]/12))*WCDN_HRtmp[,y,,2,]
     RCDN_Ctmp[,y,,2,]<-RsalmStock[,y,,2,]*exp(-(RsalmNatMort[,y,,2,]/12))*RCDN_HRtmp[,y,,2,]
-
+    
     # The number of migrating fish by age in June after the coastal driftnet 
     # fishery at the ?land Island is given by
     WsalmStock[,y,,2,]<-WsalmStock[,y,,2,]*exp(-(WsalmNatMort[,y,,2,]/12))-WCDN_Ctmp[,y,,2,]
     RsalmStock[,y,,2,]<-RsalmStock[,y,,2,]*exp(-(RsalmNatMort[,y,,2,]/12))-RCDN_Ctmp[,y,,2,]
-   
+    
     # The coastal trapnet and gillnet fisheries are assumed to only affect the 
     # stocks of assessment unit 1, 2 and 3 and not of assessment unit 4 (Mprrum & Eman). 
-
+    
     for(a in 1:6){
       #a<-1
       for(r in 1:Nstocks){
-    
+        
         # On July 1st, the number of migrating fish caught by the coastal trapnet 
         # fishery is determined by
         WCTN_Ctmp[a,y,r,2,]<-WsalmStock[a,y,r,2,]*
-              exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))*WCTN_HRtmp[a,y,r,2,]
+          exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))*WCTN_HRtmp[a,y,r,2,]
         
         # The number of migrating fish by age in July after the coastal 
         # trapnet fishery is given by
         WsalmStock[a,y,r,2,]<-WsalmStock[a,y,r,2,]*
-              exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))-WCTN_Ctmp[a,y,r,2,]
+          exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))-WCTN_Ctmp[a,y,r,2,]
       }  
       
       for(u in 1:4){
-      #u<-1
+        #u<-1
         RCTN_Ctmp[a,y,u,2,]<-RsalmStock[a,y,u,2,]*
-              exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))*RCTN_HRtmp[a,y,u,2,]
-    
+          exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))*RCTN_HRtmp[a,y,u,2,]
+        
         RsalmStock[a,y,u,2,]<-RsalmStock[a,y,u,2,]*
-              exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))-RCTN_Ctmp[a,y,u,2,]
+          exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))-RCTN_Ctmp[a,y,u,2,]
       }
-    
+      
       # On August 1st, the number of migrating fish caught by the coastal gillnet 
       # fishery is determined by
-    
+      
       for(r in 1:Nstocks){
         WCGN_Ctmp[a,y,r,2,]<-WsalmStock[a,y,r,2,]*
-              exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))*WCGN_HRtmp[a,y,r,2,]
-                                      
+          exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))*WCGN_HRtmp[a,y,r,2,]
+        
         # The number of migrating fish by age in August after the coastal gillnet 
         # fishery is given by
         WsalmStock[a,y,r,2,]<-(WsalmStock[a,y,r,2,]*
-              exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))-WCGN_Ctmp[a,y,r,2,])*
-              ifelse(a==1,1,p.ladder[y,r,])
+                                 exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]/12))-WCGN_Ctmp[a,y,r,2,])*
+          ifelse(a==1,1,p.ladder[y,r,])
       } 
       
       for(u in 1:4){
         RCGN_Ctmp[a,y,u,2,]<-RsalmStock[a,y,u,2,]*
-            exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))*RCGN_HRtmp[a,y,u,2,]  
-             
+          exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))*RCGN_HRtmp[a,y,u,2,]  
+        
         RsalmStock[a,y,u,2,]<-RsalmStock[a,y,u,2,]*
-            exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))-RCGN_Ctmp[a,y,u,2,]
+          exp(-(RsalmNatMort[a,y,u,2,]*F_seal[y,a,u]/12))-RCGN_Ctmp[a,y,u,2,]
       }
     }
-
+    
     # On October 1st, the number of migrating fish caught by the 
     # river fishery is determined by
-    WRF_Ctmp[,y,,2,]<-WsalmStock[,y,,2,]*exp(-(WsalmNatMort[,y,,2,]/6))*WRF_HRtmp[,y,,2,]
-    RRF_Ctmp[,y,,2,]<-RsalmStock[,y,,2,]*exp(-(RsalmNatMort[,y,,2,]/6))*RRF_HRtmp[,y,,2,]
-
+    #WRF_Ctmp[,y,,2,]<-WsalmStock[,y,,2,]*exp(-(WsalmNatMort[,y,,2,]/6))*WRF_HRtmp[,y,,2,]
+    #RRF_Ctmp[,y,,2,]<-RsalmStock[,y,,2,]*exp(-(RsalmNatMort[,y,,2,]/6))*RRF_HRtmp[,y,,2,]
+    
+    WRF_Ctmp[,y,,2,]<-WsalmStock[,y,,2,]*WRF_HRtmp[,y,,2,]
+    RRF_Ctmp[,y,,2,]<-RsalmStock[,y,,2,]*RRF_HRtmp[,y,,2,]
+    
     #The number of migrating fish by age in October after the river fishery 
     # indicate the number of spawners in the river. The number of spawners 
     # are saved within the FLStock object as the number at age of migrating fish 
-    WsalmStock[,y,,2,]<-WsalmStock[,y,,2,]*exp(-(WsalmNatMort[,y,,2,]/6))-WRF_Ctmp[,y,,2,] 
-    RsalmStock[,y,,2,]<-RsalmStock[,y,,2,]*exp(-(RsalmNatMort[,y,,2,]/6))-RRF_Ctmp[,y,,2,]
+    for(a in 1:6){
+      WsalmStock[a,y,,2,]<-(WsalmStock[a,y,,2,]-WRF_Ctmp[a,y,,2,])*exp(-(WsalmNatMort[a,y,,2,]/6))*
+        ifelse(a==1,1,surv_migr[y,r,])
+    }
+    
+    RsalmStock[,y,,2,]<-(RsalmStock[,y,,2,]-RRF_Ctmp[,y,,2,])*exp(-(RsalmNatMort[,y,,2,]/6))
     
     # Pre-fishery abundances on Sept 1.
     # remove 6 months of natural mortality for the next calendar year
     
     # 1 SW salmon
     for(a in 1:1){
-                         
+      
       # On January 1st, the number of fish at sea caught by the offshore driftnet 
       # fishery is determined by
       # 8/12 = May-Dec
       for(r in 1:Nstocks){
         PFAtmpW[a,y,r,1,]<-PropCW[y-a+6]*WsalmStock[a,y,r,1,]*exp(-((WsalmNatMort[a,y,r,1,]*(11/12))+
-                            (WsalmNatMort[a,y,r,1,]*F_seal[y,a,AU[r]]/12)+
-                            (WsalmNatMort[2,y,r,1,]*(4/12))))
+                                                                      (WsalmNatMort[a,y,r,1,]*F_seal[y,a,AU[r]]/12)+
+                                                                      (WsalmNatMort[2,y,r,1,]*(4/12))))
         
         WODN_Ctmp[a,y,r,1,]<-WsalmStock[a,y,r,1,]*exp(-(WsalmNatMort[a,y,r,1,]*(7/12)))*
-            exp(-(WsalmNatMort[a,y,r,1,]*F_seal[y,a,AU[r]]/12))*WODN_HRtmp[a,y,r,1,]
-          
+          exp(-(WsalmNatMort[a,y,r,1,]*F_seal[y,a,AU[r]]/12))*WODN_HRtmp[a,y,r,1,]
+        
         # The number of fish at sea by age in January after the offshore driftnet 
         # fishery. Post-smolts are assumed not to be affected by the offshore 
         # driftnet fishery with catches being 0 but they are affected by a high 
@@ -927,11 +930,11 @@ for(loop in 1:10){
       }
       for(u in 1:4){
         PFAtmpR[a,y,u,1,]<-PropCR[y-a+6]*RsalmStock[a,y,u,1,]*exp(-((RsalmNatMort[a,y,u,1,]*(11/12))+
-                        (RsalmNatMort[a,y,u,1,]*F_seal[y,a,u]/12)+(RsalmNatMort[2,y,u,1,]*(4/12))))
+                                                                      (RsalmNatMort[a,y,u,1,]*F_seal[y,a,u]/12)+(RsalmNatMort[2,y,u,1,]*(4/12))))
         
         RODN_Ctmp[a,y,u,1,]<-RsalmStock[a,y,u,1,]*exp(-(RsalmNatMort[a,y,u,1,]*(7/12)))*
           exp(-(RsalmNatMort[a,y,u,1,]*F_seal[y,a,u]/12))*RODN_HRtmp[a,y,u,1,]
-
+        
         RsalmStock[a,y,u,1,]<-RsalmStock[a,y,u,1,]*exp(-(RsalmNatMort[a,y,u,1,]*(7/12)))*
           exp(-(RsalmNatMort[a,y,u,1,]*F_seal[y,a,u]/12))-RODN_Ctmp[a,y,u,1,]
       }
@@ -940,13 +943,13 @@ for(loop in 1:10){
     for(a in 2:6){
       PFAtmpW[a,y,,1,]<-PropCW[y-a+6]*WsalmStock[a,y,,1,]*exp(-(WsalmNatMort[a,y,,1,]*((8+6)/12)))
       PFAtmpR[a,y,,1,]<-PropCR[y-a+6]*RsalmStock[a,y,,1,]*exp(-(RsalmNatMort[a,y,,1,]*((8+6)/12)))
-  
+      
       # On January 1st, the number of fish at sea caught by the offshore driftnet 
       # fishery is determined by
       # 8/12 = May-Dec
       WODN_Ctmp[a,y,,1,]<-WsalmStock[a,y,,1,]*exp(-(WsalmNatMort[a,y,,1,]*(8/12)))*WODN_HRtmp[a,y,,1,] 
       RODN_Ctmp[a,y,,1,]<-RsalmStock[a,y,,1,]*exp(-(RsalmNatMort[a,y,,1,]*(8/12)))*RODN_HRtmp[a,y,,1,]
-  
+      
       # The number of fish at sea by age in January after the offshore driftnet 
       # fishery. Post-smolts are assumed not to be affected by the offshore 
       # driftnet fishery with catches being 0 but they are affected by a high 
@@ -959,7 +962,7 @@ for(loop in 1:10){
     # fishery is determined by
     WOLL_Ctmp[,y,,1,]<-WsalmStock[,y,,1,]*exp(-(WsalmNatMort[,y,,1,]/12))*WOLL_HRtmp[,y,,1,]  
     ROLL_Ctmp[,y,,1,]<-RsalmStock[,y,,1,]*exp(-(RsalmNatMort[,y,,1,]/12))*ROLL_HRtmp[,y,,1,]
-
+    
     # The number of fish at sea by age in February after the offshore 
     # longline fishery. Post-smolt are assumed not to be affected by the 
     # offshore longline fishery with catches being 0 but they are affected 
@@ -972,12 +975,12 @@ for(loop in 1:10){
       for(r in 1:Nstocks){ 
         if(y>=3){
           X<- WsalmStock[,(y-2),r,2,s]
-  		    W<- WsalmMatRate[,(y-2),r,2,s] 
+          W<- WsalmMatRate[,(y-2),r,2,s] 
           E<-as.vector(X*W)
-  		    #SexRatio<-c(0,0.06,0.73,0.73,0.89,0.89) 
-  		    #E<-E*SexRatio
-  		    E<-E*prop_fem[(y-2),,r]
-  		    E<-sum(E,na.rm=T)
+          #SexRatio<-c(0,0.06,0.73,0.73,0.89,0.89) 
+          #E<-E*SexRatio
+          E<-E*prop_fem[(y-2),,r]
+          E<-sum(E,na.rm=T)
           E<-E*(1-M74[s,(y-2)])      #formerly no M74 here 
           Etot_tmp[(y-2),r,s]<-E
         }
@@ -999,30 +1002,30 @@ for(loop in 1:10){
     
     WsalmStock[,y,,1,]<-tempW[,y,,1,]
     RsalmStock[,y,,1,]<-tempR[,y,,1,]
-
+    
   }#end historic year loop 
   
   #!POPULATION MODEL ENDS HERE  
   #!##########################################################################
-                                                 
+  
   BS_data <- c(
-  "PropCR","PropCW",
-  "PFAtmpW","PFAtmpR",
-  "WsalmStock","RsalmStock","WsalmNatMort","RsalmNatMort",
-  "WsalmMatRate","RsalmMatRate","F_seal","R_zero","BH_alpha","BH_beta","M74",
-  "precisionBH", "BH_z","EffortICES", "EffortAssesUnit",
-  "WOLL_HRtmp","WODN_HRtmp","WCDN_HRtmp","WCGN_HRtmp","WCTN_HRtmp","WRF_HRtmp", 
-  "ROLL_HRtmp","RODN_HRtmp","RCDN_HRtmp","RCGN_HRtmp","RCTN_HRtmp","RRF_HRtmp", 
-  "WOLL_Ctmp", "WODN_Ctmp", "WCDN_Ctmp", "WCGN_Ctmp", "WCTN_Ctmp", "WRF_Ctmp",
-  "ROLL_Ctmp", "RODN_Ctmp", "RCDN_Ctmp", "RCGN_Ctmp", "RCTN_Ctmp", "RRF_Ctmp", 
-  "yBreak", "sims", 
-  "qlW", "qlR", "qdR","qdW",
-  "qctnW","qctnR", "qcgnW", "qcgnR",
-  "Mps_All","Mps_AllR","Etot_tmp","M74_All","prop_fem","p.ladder")
+    "PropCR","PropCW",
+    "PFAtmpW","PFAtmpR",
+    "WsalmStock","RsalmStock","WsalmNatMort","RsalmNatMort",
+    "WsalmMatRate","RsalmMatRate","F_seal","R_zero","BH_alpha","BH_beta","M74",
+    "precisionBH", "BH_z","EffortICES", "EffortAssesUnit",
+    "WOLL_HRtmp","WODN_HRtmp","WCDN_HRtmp","WCGN_HRtmp","WCTN_HRtmp","WRF_HRtmp", 
+    "ROLL_HRtmp","RODN_HRtmp","RCDN_HRtmp","RCGN_HRtmp","RCTN_HRtmp","RRF_HRtmp", 
+    "WOLL_Ctmp", "WODN_Ctmp", "WCDN_Ctmp", "WCGN_Ctmp", "WCTN_Ctmp", "WRF_Ctmp",
+    "ROLL_Ctmp", "RODN_Ctmp", "RCDN_Ctmp", "RCGN_Ctmp", "RCTN_Ctmp", "RRF_Ctmp", 
+    "yBreak", "sims", 
+    "qlW", "qlR", "qdR","qdW",
+    "qctnW","qctnR", "qcgnW", "qcgnR",
+    "Mps_All","Mps_AllR","Etot_tmp","M74_All","prop_fem","p.ladder","surv_migr")
   
   save(list = BS_data, file = BH_dataFile)
-
+  
 } # END OF THE SIMULATION LOOP WHICH READS 100 ITER AT A TIME AND 
-  # RECORDS PARAM AND HIST VALUES...
+# RECORDS PARAM AND HIST VALUES...
 # ==============================================================================
 
