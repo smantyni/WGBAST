@@ -360,7 +360,7 @@ while(apu==0){
           WRF_Ctmp[a,y,r,2,]<-WsalmStock[a,y,r,2,]*exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]*(1/12)))*
             ifelse(a==1,1,p.ladder[y,r,])*WRF_HRtmp[a,y,r,2,]
           WsalmStock[a,y,r,2,]<-((WsalmStock[a,y,r,2,]*exp(-(WsalmNatMort[a,y,r,2,]*F_seal[y,a,AU[r]]*(1/12))))*
-                                   ifelse(a==1,1,p.ladder[y,r,])-WRF_Ctmp[a,y,r,2,])*exp(-(WsalmNatMort[a,y,r,2,]*(2/12)))
+                                   ifelse(a==1,1,p.ladder[y,r,])-WRF_Ctmp[a,y,r,2,])*exp(-(WsalmNatMort[a,y,r,2,]*(2/12)))*ifelse(a==1,1,surv_migr[y,r,])
         }
         
         for(u in 1:4){
@@ -494,7 +494,7 @@ while(apu==0){
     # ~*~*~*~*~*~*~*~*~~*~*~*~*~*~*~*~*~~*~*~*~*~*~*~*~*~~*~*~*~*~*~*~*~*~~*~*~*~*
     for(y in 2:yBreak){
       for(a in 1:6){
-
+        
         temp2W[a,y,,2,]<-tempW[a,y,,1,]*WsalmMatRate[a,y,,1,]
         temp2R[a,y,,2,]<-tempR[a,y,,1,]*RsalmMatRate[a,y,,1,]
         
@@ -626,7 +626,7 @@ while(apu==0){
         Migr_Simo[y,i]<-  sum(MigrW[2:6,y,2,1,s], na.rm=T)
         
         Migr_AU1W[y,i]<-  sum(MigrW[2:6,y,1:4,1,s], na.rm=T)
-        Migr_AU13W[y,i]<- sum(MigrW[2:6,y,1:13,1,s], na.rm=T)
+        Migr_AU13W[y,i]<- sum(MigrW[2:6,y,1:13,1,s], na.rm=T)+sum(MigrW[2:6,y,16:17,1,s], na.rm=T) # kage & testeboån
         Migr_AU1R[y,i]<-  sum(MigrR[2:6,y,1,1,s], na.rm=T)
         Migr_AU13R[y,i]<- sum(MigrR[2:6,y,1:3,1,s], na.rm=T)
         Migr_AU13tot[y,i]<-Migr_AU13W[y,i]+Migr_AU13R[y,i]
@@ -703,7 +703,7 @@ while(apu==0){
   yOLL<-28
   if(EffScen<6){
     print("Coef2")
-  print(Coef2)
+    print(Coef2)
   }
   if(EffScen==6){
     print("CoefTrollingF")
@@ -721,7 +721,7 @@ while(apu==0){
   print("--------")
   if(EffScen<6){
     ifelse(abs(round((stats(CalC_tot, yCTN)[1])-target,1))<0.2,
-         apu<-1,Coef2<-Coef2+0.003)
+           apu<-1,Coef2<-Coef2+0.003)
   }
   if(EffScen==6){
     ifelse(abs(round((stats(CalC_tot, yCTN)[1])-target,1))<0.2,
