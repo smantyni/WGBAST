@@ -81,7 +81,20 @@ OLL_CPUE<-full_join(Lat_OLL_CPUE, Den_OLL_CPUE)%>%
   group_by(YEAR, HYR)%>%
   summarise(Catch_tot=sum(Catch),
             Effort_tot=sum(Effort))%>%
-  mutate(CPUE_tot=Catch_tot/Effort_tot)
+  mutate(CPUE_tot=Catch_tot/Effort_tot)%>%
+  ungroup()
+
+tmp<-OLL_CPUE%>%
+  group_by(YEAR)%>%
+  summarise(CPUE_tot2=sum(Catch_tot)/sum(Effort_tot))
+
+# If HYR catch is <2000 salmon, take CPUE over total calendar year
+OLL_CPUE<-full_join(OLL_CPUE,tmp)%>%
+  #mutate(CUPE_tot3=ifelse(Catch_tot<2000, CPUE_tot2, CPUE_tot))
+  mutate(CPUE_tot=ifelse(Catch_tot<2000, CPUE_tot2, CPUE_tot))%>%
+  select(-CPUE_tot2)
+
+#View(OLL_CPUE)
 
 # Proportions per HYR
 
