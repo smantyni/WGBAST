@@ -52,7 +52,7 @@ EffScen<-6
 set.seed(6789)
 
 # workflow for effort scenarios:
-# 1. Run scenario 5 and ScenarioTable.R for that scenario -> input total PFA to cell S4 in T4321_workflow.xlsx
+# 1. Run scenario 5 and ScenarioTable.R for that scenario -> input total PFA to cell R4 in T4321_workflow.xlsx
 # 2. Run scenario 6: Set up targetTr that corresponds to recr removal (V21 in T4321_workflow.xlsx). 
 #    Then find such CoefTrollingF that produces targetTr catch.
 # 3. Run scenario 1: Set up target as in W21 (Total removal at sea for scen 1) in T4321_workflow.xlsx.
